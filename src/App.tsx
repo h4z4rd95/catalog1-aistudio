@@ -61,6 +61,15 @@ import ShaderBrutalistDitherMatrix from './components/shaders/ShaderBrutalistDit
 import ShaderCyberVolumetricLaser from './components/shaders/ShaderCyberVolumetricLaser';
 import ShaderLuxuryFlutedGlass from './components/shaders/ShaderLuxuryFlutedGlass';
 import ShaderParametric3DRaymarch from './components/shaders/ShaderParametric3DRaymarch';
+// Batch 11: Interactive Forms, Tactile Inputs & Kinetic Steppers
+import FormChromaticGlassPayment from './components/forms/FormChromaticGlassPayment';
+import FormBrutalistTerminalInquiry from './components/forms/FormBrutalistTerminalInquiry';
+import FormCyberBiometricAuth from './components/forms/FormCyberBiometricAuth';
+import FormLuxurySalonPriveAtelier from './components/forms/FormLuxurySalonPriveAtelier';
+import FormParametric3DCardConfigurator from './components/forms/FormParametric3DCardConfigurator';
+
+// Full Production Website Sample
+import AuraWebsiteSample from './components/sample/AuraWebsiteSample';
 
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { CATALOG_SEARCH_DATA } from './data/catalogSearchData';
@@ -73,6 +82,7 @@ export default function App() {
   const [currentAesthetic, setCurrentAesthetic] = useState<AestheticFilter>('ALL');
   const [currentTech, setCurrentTech] = useState<TechFilter>('ALL');
   const [activeBatch, setActiveBatch] = useState<string>('ALL');
+  const [viewMode, setViewMode] = useState<'CATALOG' | 'SAMPLE_WEBSITE'>('CATALOG');
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
 
@@ -177,6 +187,12 @@ export default function App() {
     { id: 'shader_v03_cybervolumetriclaser', label: 'X03', name: 'Volumetric Laser Scanner', batch: 'BATCH_10', aesthetic: 'CYBERPUNK' },
     { id: 'shader_v04_luxuryflutedglass', label: 'X04', name: 'Fluted Glass Mercury', batch: 'BATCH_10', aesthetic: 'LUXURY_EDITORIAL' },
     { id: 'shader_v05_parametric3draymarch', label: 'X05', name: 'Raymarched Metaballs SDF', batch: 'BATCH_10', aesthetic: 'WEBGL_3D' },
+    // Batch 11: Interactive Forms, Tactile Inputs & Kinetic Steppers
+    { id: 'form_v01_chromaticglasspayment', label: 'M01', name: 'Chromatic Glass Payment', batch: 'BATCH_11', aesthetic: 'CHROMATIC' },
+    { id: 'form_v02_brutalistterminalinquiry', label: 'M02', name: 'Terminal Command Ledger', batch: 'BATCH_11', aesthetic: 'NEO_BRUTALIST' },
+    { id: 'form_v03_cyberbiometricauth', label: 'M03', name: 'Biometric Auth Stepper', batch: 'BATCH_11', aesthetic: 'CYBERPUNK' },
+    { id: 'form_v04_luxurysalonpriveatelier', label: 'M04', name: 'Haute Salon Atelier', batch: 'BATCH_11', aesthetic: 'LUXURY_EDITORIAL' },
+    { id: 'form_v05_parametric3dcardconfigurator', label: 'M05', name: '3D Metal Card Configurator', batch: 'BATCH_11', aesthetic: 'WEBGL_3D' },
   ];
 
   const showBatch1 = activeBatch === 'ALL' || activeBatch === 'BATCH_1';
@@ -189,6 +205,7 @@ export default function App() {
   const showBatch8 = activeBatch === 'ALL' || activeBatch === 'BATCH_8';
   const showBatch9 = activeBatch === 'ALL' || activeBatch === 'BATCH_9';
   const showBatch10 = activeBatch === 'ALL' || activeBatch === 'BATCH_10';
+  const showBatch11 = activeBatch === 'ALL' || activeBatch === 'BATCH_11';
 
   return (
     <div className="relative min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-400 selection:text-black">
@@ -204,6 +221,8 @@ export default function App() {
         activeBatch={activeBatch}
         onSelectBatch={setActiveBatch}
         onOpenSearch={() => setShowSearchModal(true)}
+        viewMode={viewMode}
+        onSelectViewMode={setViewMode}
       />
 
       {/* Floating Quick-Jump Quick Bar */}
@@ -236,8 +255,13 @@ export default function App() {
         </button>
       </nav>
 
-      {/* Main Continuous Scroll Catalog Container */}
-      <main className="w-full relative">
+      {/* Conditional View: Showroom Catalog vs. Full Aura Website Sample */}
+      {viewMode === 'SAMPLE_WEBSITE' ? (
+        <AuraWebsiteSample />
+      ) : (
+        <>
+          {/* Main Continuous Scroll Catalog Container */}
+          <main className="w-full relative">
         {/* ========================================================================= */}
         {/* BATCH 1: HERO SECTIONS (5 VARIATIONS)                                     */}
         {/* ========================================================================= */}
@@ -720,6 +744,58 @@ export default function App() {
             )}
           </>
         )}
+
+        {/* ========================================================================= */}
+        {/* BATCH 11: INTERACTIVE FORMS, TACTILE INPUTS & KINETIC STEPPERS (5 VARS)   */}
+        {/* ========================================================================= */}
+        {showBatch11 && (
+          <>
+            {/* Section Header Divider */}
+            <div className="w-full py-8 px-8 bg-zinc-950/90 border-y border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4 font-mono text-xs text-zinc-400 backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shadow-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs uppercase tracking-widest text-cyan-400 font-mono font-bold block">
+                    BATCH 11 ARCHITECTURE // 5 VARIATIONS
+                  </span>
+                  <h3 className="font-['Syne'] text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    Interactive Forms, Tactile Inputs &amp; Kinetic Steppers
+                  </h3>
+                </div>
+              </div>
+              <span className="hidden sm:inline text-zinc-500 font-mono text-[11px]">
+                3D Tilt Glass &bull; Neo-Brutalist ASCII Matrix &bull; Biometric Canvas &bull; Atelier Monogram &bull; Parametric 3D Metal Card
+              </span>
+            </div>
+
+            {/* Variation 51: Chromatic Glassmorphic 3D Card Payment Form & Stepper */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'CHROMATIC') && (
+              <FormChromaticGlassPayment />
+            )}
+
+            {/* Variation 52: Neo-Brutalist Command Input Matrix & Diagnostic Inquiry Stepper */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'NEO_BRUTALIST') && (
+              <FormBrutalistTerminalInquiry />
+            )}
+
+            {/* Variation 53: Cyberpunk Neural Handshake & Biometric Auth Stepper */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'CYBERPUNK') && (
+              <FormCyberBiometricAuth />
+            )}
+
+            {/* Variation 54: Haute Couture Salon Privé Atelier Reservation & Concierge Dossier */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'LUXURY_EDITORIAL') && (
+              <FormLuxurySalonPriveAtelier />
+            )}
+
+            {/* Variation 55: Parametric 3D Metal Membership Card & Spatial Stepper */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'WEBGL_3D') && (
+              <FormParametric3DCardConfigurator />
+            )}
+          </>
+        )}
       </main>
 
       {/* Catalog Footer & Vibe Coding Playbook Terminal */}
@@ -745,12 +821,12 @@ export default function App() {
             <div className="mt-6 p-4 rounded-lg bg-emerald-950/20 border border-emerald-500/30 backdrop-blur-md">
               <div className="flex items-center justify-between text-xs font-mono text-emerald-400 font-bold mb-2">
                 <span className="flex items-center gap-1.5">
-                  <Terminal className="w-3.5 h-3.5" /> MASTER ARCHITECTURE COMPLETE // 50/50 PRODUCTION VARIATIONS
+                  <Terminal className="w-3.5 h-3.5" /> MASTER ARCHITECTURE COMPLETE // 55/55 PRODUCTION VARIATIONS
                 </span>
                 <span className="text-emerald-400 font-bold">100% Ready</span>
               </div>
               <p className="text-xs text-zinc-300 font-mono leading-relaxed">
-                Covering 10 complete architectural suites: Next.js Heroes, Navigation Systems, Immersive Page Loaders, Scroll Choreographies, Footers &amp; Magnetic Physics, High-Density Dashboards, Spatial E-Commerce 3D Configurators, Generative Audio-Visual Art, Creative Typography, and Interactive Optical Shaders across Chromatic, Neo-Brutalist, Cyberpunk, Luxury Editorial, and 3D WebGL styles.
+                Covering 11 complete architectural suites: Next.js Heroes, Navigation Systems, Immersive Page Loaders, Scroll Choreographies, Footers &amp; Magnetic Physics, High-Density Dashboards, Spatial E-Commerce 3D Configurators, Generative Audio-Visual Art, Creative Typography, Interactive Optical Shaders, and Tactile Forms &amp; Steppers across Chromatic, Neo-Brutalist, Cyberpunk, Luxury Editorial, and 3D WebGL styles.
               </p>
             </div>
           </div>
@@ -760,7 +836,7 @@ export default function App() {
             <div className="p-4 rounded-lg bg-zinc-950 border border-white/10 font-mono text-xs text-zinc-400 space-y-2">
               <div className="flex justify-between border-b border-white/5 pb-1">
                 <span>TOTAL VARIATIONS:</span>
-                <strong className="text-emerald-400 font-bold">50 Live in Showroom</strong>
+                <strong className="text-emerald-400 font-bold">55 Live in Showroom</strong>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-1">
                 <span>HERO SECTIONS:</span>
@@ -802,9 +878,13 @@ export default function App() {
                 <span>INTERACTIVE SHADERS:</span>
                 <strong className="text-amber-300 font-bold">5 Complete</strong>
               </div>
+              <div className="flex justify-between border-b border-white/5 pb-1">
+                <span>FORMS &amp; STEPPERS:</span>
+                <strong className="text-cyan-300 font-bold">5 Complete</strong>
+              </div>
               <div className="flex justify-between">
                 <span>STATUS:</span>
-                <strong className="text-emerald-400">Master Catalog Live (10/10)</strong>
+                <strong className="text-emerald-400">Master Catalog Live (11/11)</strong>
               </div>
             </div>
 
@@ -817,11 +897,13 @@ export default function App() {
               data-cursor="hover"
             >
               <BookOpen className="w-4 h-4" />
-              <span>Inspect Master Roadmap (50/50 Live)</span>
+              <span>Inspect Master Roadmap (55/55 Live)</span>
             </button>
           </div>
         </div>
       </footer>
+      </>
+      )}
 
       {/* Roadmap Spec Modal */}
       {showRoadmapModal && (
@@ -829,7 +911,7 @@ export default function App() {
           <div className="max-w-2xl w-full bg-[#0a0c10] border border-cyan-400/40 rounded-xl p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
               <span className="font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold flex items-center gap-2">
-                <Layers className="w-4 h-4" /> Master Visual Catalog Architecture (50 Live Variations)
+                <Layers className="w-4 h-4" /> Master Visual Catalog Architecture (55 Live Variations)
               </span>
               <button
                 onClick={() => setShowRoadmapModal(false)}
@@ -948,6 +1030,17 @@ export default function App() {
                 &bull; Shader_V03: Cyberpunk Volumetric Laser Scanner &amp; Fog Caustics (Tyndall Scattering)<br />
                 &bull; Shader_V04: Haute Couture Fluted Ribbed Glass &amp; Liquid Mercury (Cylindrical Refraction)<br />
                 &bull; Shader_V05: Parametric 3D Raymarched Metaballs &amp; SDF Liquid Chrome (Three.js WebGL)
+              </p>
+
+              <p className="text-cyan-300 font-bold mt-3">
+                ✓ Batch 11: Interactive Forms, Tactile Inputs &amp; Kinetic Steppers (5/5 Complete)
+              </p>
+              <p className="text-zinc-400">
+                &bull; Form_V01: Chromatic Glassmorphic 3D Card Payment Form &amp; Multi-Step Accordion<br />
+                &bull; Form_V02: Neo-Brutalist Command Input Matrix &amp; Diagnostic Inquiry Stepper<br />
+                &bull; Form_V03: Cyberpunk Neural Handshake &amp; Biometric Auth Stepper (Live Ridge Scanner)<br />
+                &bull; Form_V04: Haute Couture Salon Privé Atelier Reservation &amp; Concierge Dossier<br />
+                &bull; Form_V05: Parametric 3D Metal Membership Card &amp; Spatial Stepper (Interactive PBR)
               </p>
             </div>
 

@@ -11,6 +11,8 @@ interface CatalogHeaderProps {
   activeBatch: string;
   onSelectBatch: (b: string) => void;
   onOpenSearch?: () => void;
+  viewMode?: 'CATALOG' | 'SAMPLE_WEBSITE';
+  onSelectViewMode?: (mode: 'CATALOG' | 'SAMPLE_WEBSITE') => void;
 }
 
 export default function CatalogHeader({
@@ -21,9 +23,14 @@ export default function CatalogHeader({
   activeBatch,
   onSelectBatch,
   onOpenSearch,
+  viewMode = 'CATALOG',
+  onSelectViewMode,
 }: CatalogHeaderProps) {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [ambientEnabled, setAmbientEnabled] = useState(false);
+  const [showAmbientMenu, setShowAmbientMenu] = useState(false);
+  const [ambientPreset, setAmbientPreset] = useState<'SANCTUARY' | 'SOLFEGGIO_528' | 'ZEN_WARMTH' | 'CELESTIAL'>('SANCTUARY');
+  const [ambientVol, setAmbientVol] = useState(0.022);
   const [fps, setFps] = useState(60);
 
   useEffect(() => {
@@ -67,10 +74,37 @@ export default function CatalogHeader({
               VIBE CODING &bull; VISUAL CATALOG
             </span>
           </div>
-          <span className="text-zinc-600">|</span>
-          <span className="font-mono text-[11px] text-zinc-400 hidden sm:inline">
-            Awwwards-Level Interactive Architecture
-          </span>
+
+          {/* View Mode Switcher */}
+          <div className="flex items-center bg-black/70 border border-white/15 rounded-lg p-0.5 ml-2 font-mono text-[11px]">
+            <button
+              onClick={() => {
+                soundFx.playClick(600);
+                onSelectViewMode?.('CATALOG');
+              }}
+              className={`px-3 py-1 rounded-md transition-all font-bold ${
+                viewMode === 'CATALOG'
+                  ? 'bg-amber-400 text-black shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Showroom (55 Variations)
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playChime(700, 0.2);
+                onSelectViewMode?.('SAMPLE_WEBSITE');
+              }}
+              className={`px-3 py-1 rounded-md transition-all font-bold flex items-center gap-1.5 ${
+                viewMode === 'SAMPLE_WEBSITE'
+                  ? 'bg-cyan-400 text-black shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 text-cyan-300" />
+              <span>AURA Website Sample</span>
+            </button>
+          </div>
         </div>
 
         {/* Right Status Indicators & Sound */}
@@ -92,25 +126,95 @@ export default function CatalogHeader({
             </span>
           </button>
 
-          {/* Ambient Generative Drone Synth Toggle */}
-          <button
-            onClick={toggleAmbientDrone}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] border transition-all ${
-              ambientEnabled
-                ? 'bg-violet-500/20 text-violet-300 border-violet-400/50 font-bold shadow-[0_0_12px_rgba(167,139,250,0.3)]'
-                : 'bg-zinc-900 text-zinc-400 border-white/10 hover:text-white'
-            }`}
-            title="Toggle generative warm ambient harmonic drone soundscape"
-            data-cursor="hover"
-          >
-            <Music className={`w-3.5 h-3.5 ${ambientEnabled ? 'text-violet-400 animate-pulse' : ''}`} />
-            <span className="hidden md:inline">AMBIENT</span>
-            <div className="flex items-end gap-0.5 h-2.5">
-              <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-2 animate-bounce' : 'h-1'}`} style={{ animationDelay: '0ms' }} />
-              <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-3 animate-bounce' : 'h-1.5'}`} style={{ animationDelay: '150ms' }} />
-              <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-1.5 animate-bounce' : 'h-0.5'}`} style={{ animationDelay: '300ms' }} />
+          {/* Ambient Generative Drone Synth Controls */}
+          <div className="relative">
+            <div className="flex items-center">
+              <button
+                onClick={toggleAmbientDrone}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-l-lg font-mono text-[11px] border transition-all ${
+                  ambientEnabled
+                    ? 'bg-violet-500/20 text-violet-300 border-violet-400/50 font-bold shadow-[0_0_12px_rgba(167,139,250,0.3)]'
+                    : 'bg-zinc-900 text-zinc-400 border-white/10 hover:text-white'
+                }`}
+                title="Toggle generative warm ambient harmonic drone soundscape"
+                data-cursor="hover"
+              >
+                <Music className={`w-3.5 h-3.5 ${ambientEnabled ? 'text-violet-400 animate-pulse' : ''}`} />
+                <span className="hidden md:inline">AMBIENT</span>
+                <div className="flex items-end gap-0.5 h-2.5">
+                  <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-2 animate-bounce' : 'h-1'}`} style={{ animationDelay: '0ms' }} />
+                  <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-3 animate-bounce' : 'h-1.5'}`} style={{ animationDelay: '150ms' }} />
+                  <span className={`w-0.5 bg-violet-400 rounded-full transition-all ${ambientEnabled ? 'h-1.5 animate-bounce' : 'h-0.5'}`} style={{ animationDelay: '300ms' }} />
+                </div>
+              </button>
+              <button
+                onClick={() => setShowAmbientMenu(!showAmbientMenu)}
+                className={`px-1.5 py-1 rounded-r-lg font-mono text-[10px] border border-l-0 transition-all ${
+                  ambientEnabled
+                    ? 'bg-violet-500/30 text-violet-200 border-violet-400/50'
+                    : 'bg-zinc-900 text-zinc-400 border-white/10 hover:text-white'
+                }`}
+                title="Select ambient soundscape preset & volume"
+              >
+                ▼
+              </button>
             </div>
-          </button>
+
+            {/* Ambient Presets Dropdown */}
+            {showAmbientMenu && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-zinc-950 border border-violet-500/30 rounded-xl p-3 shadow-2xl z-50 font-mono text-xs text-zinc-300">
+                <span className="text-[10px] text-violet-400 font-bold block uppercase tracking-wider mb-2">
+                  AMBIENT SOUND PRESET
+                </span>
+                <div className="space-y-1 mb-3">
+                  {[
+                    { id: 'SANCTUARY', label: 'Eb Sanctuary (Warm)', desc: 'Eno-style harmonic drone' },
+                    { id: 'SOLFEGGIO_528', label: '528 Hz Solfeggio', desc: 'Serene resonant chime' },
+                    { id: 'ZEN_WARMTH', label: 'Zen 432 Hz', desc: 'Pythagorean bowl' },
+                    { id: 'CELESTIAL', label: 'Celestial Lydian', desc: 'Air & soft stardust' },
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setAmbientPreset(p.id as any);
+                        soundFx.setAmbientPreset(p.id as any);
+                        soundFx.playChime(600, 0.2);
+                        if (!ambientEnabled) toggleAmbientDrone();
+                      }}
+                      className={`w-full text-left px-2 py-1.5 rounded transition-all flex flex-col ${
+                        ambientPreset === p.id
+                          ? 'bg-violet-950/60 text-violet-300 border border-violet-400/40 font-bold'
+                          : 'hover:bg-white/5 text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-[11px]">{p.label}</span>
+                      <span className="text-[9px] text-zinc-500">{p.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border-t border-white/10 pt-2">
+                  <div className="flex justify-between text-[10px] text-zinc-400 mb-1">
+                    <span>VOLUME:</span>
+                    <span>{Math.round(ambientVol * 1000)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.06"
+                    step="0.002"
+                    value={ambientVol}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      setAmbientVol(v);
+                      soundFx.setAmbientVolume(v);
+                    }}
+                    className="w-full accent-violet-400 cursor-pointer"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* FPS Monitor */}
           <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded bg-zinc-900 border border-white/10 font-mono text-[11px]">
@@ -157,7 +261,7 @@ export default function CatalogHeader({
             }`}
             data-cursor="hover"
           >
-            All Batches (50 Variations)
+            All Batches (55 Variations)
           </button>
 
           <button
@@ -310,8 +414,23 @@ export default function CatalogHeader({
             Batch 10: Shaders (5)
           </button>
 
+          <button
+            onClick={() => {
+              soundFx.playClick(1100);
+              onSelectBatch('BATCH_11');
+            }}
+            className={`px-2.5 py-1 rounded-full font-mono text-[11px] font-semibold whitespace-nowrap transition-all border ${
+              activeBatch === 'BATCH_11'
+                ? 'bg-cyan-300 text-black border-cyan-300 shadow-sm font-bold'
+                : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
+            }`}
+            data-cursor="hover"
+          >
+            Batch 11: Forms &amp; Steppers (5)
+          </button>
+
           <span className="font-mono text-[10px] text-emerald-400 px-2.5 py-0.5 border border-emerald-500/30 bg-emerald-950/40 rounded-full whitespace-nowrap hidden xl:inline font-bold">
-            ✓ Complete Master Catalog (50/50 Live)
+            ✓ Master Catalog (55/55 Live)
           </span>
         </div>
 

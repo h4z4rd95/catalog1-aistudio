@@ -153,12 +153,15 @@ class AudioEngine {
     }
   }
 
-  // Generative Harmonic Ambient Drone Synthesizer
-  private droneOsc1: OscillatorNode | null = null;
-  private droneOsc2: OscillatorNode | null = null;
-  private droneGain: GainNode | null = null;
-  private droneFilter: BiquadFilterNode | null = null;
+  // Generative Harmonic Ambient Soundscape Synthesizer (Lush, Meditative, Silky)
+  private ambientVoices: OscillatorNode[] = [];
+  private ambientGains: GainNode[] = [];
+  private ambientLfos: OscillatorNode[] = [];
+  private ambientFilter: BiquadFilterNode | null = null;
+  private ambientMasterGain: GainNode | null = null;
   public droneActive: boolean = false;
+  public ambientPreset: 'SANCTUARY' | 'SOLFEGGIO_528' | 'ZEN_WARMTH' | 'CELESTIAL' = 'SANCTUARY';
+  public ambientVolume: number = 0.022;
 
   public toggleAmbientDrone(): boolean {
     if (this.droneActive) {
@@ -169,45 +172,103 @@ class AudioEngine {
     return this.droneActive;
   }
 
-  public startAmbientDrone(rootFreq: number = 110) {
+  public setAmbientVolume(vol: number) {
+    this.ambientVolume = Math.max(0, Math.min(1, vol));
+    if (this.ambientMasterGain && this.ctx) {
+      try {
+        this.ambientMasterGain.gain.setValueAtTime(this.ambientMasterGain.gain.value, this.ctx.currentTime);
+        this.ambientMasterGain.gain.linearRampToValueAtTime(this.ambientVolume, this.ctx.currentTime + 0.15);
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  public setAmbientPreset(preset: 'SANCTUARY' | 'SOLFEGGIO_528' | 'ZEN_WARMTH' | 'CELESTIAL') {
+    this.ambientPreset = preset;
+    if (this.droneActive) {
+      this.startAmbientDrone();
+    }
+  }
+
+  public startAmbientDrone() {
     this.init();
     if (!this.ctx) return;
 
     try {
       this.stopAmbientDrone();
 
-      const osc1 = this.ctx.createOscillator();
-      const osc2 = this.ctx.createOscillator();
+      const masterGain = this.ctx.createGain();
+      masterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      masterGain.gain.exponentialRampToValueAtTime(this.ambientVolume, this.ctx.currentTime + 2.0);
+
+      // Warm analog dual-cascaded lowpass filter (gentle slope, silky soft roll-off, zero resonance peak)
       const filter = this.ctx.createBiquadFilter();
-      const gain = this.ctx.createGain();
-
-      // Warm analog chord (Root A2 110Hz + Fifth E3 165Hz with subtle detune)
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(rootFreq, this.ctx.currentTime);
-
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(rootFreq * 1.503, this.ctx.currentTime); // Perfect fifth + micro detune for lush phasing
-
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(320, this.ctx.currentTime);
-      filter.Q.setValueAtTime(3.0, this.ctx.currentTime);
+      filter.frequency.setValueAtTime(420, this.ctx.currentTime);
+      filter.Q.setValueAtTime(0.707, this.ctx.currentTime); // Standard Butterworth Q for zero whistling
 
-      // Very soft, non-intrusive ambient bed
-      gain.gain.setValueAtTime(0.001, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.035, this.ctx.currentTime + 2.5);
+      filter.connect(masterGain);
+      masterGain.connect(this.ctx.destination);
 
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
+      this.ambientMasterGain = masterGain;
+      this.ambientFilter = filter;
 
-      osc1.start();
-      osc2.start();
+      // Harmonic chords based on selected soothing ambient preset
+      // Uses pure sine oscillators tuned to serene micro-interval ratios
+      let chordFreqs: number[] = [];
+      if (this.ambientPreset === 'SANCTUARY') {
+        // Eb Major 9th (Eb3, Bb3, G4, D5, F5) - Brian Eno style ethereal warmth
+        chordFreqs = [155.56, 233.08, 311.13, 392.00, 587.33];
+      } else if (this.ambientPreset === 'SOLFEGGIO_528') {
+        // 528 Hz Transformation & Harmonic 264Hz / 396Hz / 528Hz / 792Hz crystal chime
+        chordFreqs = [132.0, 198.0, 264.0, 396.0, 528.0];
+      } else if (this.ambientPreset === 'ZEN_WARMTH') {
+        // Deep Singing Bowl 432 Hz Pythagorean Pure Tuning (A 108Hz, E 162Hz, C# 270Hz, E 324Hz)
+        chordFreqs = [108.0, 162.0, 216.0, 270.0, 324.0];
+      } else {
+        // CELESTIAL: F# Major 7 Lydian Air (F#3, C#4, F#4, A#4, D#5)
+        chordFreqs = [185.0, 277.18, 369.99, 466.16, 622.25];
+      }
 
-      this.droneOsc1 = osc1;
-      this.droneOsc2 = osc2;
-      this.droneGain = gain;
-      this.droneFilter = filter;
+      this.ambientVoices = [];
+      this.ambientGains = [];
+      this.ambientLfos = [];
+
+      chordFreqs.forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const voiceGain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        // Subtle micro-cents detuning between voices creates lush natural acoustic phasing without harshness
+        const microDetune = (idx - 2) * 1.5;
+        osc.frequency.setValueAtTime(freq + microDetune * 0.05, this.ctx.currentTime);
+
+        // Individual voice gain - lower for higher frequencies to ensure rich, non-fatiguing warmth
+        const baseVoiceGain = (0.28 / (idx + 1.2));
+        voiceGain.gain.setValueAtTime(baseVoiceGain, this.ctx.currentTime);
+
+        // Gentle, slow breathing LFO (0.07Hz - 0.12Hz) to subtly modulate voice volume
+        const lfo = this.ctx.createOscillator();
+        const lfoGain = this.ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(0.06 + idx * 0.02, this.ctx.currentTime);
+        lfoGain.gain.setValueAtTime(baseVoiceGain * 0.25, this.ctx.currentTime); // 25% gentle swell
+
+        lfo.connect(lfoGain.gain);
+
+        osc.connect(voiceGain);
+        voiceGain.connect(filter);
+
+        osc.start();
+        lfo.start();
+
+        this.ambientVoices.push(osc);
+        this.ambientGains.push(voiceGain);
+        this.ambientLfos.push(lfo);
+      });
+
       this.droneActive = true;
     } catch {
       this.droneActive = false;
@@ -215,30 +276,42 @@ class AudioEngine {
   }
 
   public stopAmbientDrone() {
-    if (this.droneGain && this.ctx) {
+    if (this.ambientMasterGain && this.ctx) {
       try {
-        this.droneGain.gain.setValueAtTime(this.droneGain.gain.value, this.ctx.currentTime);
-        this.droneGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.8);
+        this.ambientMasterGain.gain.setValueAtTime(this.ambientMasterGain.gain.value, this.ctx.currentTime);
+        this.ambientMasterGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 1.2);
+
+        const voices = [...this.ambientVoices];
+        const lfos = [...this.ambientLfos];
+        const master = this.ambientMasterGain;
+        const filter = this.ambientFilter;
+
         setTimeout(() => {
           try {
-            this.droneOsc1?.stop();
-            this.droneOsc2?.stop();
-            this.droneOsc1?.disconnect();
-            this.droneOsc2?.disconnect();
-            this.droneGain?.disconnect();
-            this.droneFilter?.disconnect();
+            voices.forEach((v) => {
+              v.stop();
+              v.disconnect();
+            });
+            lfos.forEach((l) => {
+              l.stop();
+              l.disconnect();
+            });
+            master?.disconnect();
+            filter?.disconnect();
           } catch {
             // ignore
           }
-          this.droneOsc1 = null;
-          this.droneOsc2 = null;
-          this.droneGain = null;
-          this.droneFilter = null;
-        }, 900);
+        }, 1300);
       } catch {
         // ignore
       }
     }
+
+    this.ambientVoices = [];
+    this.ambientGains = [];
+    this.ambientLfos = [];
+    this.ambientMasterGain = null;
+    this.ambientFilter = null;
     this.droneActive = false;
   }
 }
