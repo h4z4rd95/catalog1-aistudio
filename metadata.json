@@ -1,0 +1,6 @@
+{
+  "name": "Awwwards Interactive Visual Catalog & Vibe Coding Playbook",
+  "description": "Live scrollable showroom and motion playbook featuring 50 production variations across Next.js Heroes, Navigation systems, Immersive Page Loaders, Scroll Choreographies, Footers & Magnetic Physics, High-Density Dashboards, Spatial E-Commerce 3D Configurators, Generative Audio-Visual Art, Creative Typography, and Interactive Optical Shaders with WebGL shaders, kinetic typography, cyber grids, luxury editorial, and 3D parametric geometry.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
