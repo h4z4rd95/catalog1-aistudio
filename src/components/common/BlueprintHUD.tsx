@@ -5,7 +5,7 @@ import { soundFx } from '../../utils/audio';
 
 interface BlueprintHUDProps {
   blueprint: ComponentBlueprint;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   controls?: React.ReactNode;
 }
 
@@ -177,9 +177,11 @@ Interaction Blueprint: ${blueprint.interactionBlueprint}
       </div>
 
       {/* Main Component Content Canvas */}
-      <div className="relative min-h-[90vh] w-full flex flex-col justify-center">
-        {children}
-      </div>
+      {children && (
+        <div className="relative min-h-[90vh] w-full flex flex-col justify-center">
+          {children}
+        </div>
+      )}
     </section>
   );
 }

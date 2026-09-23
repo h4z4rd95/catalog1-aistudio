@@ -102,7 +102,7 @@ export default function CatalogHeader({
               }`}
             >
               <Sparkles className="w-3 h-3 text-cyan-300" />
-              <span>AURA Website Sample</span>
+              <span>Full Usable Website (Store, Cart, Checkout, Auth)</span>
             </button>
           </div>
         </div>
@@ -429,8 +429,23 @@ export default function CatalogHeader({
             Batch 11: Forms &amp; Steppers (5)
           </button>
 
+          <button
+            onClick={() => {
+              soundFx.playClick(1150);
+              onSelectBatch('BATCH_12');
+            }}
+            className={`px-2.5 py-1 rounded-full font-mono text-[11px] font-semibold whitespace-nowrap transition-all border ${
+              activeBatch === 'BATCH_12'
+                ? 'bg-violet-400 text-black border-violet-400 shadow-sm font-bold'
+                : 'bg-white/5 text-zinc-400 border-white/10 hover:text-white'
+            }`}
+            data-cursor="hover"
+          >
+            Batch 12: Spatial &amp; Physics (5)
+          </button>
+
           <span className="font-mono text-[10px] text-emerald-400 px-2.5 py-0.5 border border-emerald-500/30 bg-emerald-950/40 rounded-full whitespace-nowrap hidden xl:inline font-bold">
-            ✓ Master Catalog (55/55 Live)
+            ✓ Master Catalog (60/60 Live)
           </span>
         </div>
 

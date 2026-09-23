@@ -67,6 +67,12 @@ import FormBrutalistTerminalInquiry from './components/forms/FormBrutalistTermin
 import FormCyberBiometricAuth from './components/forms/FormCyberBiometricAuth';
 import FormLuxurySalonPriveAtelier from './components/forms/FormLuxurySalonPriveAtelier';
 import FormParametric3DCardConfigurator from './components/forms/FormParametric3DCardConfigurator';
+// Batch 12: Interactive 3D Spatial Canvas & Physics Sandboxes
+import SpatialChromaticOrbsSandbox from './components/spatial/SpatialChromaticOrbsSandbox';
+import SpatialBrutalistRigidPhysics from './components/spatial/SpatialBrutalistRigidPhysics';
+import SpatialCyberLidarTerrain from './components/spatial/SpatialCyberLidarTerrain';
+import SpatialLuxurySilkClothSim from './components/spatial/SpatialLuxurySilkClothSim';
+import SpatialParametricGimbalField3D from './components/spatial/SpatialParametricGimbalField3D';
 
 // Full Production Website Sample
 import AuraWebsiteSample from './components/sample/AuraWebsiteSample';
@@ -193,6 +199,12 @@ export default function App() {
     { id: 'form_v03_cyberbiometricauth', label: 'M03', name: 'Biometric Auth Stepper', batch: 'BATCH_11', aesthetic: 'CYBERPUNK' },
     { id: 'form_v04_luxurysalonpriveatelier', label: 'M04', name: 'Haute Salon Atelier', batch: 'BATCH_11', aesthetic: 'LUXURY_EDITORIAL' },
     { id: 'form_v05_parametric3dcardconfigurator', label: 'M05', name: '3D Metal Card Configurator', batch: 'BATCH_11', aesthetic: 'WEBGL_3D' },
+    // Batch 12: Interactive 3D Spatial Canvas, Physics Sandboxes & WebGL Environments
+    { id: 'spatial_v01_chromaticorbssandbox', label: 'Y01', name: 'Glass Orbs Sandbox', batch: 'BATCH_12', aesthetic: 'CHROMATIC' },
+    { id: 'spatial_v02_brutalistrigidphysics', label: 'Y02', name: 'Brutalist 2D Physics', batch: 'BATCH_12', aesthetic: 'NEO_BRUTALIST' },
+    { id: 'spatial_v03_cyberlidarterrain', label: 'Y03', name: 'LiDAR Holo-Terrain', batch: 'BATCH_12', aesthetic: 'CYBERPUNK' },
+    { id: 'spatial_v04_luxurysilkclothsim', label: 'Y04', name: 'Silk Cloth Simulation', batch: 'BATCH_12', aesthetic: 'LUXURY_EDITORIAL' },
+    { id: 'spatial_v05_parametricgimbalfield3d', label: 'Y05', name: 'Parametric Gyroscope 3D', batch: 'BATCH_12', aesthetic: 'WEBGL_3D' },
   ];
 
   const showBatch1 = activeBatch === 'ALL' || activeBatch === 'BATCH_1';
@@ -206,6 +218,7 @@ export default function App() {
   const showBatch9 = activeBatch === 'ALL' || activeBatch === 'BATCH_9';
   const showBatch10 = activeBatch === 'ALL' || activeBatch === 'BATCH_10';
   const showBatch11 = activeBatch === 'ALL' || activeBatch === 'BATCH_11';
+  const showBatch12 = activeBatch === 'ALL' || activeBatch === 'BATCH_12';
 
   return (
     <div className="relative min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-400 selection:text-black">
@@ -255,9 +268,9 @@ export default function App() {
         </button>
       </nav>
 
-      {/* Conditional View: Showroom Catalog vs. Full Aura Website Sample */}
+      {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystem */}
       {viewMode === 'SAMPLE_WEBSITE' ? (
-        <AuraWebsiteSample />
+        <AuraWebsiteSample onReturnToCatalog={() => setViewMode('CATALOG')} />
       ) : (
         <>
           {/* Main Continuous Scroll Catalog Container */}
@@ -796,6 +809,46 @@ export default function App() {
             )}
           </>
         )}
+
+        {/* ========================================================================= */}
+        {/* BATCH 12: INTERACTIVE 3D SPATIAL CANVAS, PHYSICS & WEBGL ENVIRONMENTS (05) */}
+        {/* ========================================================================= */}
+        {showBatch12 && (
+          <>
+            {/* Section Header Divider */}
+            <div className="w-full py-6 px-8 bg-zinc-950 border-b border-white/10 flex items-center justify-between font-mono text-xs text-zinc-400">
+              <span className="text-violet-400 font-bold uppercase tracking-wider flex items-center gap-2">
+                <Compass className="w-4 h-4" /> BATCH 12 // SPATIAL CANVAS, PHYSICS SANDBOXES &amp; WEBGL ENVIRONMENTS (05 PERMUTATIONS)
+              </span>
+              <span className="hidden sm:inline">Three.js Kinetic Orbs &bull; Verlet Rigid SAT &bull; LiDAR Mesh &bull; Mulberry Silk &bull; Quaternion Gyro</span>
+            </div>
+
+            {/* Variation 56: Chromatic Liquid Glass Orbs & Inertia Collision Sandbox */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'CHROMATIC') && (
+              <SpatialChromaticOrbsSandbox />
+            )}
+
+            {/* Variation 57: Neo-Brutalist 2D Rigid Body Physics & Gravity Playground */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'NEO_BRUTALIST') && (
+              <SpatialBrutalistRigidPhysics />
+            )}
+
+            {/* Variation 58: Cyberpunk LiDAR Holo-Terrain & 3D Spatial Audio Beacon Matrix */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'CYBERPUNK') && (
+              <SpatialCyberLidarTerrain />
+            )}
+
+            {/* Variation 59: Haute Couture Liquid Silk Cloth Simulation & Aerodynamic Draping */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'LUXURY_EDITORIAL') && (
+              <SpatialLuxurySilkClothSim />
+            )}
+
+            {/* Variation 60: Parametric 3D Gyroscopic Gimbal & Magnetic Particle Orbit Field */}
+            {(currentAesthetic === 'ALL' || currentAesthetic === 'WEBGL_3D') && (
+              <SpatialParametricGimbalField3D />
+            )}
+          </>
+        )}
       </main>
 
       {/* Catalog Footer & Vibe Coding Playbook Terminal */}
@@ -836,7 +889,7 @@ export default function App() {
             <div className="p-4 rounded-lg bg-zinc-950 border border-white/10 font-mono text-xs text-zinc-400 space-y-2">
               <div className="flex justify-between border-b border-white/5 pb-1">
                 <span>TOTAL VARIATIONS:</span>
-                <strong className="text-emerald-400 font-bold">55 Live in Showroom</strong>
+                <strong className="text-emerald-400 font-bold">60 Live in Showroom</strong>
               </div>
               <div className="flex justify-between border-b border-white/5 pb-1">
                 <span>HERO SECTIONS:</span>
@@ -882,9 +935,13 @@ export default function App() {
                 <span>FORMS &amp; STEPPERS:</span>
                 <strong className="text-cyan-300 font-bold">5 Complete</strong>
               </div>
+              <div className="flex justify-between border-b border-white/5 pb-1">
+                <span>SPATIAL &amp; PHYSICS:</span>
+                <strong className="text-violet-400 font-bold">5 Complete</strong>
+              </div>
               <div className="flex justify-between">
                 <span>STATUS:</span>
-                <strong className="text-emerald-400">Master Catalog Live (11/11)</strong>
+                <strong className="text-emerald-400">Master Catalog Live (12/12)</strong>
               </div>
             </div>
 
@@ -897,7 +954,7 @@ export default function App() {
               data-cursor="hover"
             >
               <BookOpen className="w-4 h-4" />
-              <span>Inspect Master Roadmap (55/55 Live)</span>
+              <span>Inspect Master Roadmap (60/60 Live)</span>
             </button>
           </div>
         </div>
@@ -1041,6 +1098,17 @@ export default function App() {
                 &bull; Form_V03: Cyberpunk Neural Handshake &amp; Biometric Auth Stepper (Live Ridge Scanner)<br />
                 &bull; Form_V04: Haute Couture Salon Privé Atelier Reservation &amp; Concierge Dossier<br />
                 &bull; Form_V05: Parametric 3D Metal Membership Card &amp; Spatial Stepper (Interactive PBR)
+              </p>
+
+              <p className="text-violet-400 font-bold mt-3">
+                ✓ Batch 12: Spatial Canvas, Physics Sandboxes &amp; WebGL Environments (5/5 Complete)
+              </p>
+              <p className="text-zinc-400">
+                &bull; Spatial_V01: Chromatic Liquid Glass Orbs &amp; Inertia Collision Sandbox (Snell Shaders)<br />
+                &bull; Spatial_V02: Neo-Brutalist 2D Rigid Body Physics &amp; Gravity Playground (Verlet SAT)<br />
+                &bull; Spatial_V03: Cyberpunk LiDAR Holo-Terrain &amp; 3D Spatial Audio Beacon Matrix (6400 Nodes)<br />
+                &bull; Spatial_V04: Haute Couture Liquid Silk Cloth Simulation &amp; Aerodynamic Draping (Mass-Spring)<br />
+                &bull; Spatial_V05: Parametric 3D Gyroscopic Gimbal &amp; Magnetic Particle Orbit Field (Quaternion Gyro)
               </p>
             </div>
 

@@ -1,7 +1,7 @@
 export interface ComponentBlueprint {
   id: string;
   name: string;
-  category: 'Hero' | 'Navigation' | 'Loader' | 'Scroll' | 'Footer' | 'Dashboard' | 'Product' | 'Generative' | 'Typography' | 'Shader' | 'Form';
+  category: 'Hero' | 'Navigation' | 'Loader' | 'Scroll' | 'Footer' | 'Dashboard' | 'Product' | 'Generative' | 'Typography' | 'Shader' | 'Form' | 'Spatial';
   batch: string;
   techStack: string[];
   aestheticVibe: string;
