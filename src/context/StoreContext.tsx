@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { soundFx } from '../utils/audio';
+import { Language, Direction, ThemeMode, TRANSLATIONS, MAIN_CATEGORY_STRUCTURE } from '../utils/translations';
 
 export type ProductCategory = 'ALL' | 'DIGITAL' | 'PHYSICAL';
-export type WebsitePage = 'LANDING' | 'STORE' | 'PRODUCT_DETAIL' | 'CART' | 'ABOUT' | 'CONTACT' | 'AUTH';
+export type WebsitePage = 'LANDING' | 'STORE' | 'PRODUCT_DETAIL' | 'CART' | 'ABOUT' | 'CONTACT' | 'AUTH' | 'NEWS';
 export type CurrencyType = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'BTC';
 
 export interface ProductVariant {
@@ -60,6 +61,7 @@ export interface CustomerOrder {
   customerEmail: string;
   shippingAddress: string;
   paymentMethod: string;
+  status?: string;
   licenseKeys?: string[];
 }
 
@@ -323,6 +325,7 @@ interface StoreContextType {
   updateQuantity: (productId: string, delta: number, variantId?: string) => void;
   clearCart: () => void;
   applyCoupon: (code: string) => boolean;
+  addToast: (title: string, message: string, type: ToastNotification['type']) => void;
   dismissToast: (id: string) => void;
   lastOrder: CustomerOrder | null;
   completeOrder: (customerData: { name: string; email: string; address: string; paymentMethod: string }) => CustomerOrder;
@@ -332,6 +335,19 @@ interface StoreContextType {
   orderHistory: CustomerOrder[];
   quickViewProduct: Product | null;
   setQuickViewProduct: (p: Product | null) => void;
+  theme: ThemeMode;
+  setTheme: (t: ThemeMode) => void;
+  toggleTheme: () => void;
+  language: Language;
+  setLanguage: (l: Language) => void;
+  direction: Direction;
+  setDirection: (d: Direction) => void;
+  toggleLanguage: () => void;
+  toggleDirection: () => void;
+  t: (typeof TRANSLATIONS)['en'];
+  selectedCategoryFilter: string;
+  setSelectedCategoryFilter: (cat: string) => void;
+  setSelectedProductId: (id: string) => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -347,6 +363,50 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [lastOrder, setLastOrder] = useState<CustomerOrder | null>(null);
   const [currency, setCurrency] = useState<CurrencyType>('USD');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [theme, setTheme] = useState<ThemeMode>('dark');
+  const [language, setLanguage] = useState<Language>('en');
+  const [direction, setDirection] = useState<Direction>('ltr');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('ALL');
+
+  useEffect(() => {
+    document.documentElement.dir = direction;
+    document.documentElement.lang = language;
+  }, [direction, language]);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      document.body.classList.remove('theme-light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+      document.body.classList.add('theme-light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    soundFx.playClick(800);
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  const toggleLanguage = () => {
+    soundFx.playClick(900);
+    if (language === 'en') {
+      setLanguage('fa');
+      setDirection('rtl');
+    } else {
+      setLanguage('en');
+      setDirection('ltr');
+    }
+  };
+
+  const toggleDirection = () => {
+    soundFx.playClick(700);
+    setDirection((prev) => (prev === 'ltr' ? 'rtl' : 'ltr'));
+  };
+
+  const t = TRANSLATIONS[language];
 
   // Seed initial order history so client can immediately view past orders and software license keys
   const [orderHistory, setOrderHistory] = useState<CustomerOrder[]>([
@@ -369,6 +429,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       customerEmail: 'alexander@aura-atelier.com',
       shippingAddress: '450 West 33rd St, Penthouse 48, New York, NY 10001',
       paymentMethod: 'Mastercard •••• 4242',
+      status: 'DELIVERED',
       licenseKeys: ['VIBE-PRO-98X2-K91A'],
     },
   ]);
@@ -518,6 +579,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       customerEmail: customerData.email,
       shippingAddress: customerData.address,
       paymentMethod: customerData.paymentMethod,
+      status: 'CONFIRMED',
       licenseKeys,
     };
 
@@ -573,6 +635,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateQuantity,
         clearCart,
         applyCoupon,
+        addToast,
         dismissToast,
         lastOrder,
         completeOrder,
@@ -582,6 +645,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         orderHistory,
         quickViewProduct,
         setQuickViewProduct,
+        theme,
+        setTheme,
+        toggleTheme,
+        language,
+        setLanguage,
+        direction,
+        setDirection,
+        toggleLanguage,
+        toggleDirection,
+        t,
+        selectedCategoryFilter,
+        setSelectedCategoryFilter,
+        setSelectedProductId: setActiveProductId,
       }}
     >
       {children}

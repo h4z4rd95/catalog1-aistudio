@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore, Product, ProductCategory } from '../context/StoreContext';
 import { soundFx } from '../utils/audio';
 import {
@@ -11,18 +11,46 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   Eye,
-  Tag
+  Tag,
+  X
 } from 'lucide-react';
 
 export const StorePage: React.FC = () => {
-  const { products, addToCart, setActiveProductId, setActivePage, formatPrice } = useStore();
+  const {
+    products,
+    addToCart,
+    setActiveProductId,
+    setActivePage,
+    formatPrice,
+    theme,
+    language,
+    direction,
+    selectedCategoryFilter,
+    setSelectedCategoryFilter,
+    t
+  } = useStore();
+
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'rating'>('featured');
   const [addedItemAnim, setAddedItemAnim] = useState<string | null>(null);
   const [quickInspectProduct, setQuickInspectProduct] = useState<Product | null>(null);
   const [inspectVariantIdx, setInspectVariantIdx] = useState(0);
+
+  const isLight = theme === 'light';
+  const isFa = language === 'fa';
+  const isRtl = direction === 'rtl';
+
+  // Synchronize with external category filter from navigation mega-menu
+  useEffect(() => {
+    if (selectedCategoryFilter) {
+      if (selectedCategoryFilter === 'ALL' || selectedCategoryFilter === 'DIGITAL' || selectedCategoryFilter === 'PHYSICAL') {
+        setSelectedCategory(selectedCategoryFilter as ProductCategory);
+      }
+    }
+  }, [selectedCategoryFilter]);
 
   // Filter & Search logic
   const filteredProducts = products
@@ -57,40 +85,63 @@ export const StorePage: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] pb-24">
+    <div
+      dir={direction}
+      className={`w-full min-h-screen font-['Plus_Jakarta_Sans'] pb-24 transition-colors ${
+        isLight ? 'bg-[#f8fafc] text-zinc-900' : 'bg-[#050609] text-zinc-100'
+      }`}
+    >
       {/* Store Header Banner */}
-      <div className="w-full bg-gradient-to-b from-[#0a0d14] to-[#050609] border-b border-white/10 py-16 px-4 sm:px-6">
+      <div className={`w-full border-b py-16 px-4 sm:px-6 transition-colors ${
+        isLight
+          ? 'bg-gradient-to-b from-slate-100 to-slate-50 border-slate-200'
+          : 'bg-gradient-to-b from-[#0a0d14] to-[#050609] border-white/10'
+      }`}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2 font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold">
               <Tag className="w-3.5 h-3.5" />
-              <span>AURA DIGITAL &bull; HARDWARE &bull; LICENSES</span>
+              <span>{isFa ? 'فروشگاه آئورا • شیدرها • لایسنس‌ها • سخت‌افزار' : 'AURA DIGITAL • HARDWARE • LICENSES'}</span>
             </div>
-            <h1 className="font-['Syne'] font-black text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight">
-              Store &amp; Inventory Drops
+            <h1 className={`font-['Syne'] font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight ${
+              isLight ? 'text-zinc-900' : 'text-white'
+            }`}>
+              {isFa ? 'فروشگاه و آرشیو موجودی' : 'Store & Inventory Drops'}
             </h1>
-            <p className="font-light text-zinc-400 text-sm sm:text-base mt-2 max-w-xl">
-              Commercial licenses for cutting-edge WebGL shader libraries, design tokens, and limited-run physical instruments.
+            <p className={`font-light text-sm sm:text-base mt-2 max-w-xl ${
+              isLight ? 'text-zinc-600' : 'text-zinc-400'
+            }`}>
+              {isFa
+                ? 'لایسنس‌های تجاری کیت‌های شیدر WebGL، دیزاین‌سیستم‌های پیشرفته و قطعات سخت‌افزاری تولید محدود.'
+                : 'Commercial licenses for cutting-edge WebGL shader libraries, design tokens, and limited-run physical instruments.'}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 font-mono text-xs text-zinc-400 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Instant Digital Key Delivery &bull; Worldwide Insured Freight</span>
+          <div className={`flex items-center gap-2 font-mono text-xs px-4 py-2 rounded-xl border ${
+            isLight
+              ? 'bg-white border-slate-200 text-zinc-700 shadow-sm'
+              : 'bg-white/5 border-white/10 text-zinc-400'
+          }`}>
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>{isFa ? 'تحویل آنی کلید لایسنس • ارسال بیمه‌شده جهانی' : 'Instant Digital Key Delivery • Worldwide Insured Freight'}</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-8 space-y-8">
-        {/* Controls Bar: Category Pills + Search + Sort */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-900/60 border border-white/10 backdrop-blur-md">
+        {/* Controls Bar: Category Tabs + Search + Sort */}
+        <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-4 rounded-2xl border backdrop-blur-md ${
+          isLight
+            ? 'bg-white border-slate-200 shadow-sm'
+            : 'bg-zinc-900/60 border-white/10'
+        }`}>
           {/* Category Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none font-mono text-xs">
             {(
               [
-                { id: 'ALL', label: 'All Inventory' },
-                { id: 'DIGITAL', label: 'Digital Licenses & Shaders' },
-                { id: 'PHYSICAL', label: 'Physical Hardware & Timepieces' },
+                { id: 'ALL', label: isFa ? 'همه محصولات' : 'All Inventory' },
+                { id: 'DIGITAL', label: isFa ? 'شیدرهای دیجیتال و لایسنس' : 'Digital Licenses & Shaders' },
+                { id: 'PHYSICAL', label: isFa ? 'سخت‌افزار و ساعت‌های مچی' : 'Physical Hardware & Timepieces' },
               ] as const
             ).map((cat) => (
               <button
@@ -98,10 +149,13 @@ export const StorePage: React.FC = () => {
                 onClick={() => {
                   soundFx.playClick(600);
                   setSelectedCategory(cat.id);
+                  setSelectedCategoryFilter(cat.id);
                 }}
                 className={`px-4 py-2 rounded-xl whitespace-nowrap transition-all font-semibold ${
                   selectedCategory === cat.id
                     ? 'bg-cyan-400 text-black shadow-md shadow-cyan-500/20'
+                    : isLight
+                    ? 'bg-slate-100 text-zinc-600 hover:text-zinc-900 hover:bg-slate-200'
                     : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
                 }`}
               >
@@ -113,45 +167,63 @@ export const StorePage: React.FC = () => {
           {/* Search & Sort Controls */}
           <div className="flex items-center gap-3">
             <div className="relative flex-1 sm:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+              <Search className={`w-4 h-4 absolute ${isRtl ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 text-zinc-400`} />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products, shaders..."
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 font-mono text-xs focus:outline-none focus:border-cyan-400"
+                placeholder={isFa ? 'جستجو در محصولات و شیدرها...' : 'Search products, shaders...'}
+                className={`w-full py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-cyan-400 border ${
+                  isRtl ? 'pr-9 pl-3' : 'pl-9 pr-3'
+                } ${
+                  isLight
+                    ? 'bg-slate-50 border-slate-300 text-zinc-900 placeholder-zinc-400'
+                    : 'bg-black/60 border-white/15 text-white placeholder-zinc-500'
+                }`}
               />
             </div>
 
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-zinc-300 font-mono text-xs focus:outline-none focus:border-cyan-400 cursor-pointer"
+              className={`px-3 py-2 rounded-xl font-mono text-xs focus:outline-none focus:border-cyan-400 cursor-pointer border ${
+                isLight
+                  ? 'bg-slate-50 border-slate-300 text-zinc-800'
+                  : 'bg-black/60 border-white/15 text-zinc-300'
+              }`}
             >
-              <option value="featured">Featured Drops</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Top Rated</option>
+              <option value="featured">{isFa ? 'محصولات برگزیده' : 'Featured Drops'}</option>
+              <option value="price-low">{isFa ? 'قیمت: کم به زیاد' : 'Price: Low to High'}</option>
+              <option value="price-high">{isFa ? 'قیمت: زیاد به کم' : 'Price: High to Low'}</option>
+              <option value="rating">{isFa ? 'بالاترین امتیاز' : 'Top Rated'}</option>
             </select>
           </div>
         </div>
 
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
-          <div className="py-24 text-center border border-white/10 rounded-2xl bg-zinc-900/30">
-            <Box className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-            <h3 className="font-['Syne'] text-xl font-bold text-white">No products found</h3>
-            <p className="font-mono text-xs text-zinc-400 mt-1">
-              Try adjusting your search criteria or resetting filters.
+          <div className={`py-24 text-center border rounded-2xl ${
+            isLight ? 'bg-white border-slate-200' : 'border-white/10 bg-zinc-900/30'
+          }`}>
+            <Box className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
+            <h3 className={`font-bold text-xl ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+              {isFa ? 'هیچ محصولی با این مشخصات یافت نشد' : 'No products found'}
+            </h3>
+            <p className={`font-mono text-xs mt-1 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              {isFa ? 'عبارت جستجو یا فیلتر دسته‌بندی را تغییر دهید.' : 'Try adjusting your search criteria or resetting filters.'}
             </p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('ALL');
               }}
-              className="mt-4 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 font-mono text-xs text-white"
+              className={`mt-4 px-4 py-2 rounded-lg font-mono text-xs border ${
+                isLight
+                  ? 'bg-slate-100 hover:bg-slate-200 text-zinc-800 border-slate-300'
+                  : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
+              }`}
             >
-              Clear All Filters
+              {isFa ? 'پاک کردن فیلترها' : 'Clear All Filters'}
             </button>
           </div>
         ) : (
@@ -161,7 +233,11 @@ export const StorePage: React.FC = () => {
               return (
                 <div
                   key={product.id}
-                  className="rounded-2xl bg-[#090c12] border border-white/15 overflow-hidden flex flex-col hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10 transition-all group"
+                  className={`rounded-2xl border overflow-hidden flex flex-col transition-all group ${
+                    isLight
+                      ? 'bg-white border-slate-200 hover:border-cyan-500 hover:shadow-xl shadow-slate-900/5'
+                      : 'bg-[#090c12] border-white/15 hover:border-cyan-400/50 hover:shadow-2xl hover:shadow-cyan-500/10'
+                  }`}
                 >
                   {/* Media Aspect Container */}
                   <div className="relative aspect-[16/11] overflow-hidden bg-zinc-950">
@@ -180,111 +256,90 @@ export const StorePage: React.FC = () => {
                       ) : (
                         <span />
                       )}
-                      <span className="px-2.5 py-1 rounded-md font-mono text-[10px] font-bold bg-black/80 border border-white/20 text-zinc-300 backdrop-blur-md uppercase tracking-wider">
+                      <span className="px-2.5 py-1 rounded-md font-mono text-[10px] font-bold bg-black/75 border border-white/20 text-zinc-200 backdrop-blur-md">
                         {product.category}
                       </span>
                     </div>
 
-                    {/* Stock Alert Badge */}
-                    <div className="absolute bottom-3 left-3">
-                      <span
-                        className={`px-2 py-0.5 rounded font-mono text-[10px] font-semibold backdrop-blur-md border ${
-                          product.stockCount < 15
-                            ? 'bg-rose-950/80 border-rose-500/50 text-rose-300'
-                            : 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300'
-                        }`}
+                    {/* Quick Preview Hover Trigger */}
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => {
+                          soundFx.playChime(750, 0.2);
+                          setQuickInspectProduct(product);
+                          setInspectVariantIdx(0);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-white text-black font-mono text-xs font-bold flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform"
                       >
-                        {product.stockCount < 15
-                          ? `Only ${product.stockCount} units remaining`
-                          : 'In Stock &amp; Ready'}
-                      </span>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>{isFa ? 'نگاه سریع' : 'Quick View'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleInspect(product.id)}
+                        className="px-4 py-2 rounded-xl bg-cyan-400 text-black font-mono text-xs font-bold flex items-center gap-1.5 shadow-xl hover:scale-105 transition-transform"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{isFa ? 'مشاهده سه‌بعدی' : '3D Details'}</span>
+                      </button>
                     </div>
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between text-xs font-mono text-zinc-500 mb-1">
-                        <span className="text-cyan-400 font-semibold">{product.subCategory}</span>
-                        <span className="flex items-center gap-1 text-amber-300 font-bold">
-                          <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
-                          <span>{product.rating}</span>
-                          <span className="text-zinc-600 font-normal">({product.reviewsCount})</span>
+                      <div className="flex items-center justify-between font-mono text-xs mb-1.5">
+                        <span className="text-cyan-400 font-bold uppercase tracking-wider text-[11px]">
+                          {product.subCategory}
                         </span>
+                        <div className="flex items-center gap-1 text-amber-500">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span className="font-bold text-[11px]">{product.rating}</span>
+                        </div>
                       </div>
 
                       <h3
                         onClick={() => handleInspect(product.id)}
-                        className="font-['Syne'] font-bold text-xl text-white group-hover:text-cyan-300 transition-colors cursor-pointer"
+                        className={`font-['Syne'] font-bold text-xl cursor-pointer transition-colors ${
+                          isLight
+                            ? 'text-zinc-900 group-hover:text-cyan-600'
+                            : 'text-white group-hover:text-cyan-300'
+                        }`}
                       >
                         {product.name}
                       </h3>
 
-                      <p className="text-xs text-zinc-400 mt-2 line-clamp-2 leading-relaxed font-light">
+                      <p className={`text-xs mt-2 line-clamp-2 leading-relaxed ${
+                        isLight ? 'text-zinc-600' : 'text-zinc-400'
+                      }`}>
                         {product.subtitle}
                       </p>
-
-                      {/* Variant Selector Pill preview */}
-                      <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2">
-                        <span className="font-mono text-[10px] text-zinc-500 uppercase">Available:</span>
-                        <div className="flex items-center gap-1.5">
-                          {product.variants.map((v) => (
-                            <span
-                              key={v.id}
-                              className="w-3 h-3 rounded-full border border-white/20 shadow-sm"
-                              style={{ backgroundColor: v.previewColor || '#38bdf8' }}
-                              title={v.name}
-                            />
-                          ))}
-                        </div>
-                        <span className="font-mono text-[10px] text-zinc-400 ml-1">
-                          ({product.variants.length} configurations)
-                        </span>
-                      </div>
                     </div>
 
-                    {/* Bottom Pricing & Actions */}
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                    {/* Bottom Pricing & Cart Actions */}
+                    <div className={`pt-5 mt-5 border-t flex items-center justify-between ${
+                      isLight ? 'border-slate-200' : 'border-white/10'
+                    }`}>
                       <div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-mono text-xl font-black text-emerald-400">
-                            {formatPrice(product.price)}
-                          </span>
-                          {product.originalPrice && (
-                            <span className="font-mono text-xs text-zinc-500 line-through">
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-mono text-[10px] text-zinc-500 block">
-                          Perpetual Rights
+                        <span className={`font-mono text-[10px] block ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                          {t.total}
+                        </span>
+                        <span className="font-mono text-xl font-black text-emerald-500">
+                          {formatPrice(product.price)}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => {
-                            soundFx.playClick(700);
-                            setQuickInspectProduct(product);
-                            setInspectVariantIdx(0);
-                          }}
-                          className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-zinc-200 hover:text-white font-mono text-xs font-bold transition-all flex items-center gap-1"
-                          title="Quick 3D & Specs Inspection"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          <span>Quick View</span>
-                        </button>
-
-                        <button
                           onClick={() => handleAddToCart(product)}
-                          className={`px-4 py-2 rounded-lg font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md ${
+                          className={`px-4 py-2.5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
                             isAdded
-                              ? 'bg-emerald-400 text-black scale-105'
-                              : 'bg-cyan-400 hover:bg-cyan-300 text-black shadow-cyan-500/20'
+                              ? 'bg-emerald-500 text-black scale-105'
+                              : 'bg-cyan-400 hover:bg-cyan-300 text-black shadow-md shadow-cyan-500/20'
                           }`}
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>{isAdded ? 'Added!' : 'Add'}</span>
+                          <span>{isAdded ? (isFa ? 'افزوده شد!' : 'Added!') : t.addToCart}</span>
                         </button>
                       </div>
                     </div>
@@ -296,10 +351,14 @@ export const StorePage: React.FC = () => {
         )}
       </div>
 
-      {/* Quick 3D Inspect Modal */}
+      {/* Quick View / Inspect Modal */}
       {quickInspectProduct && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl bg-[#090b10] border border-cyan-500/30 rounded-3xl overflow-hidden shadow-2xl p-6 sm:p-8 flex flex-col md:flex-row gap-6 font-mono text-xs text-zinc-300">
+          <div className={`relative w-full max-w-2xl border rounded-3xl overflow-hidden shadow-2xl p-6 sm:p-8 flex flex-col md:flex-row gap-6 font-mono text-xs ${
+            isLight
+              ? 'bg-white border-slate-300 text-zinc-900 shadow-slate-900/20'
+              : 'bg-[#090b10] border-cyan-500/30 text-zinc-300'
+          }`}>
             {/* Left: Product visual preview */}
             <div className="w-full md:w-1/2 flex flex-col gap-3">
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-black border border-white/10">
@@ -313,11 +372,15 @@ export const StorePage: React.FC = () => {
                 </span>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Hardware Specs:</span>
+                <span className={`text-[10px] uppercase tracking-widest ${isLight ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                  {isFa ? 'مشخصات فنی:' : 'Hardware Specs:'}
+                </span>
                 {Object.entries(quickInspectProduct.specs).slice(0, 3).map(([key, val]) => (
-                  <div key={key} className="flex justify-between border-b border-white/5 py-0.5 text-[11px]">
-                    <span className="text-zinc-400">{key}:</span>
-                    <span className="text-white font-semibold">{val}</span>
+                  <div key={key} className={`flex justify-between border-b py-0.5 text-[11px] ${
+                    isLight ? 'border-slate-200' : 'border-white/5'
+                  }`}>
+                    <span className={isLight ? 'text-zinc-500' : 'text-zinc-400'}>{key}:</span>
+                    <span className={`font-semibold ${isLight ? 'text-zinc-900' : 'text-white'}`}>{val}</span>
                   </div>
                 ))}
               </div>
@@ -327,29 +390,39 @@ export const StorePage: React.FC = () => {
             <div className="w-full md:w-1/2 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-cyan-400 font-bold">{quickInspectProduct.subCategory}</span>
+                  <span className="text-cyan-500 font-bold">{quickInspectProduct.subCategory}</span>
                   <button
                     onClick={() => {
                       soundFx.playClick(500);
                       setQuickInspectProduct(null);
                     }}
-                    className="p-1 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white"
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      isLight
+                        ? 'bg-slate-100 hover:bg-slate-200 text-zinc-700'
+                        : 'bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white'
+                    }`}
                   >
-                    ✕
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <h3 className="font-['Syne'] font-black text-2xl text-white tracking-tight">
+                <h3 className={`font-['Syne'] font-black text-2xl tracking-tight ${
+                  isLight ? 'text-zinc-900' : 'text-white'
+                }`}>
                   {quickInspectProduct.name}
                 </h3>
 
-                <p className="mt-2 text-zinc-400 leading-relaxed text-xs line-clamp-3">
+                <p className={`mt-2 leading-relaxed text-xs line-clamp-3 ${
+                  isLight ? 'text-zinc-600' : 'text-zinc-400'
+                }`}>
                   {quickInspectProduct.description}
                 </p>
 
                 {/* Variant selector */}
                 <div className="mt-4 space-y-2">
-                  <span className="text-[10px] text-zinc-400 uppercase tracking-widest">Select Variant:</span>
+                  <span className={`text-[10px] uppercase tracking-widest ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                    {isFa ? 'انتخاب ویرایش محصول:' : 'Select Variant:'}
+                  </span>
                   <div className="flex flex-col gap-1.5">
                     {quickInspectProduct.variants.map((v, idx) => (
                       <button
@@ -360,7 +433,9 @@ export const StorePage: React.FC = () => {
                         }}
                         className={`p-2 rounded-xl border text-left flex items-center justify-between transition-all ${
                           inspectVariantIdx === idx
-                            ? 'bg-cyan-950/60 border-cyan-400 text-white shadow-sm'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-500 font-bold shadow-sm'
+                            : isLight
+                            ? 'bg-slate-50 border-slate-200 text-zinc-700 hover:bg-slate-100'
                             : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white'
                         }`}
                       >
@@ -371,8 +446,8 @@ export const StorePage: React.FC = () => {
                           />
                           <span>{v.name}</span>
                         </div>
-                        <span className="font-bold text-emerald-400">
-                          {v.priceDelta > 0 ? `+${formatPrice(v.priceDelta)}` : 'Included'}
+                        <span className="font-bold text-emerald-500">
+                          {v.priceDelta > 0 ? `+${formatPrice(v.priceDelta)}` : (isFa ? 'شامل پکیج' : 'Included')}
                         </span>
                       </button>
                     ))}
@@ -381,10 +456,10 @@ export const StorePage: React.FC = () => {
               </div>
 
               {/* Total & Action Buttons */}
-              <div className="pt-4 border-t border-white/10 space-y-3 mt-4">
+              <div className={`pt-4 border-t space-y-3 mt-4 ${isLight ? 'border-slate-200' : 'border-white/10'}`}>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-zinc-400">Configured Total:</span>
-                  <span className="font-mono text-2xl font-black text-emerald-400">
+                  <span className={isLight ? 'text-zinc-500' : 'text-zinc-400'}>{t.total}:</span>
+                  <span className="font-mono text-2xl font-black text-emerald-500">
                     {formatPrice(quickInspectProduct.price + quickInspectProduct.variants[inspectVariantIdx].priceDelta)}
                   </span>
                 </div>
@@ -395,9 +470,13 @@ export const StorePage: React.FC = () => {
                       handleInspect(quickInspectProduct.id);
                       setQuickInspectProduct(null);
                     }}
-                    className="py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-center"
+                    className={`py-2.5 rounded-xl font-bold text-center border ${
+                      isLight
+                        ? 'bg-slate-100 hover:bg-slate-200 text-zinc-800 border-slate-300'
+                        : 'bg-white/10 hover:bg-white/20 text-white border-white/10'
+                    }`}
                   >
-                    Deep 3D View
+                    {isFa ? 'نمای سه‌بعدی' : 'Deep 3D View'}
                   </button>
 
                   <button
@@ -412,7 +491,7 @@ export const StorePage: React.FC = () => {
                     className="py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>Add To Cart</span>
+                    <span>{t.addToCart}</span>
                   </button>
                 </div>
               </div>

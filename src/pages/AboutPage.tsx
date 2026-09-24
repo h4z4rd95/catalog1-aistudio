@@ -3,43 +3,53 @@ import { useStore } from '../context/StoreContext';
 import { soundFx } from '../utils/audio';
 import {
   Sparkles,
-  Award,
-  Globe,
-  Users,
   Compass,
   CheckCircle2,
-  Terminal,
-  Zap,
-  ArrowRight
+  Users,
+  Award,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
-  const { setActivePage } = useStore();
+  const { setActivePage, theme, language, direction, t } = useStore();
   const [selectedMilestone, setSelectedMilestone] = useState(3);
+
+  const isLight = theme === 'light';
+  const isFa = language === 'fa';
+  const isRtl = direction === 'rtl';
 
   const team = [
     {
-      name: 'Dr. Valerius Vance',
-      role: 'Founding Creative Technologist',
-      bio: 'Former spatial graphics researcher at MIT Media Lab. Specializes in real-time GLSL raymarching and non-Euclidean UI topology.',
+      name: isFa ? 'دکتر والریوس ونس' : 'Dr. Valerius Vance',
+      role: isFa ? 'هم‌بنیان‌گذار و فناور خلاق ارشد' : 'Founding Creative Technologist',
+      bio: isFa
+        ? 'پژوهشگر اسبق گرافیک فضایی در MIT Media Lab. تخصص در ریمارچینگ شیدرهای GLSL و توپولوژی رابط‌های غیرارقلیدسی.'
+        : 'Former spatial graphics researcher at MIT Media Lab. Specializes in real-time GLSL raymarching and non-Euclidean UI topology.',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
     },
     {
-      name: 'Kaori Takahashi',
-      role: 'Lead Spatial Audio Architect',
-      bio: 'Pioneered Web Audio procedural synthesis and polyrhythmic binaural soundscapes for high-end automotive and luxury brands.',
+      name: isFa ? 'کائوری تاکاهاشی' : 'Kaori Takahashi',
+      role: isFa ? 'معمار ارشد طراحی صدای فضایی' : 'Lead Spatial Audio Architect',
+      bio: isFa
+        ? 'پیشگام سنتز صوتی روی وب‌آدیو و فضاهای صوتی دوگوشی پلی‌ریتمیک برای برندهای فوق‌لوکس جهانی.'
+        : 'Pioneered Web Audio procedural synthesis and polyrhythmic binaural soundscapes for high-end automotive and luxury brands.',
       avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80',
     },
     {
-      name: 'Julian Thorne',
-      role: 'Principal Hardware & Industrial Engineer',
-      bio: 'Lead engineer behind the CyberDeck MK-IV and AURA Vermeil Tourbillon. Expert in CNC 6061-T6 machining and tactile detent physics.',
+      name: isFa ? 'جولین تورن' : 'Julian Thorne',
+      role: isFa ? 'مهندس ارشد صنعتی و سخت‌افزار' : 'Principal Hardware & Industrial Engineer',
+      bio: isFa
+        ? 'مهندس اصلی ترمینال CyberDeck MK-IV و ساعت توربیلون AURA. متخصص در تراش CNC آلومینیوم 6061-T6 و فیزیک چرخ‌دنده‌ها.'
+        : 'Lead engineer behind the CyberDeck MK-IV and AURA Vermeil Tourbillon. Expert in CNC 6061-T6 machining and tactile detent physics.',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80',
     },
     {
-      name: 'Elena Rostova',
-      role: 'Design Director & Typography Master',
-      bio: 'Awwwards Jury Member and editorial serif designer. Blends Renaissance calligraphic ligatures with neo-brutalist algorithmic skew.',
+      name: isFa ? 'النا روستووا' : 'Elena Rostova',
+      role: isFa ? 'مدیر دیزاین و استاد تایپوگرافی' : 'Design Director & Typography Master',
+      bio: isFa
+        ? 'عضو هیئت داوران Awwwards و طراح فونت‌های ادیتوریال. پیونددهنده خطوط کلاسیک رنسانس با تایپوگرافی الگوریتمی معاصر.'
+        : 'Awwwards Jury Member and editorial serif designer. Blends Renaissance calligraphic ligatures with neo-brutalist algorithmic skew.',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
     },
   ];
@@ -47,55 +57,80 @@ export const AboutPage: React.FC = () => {
   const milestones = [
     {
       year: '2021',
-      title: 'Studio Genesis & WebGL Research',
-      desc: 'Founded in Tokyo as a boutique generative research lab experimenting with real-time browser shaders and audio oscillators.',
+      title: isFa ? 'تاسیس استودیو و تحقیقات وب‌جی‌ال' : 'Studio Genesis & WebGL Research',
+      desc: isFa
+        ? 'تاسیس در توکیو به عنوان آزمایشگاه پژوهشی هوش بصری و شیدرهای لحظه‌ای مرورگر و نوسان‌سازهای صوتی.'
+        : 'Founded in Tokyo as a boutique generative research lab experimenting with real-time browser shaders and audio oscillators.',
     },
     {
       year: '2023',
-      title: 'First Awwwards Site of the Year',
-      desc: 'Commissioned by European haute horology houses to build the worlds first browser-based mechanical tourbillon configurator.',
+      title: isFa ? 'اولین جایزه سایت سال Awwwards' : 'First Awwwards Site of the Year',
+      desc: isFa
+        ? 'ساخت اولین کانفیگوراتور مکانیکی ساعت توربیلون تحت وب در جهان به سفارش برندهای برجسته ساعت‌سازی سوئیس.'
+        : 'Commissioned by European haute horology houses to build the worlds first browser-based mechanical tourbillon configurator.',
     },
     {
       year: '2024',
-      title: 'Hardware Synthesis Division',
-      desc: 'Expanded into physical computing with the launch of the CyberDeck tactile terminal and programmable USB-C haptic rotary encoders.',
+      title: isFa ? 'بخش تولید سخت‌افزارهای ملموس' : 'Hardware Synthesis Division',
+      desc: isFa
+        ? 'گسترش به دنیای رایانش فیزیکی با معرفی ترمینال CyberDeck و کنترلرهای روتاری هپتیک با درگاه Type-C.'
+        : 'Expanded into physical computing with the launch of the CyberDeck tactile terminal and programmable USB-C haptic rotary encoders.',
     },
     {
       year: '2026',
-      title: 'Vibe Matrix Architecture & Global Showroom',
-      desc: 'Released the universal 55-component visual playbook, establishing an open standard for Awwwards-tier vibe coding and spatial web engineering.',
+      title: isFa ? 'اکوسیستم دیزاین سیستم ۶۰ قطعه‌ای' : 'Vibe Matrix Architecture & Global Showroom',
+      desc: isFa
+        ? 'انتشار دیزاین سیستم جامع ۶۰ قطعه‌ای در ۱۲ گرایش تخصصی و پایه‌گذاری استاندارد نوین وب فضایی.'
+        : 'Released the universal 60-component visual playbook, establishing an open standard for Awwwards-tier vibe coding and spatial web engineering.',
     },
   ];
 
   return (
-    <div className="w-full min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] pb-28">
+    <div
+      dir={direction}
+      className={`w-full min-h-screen font-['Plus_Jakarta_Sans'] pb-28 transition-colors ${
+        isLight ? 'bg-[#f8fafc] text-zinc-900' : 'bg-[#050609] text-zinc-100'
+      }`}
+    >
       {/* Manifesto Hero */}
-      <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b border-white/10">
+      <section className={`w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b ${
+        isLight ? 'border-slate-200' : 'border-white/10'
+      }`}>
         <div className="max-w-4xl">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold mb-4">
             <Compass className="w-3.5 h-3.5" />
-            <span>MANIFESTO // PHILOSOPHY &amp; PEDIGREE</span>
+            <span>{isFa ? 'مانیفست // فلسفه و اصالت استودیو' : 'MANIFESTO // PHILOSOPHY & PEDIGREE'}</span>
           </div>
 
-          <h1 className="font-['Syne'] font-black text-4xl sm:text-6xl text-white tracking-tight leading-tight">
-            We reject the sterile, homogenous web.
+          <h1 className={`font-['Syne'] font-black text-4xl sm:text-6xl tracking-tight leading-tight ${
+            isLight ? 'text-zinc-900' : 'text-white'
+          }`}>
+            {isFa ? 'ما وب تکراری، استریل و یکنواخت را رد می‌کنیم.' : 'We reject the sterile, homogenous web.'}
           </h1>
 
-          <p className="mt-6 text-zinc-300 text-lg sm:text-xl font-light leading-relaxed">
-            The modern internet was reduced to cookie-cutter design systems and flat cards. AURA exists as a sanctuary for radical beauty, GPU-accelerated spatial physics, procedural acoustic resonance, and uncompromised craft.
+          <p className={`mt-6 text-lg sm:text-xl font-light leading-relaxed ${
+            isLight ? 'text-zinc-600' : 'text-zinc-300'
+          }`}>
+            {isFa
+              ? 'اینترنت معاصر به قالب‌های کلیشه‌ای و کارت‌های تخت تقلیل یافته است. استودیو آئورا پناهگاهی است برای زیبایی رادیکال، فیزیک فضایی شتاب‌گرفته با پردازنده گرافیکی، طنین صوتی تعاملی و صنعتگری بدون مصالحه.'
+              : 'The modern internet was reduced to cookie-cutter design systems and flat cards. AURA exists as a sanctuary for radical beauty, GPU-accelerated spatial physics, procedural acoustic resonance, and uncompromised craft.'}
           </p>
         </div>
       </section>
 
       {/* Historical Milestones Timeline */}
-      <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b border-white/10">
+      <section className={`w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b ${
+        isLight ? 'border-slate-200' : 'border-white/10'
+      }`}>
         <div className="flex items-center justify-between mb-12">
           <div>
-            <span className="font-mono text-xs text-amber-400 font-bold uppercase tracking-widest block mb-1">
-              CHRONOLOGY 2021 &mdash; 2026
+            <span className="font-mono text-xs text-amber-500 font-bold uppercase tracking-widest block mb-1">
+              {isFa ? 'گاه‌شمار استودیو ۲۰۲۱ تا ۲۰۲۶' : 'CHRONOLOGY 2021 — 2026'}
             </span>
-            <h2 className="font-['Syne'] text-3xl sm:text-4xl font-bold text-white">
-              Studio Evolution &amp; Milestones
+            <h2 className={`font-['Syne'] text-3xl sm:text-4xl font-bold ${
+              isLight ? 'text-zinc-900' : 'text-white'
+            }`}>
+              {isFa ? 'مسیر تکامل و نقاط عطف' : 'Studio Evolution & Milestones'}
             </h2>
           </div>
         </div>
@@ -110,17 +145,25 @@ export const AboutPage: React.FC = () => {
               }}
               className={`p-6 rounded-2xl border cursor-pointer transition-all ${
                 selectedMilestone === idx
-                  ? 'bg-zinc-900 border-cyan-400 shadow-xl shadow-cyan-500/10'
+                  ? isLight
+                    ? 'bg-white border-cyan-500 shadow-xl shadow-cyan-500/10'
+                    : 'bg-zinc-900 border-cyan-400 shadow-xl shadow-cyan-500/10'
+                  : isLight
+                  ? 'bg-slate-100 border-slate-200 hover:border-slate-300'
                   : 'bg-white/5 border-white/10 hover:border-white/20'
               }`}
             >
               <span className="font-mono text-2xl font-black text-cyan-400 block mb-2">
                 {m.year}
               </span>
-              <h3 className="font-['Syne'] font-bold text-base text-white mb-2">
+              <h3 className={`font-['Syne'] font-bold text-base mb-2 ${
+                isLight ? 'text-zinc-900' : 'text-white'
+              }`}>
                 {m.title}
               </h3>
-              <p className="text-xs text-zinc-400 font-light leading-relaxed">
+              <p className={`text-xs font-light leading-relaxed ${
+                isLight ? 'text-zinc-600' : 'text-zinc-400'
+              }`}>
                 {m.desc}
               </p>
             </div>
@@ -129,13 +172,17 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Team Roster */}
-      <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b border-white/10">
+      <section className={`w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto border-b ${
+        isLight ? 'border-slate-200' : 'border-white/10'
+      }`}>
         <div className="mb-12">
           <span className="font-mono text-xs text-cyan-400 font-bold uppercase tracking-widest block mb-1">
-            COLLECTIVE LEADERSHIP
+            {isFa ? 'رهبری و معماران اصلی' : 'COLLECTIVE LEADERSHIP'}
           </span>
-          <h2 className="font-['Syne'] text-3xl sm:text-4xl font-bold text-white">
-            Architects &amp; Technologists
+          <h2 className={`font-['Syne'] text-3xl sm:text-4xl font-bold ${
+            isLight ? 'text-zinc-900' : 'text-white'
+          }`}>
+            {isFa ? 'معماران و فناوران خلاق' : 'Architects & Technologists'}
           </h2>
         </div>
 
@@ -143,7 +190,11 @@ export const AboutPage: React.FC = () => {
           {team.map((member) => (
             <div
               key={member.name}
-              className="rounded-2xl bg-zinc-900/60 border border-white/15 overflow-hidden flex flex-col hover:border-cyan-400/50 transition-all group"
+              className={`rounded-2xl border overflow-hidden flex flex-col transition-all group ${
+                isLight
+                  ? 'bg-white border-slate-200 hover:border-cyan-500 shadow-sm'
+                  : 'bg-zinc-900/60 border-white/15 hover:border-cyan-400/50'
+              }`}
             >
               <div className="aspect-[4/3] overflow-hidden bg-zinc-950">
                 <img
@@ -154,13 +205,17 @@ export const AboutPage: React.FC = () => {
               </div>
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <h4 className="font-['Syne'] font-bold text-lg text-white group-hover:text-cyan-300 transition-colors">
+                  <h4 className={`font-['Syne'] font-bold text-lg transition-colors ${
+                    isLight ? 'text-zinc-900 group-hover:text-cyan-600' : 'text-white group-hover:text-cyan-300'
+                  }`}>
                     {member.name}
                   </h4>
-                  <span className="font-mono text-[11px] text-cyan-400 font-semibold block mt-0.5">
+                  <span className="font-mono text-[11px] text-cyan-500 font-semibold block mt-0.5">
                     {member.role}
                   </span>
-                  <p className="text-xs text-zinc-400 font-light mt-3 leading-relaxed">
+                  <p className={`text-xs font-light mt-3 leading-relaxed ${
+                    isLight ? 'text-zinc-600' : 'text-zinc-400'
+                  }`}>
                     {member.bio}
                   </p>
                 </div>
@@ -170,34 +225,30 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Awards & Recognition Grid */}
-      <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        <div className="p-8 sm:p-12 rounded-3xl bg-zinc-900/40 border border-white/15 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div>
-            <span className="font-mono text-xs text-amber-400 font-bold uppercase tracking-widest block mb-2">
-              ACCOLADES &amp; CITATIONS
-            </span>
-            <h3 className="font-['Syne'] text-2xl sm:text-3xl font-bold text-white">
-              Recognized by the World's Foremost Design Academies
-            </h3>
-            <p className="text-sm text-zinc-400 max-w-lg mt-2 font-light">
-              Over 28 Site of the Day honors, 6 Developer of the Year nominations, and the Cannes Lion for Experimental Digital Interfaces.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4 shrink-0">
-            <button
-              onClick={() => {
-                soundFx.playChime(750, 0.2);
-                setActivePage('CONTACT');
-              }}
-              className="px-6 py-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-2"
-            >
-              <span>Commission A Commission</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      {/* Bottom CTA */}
+      <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto text-center">
+        <h3 className={`font-['Syne'] text-3xl sm:text-4xl font-bold mb-4 ${
+          isLight ? 'text-zinc-900' : 'text-white'
+        }`}>
+          {isFa ? 'همکاری با پیشروترین آتلیه طراحی جهان' : 'Collaborate With The Atelier'}
+        </h3>
+        <p className={`font-light max-w-xl mx-auto text-sm mb-8 ${
+          isLight ? 'text-zinc-600' : 'text-zinc-400'
+        }`}>
+          {isFa
+            ? 'ما سالانه تعداد محدودی پروژه اختصاصی در حوزه وب فضایی، دیزاین سیستم‌های سازمانی و قطعات سخت‌افزاری سفارشی می‌پذیریم.'
+            : 'We accept a limited number of commissions per calendar year for bespoke spatial web applications, design systems, and physical hardware.'}
+        </p>
+        <button
+          onClick={() => {
+            soundFx.playClick(650);
+            setActivePage('CONTACT');
+          }}
+          className="px-8 py-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-mono text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+        >
+          <span>{isFa ? 'ارسال بریف و شروع مکاتبه' : 'Transmit Client Dossier'}</span>
+          {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+        </button>
       </section>
     </div>
   );

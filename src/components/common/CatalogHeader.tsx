@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AestheticFilter, TechFilter } from '../../types';
-import { Volume2, VolumeX, Sparkles, Activity, Layers, ArrowDown, Search, Radio, Music } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Activity, Layers, ArrowDown, Search, Radio, Music, Sun, Moon, Globe, ArrowLeftRight } from 'lucide-react';
 import { soundFx } from '../../utils/audio';
+import { useStore } from '../../context/StoreContext';
 
 interface CatalogHeaderProps {
   currentAesthetic: AestheticFilter;
@@ -32,6 +33,9 @@ export default function CatalogHeader({
   const [ambientPreset, setAmbientPreset] = useState<'SANCTUARY' | 'SOLFEGGIO_528' | 'ZEN_WARMTH' | 'CELESTIAL'>('SANCTUARY');
   const [ambientVol, setAmbientVol] = useState(0.022);
   const [fps, setFps] = useState(60);
+
+  const { theme, toggleTheme, language, toggleLanguage, direction, toggleDirection, t } = useStore();
+  const isLight = theme === 'light';
 
   useEffect(() => {
     let frameCount = 0;
@@ -88,7 +92,7 @@ export default function CatalogHeader({
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              Showroom (55 Variations)
+              {language === 'fa' ? 'نمایشگاه قطعات (۶۰ تنوع)' : 'Showroom (60 Variations)'}
             </button>
             <button
               onClick={() => {
@@ -102,7 +106,7 @@ export default function CatalogHeader({
               }`}
             >
               <Sparkles className="w-3 h-3 text-cyan-300" />
-              <span>Full Usable Website (Store, Cart, Checkout, Auth)</span>
+              <span>{language === 'fa' ? 'سایت کامل آورا (فروشگاه، اخبار، سبد، تسویه)' : 'Full Usable Website (Store, News, Cart, Auth)'}</span>
             </button>
           </div>
         </div>
@@ -238,6 +242,42 @@ export default function CatalogHeader({
           >
             {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
             <span>{soundEnabled ? 'FX ON' : 'FX OFF'}</span>
+          </button>
+
+          {/* Theme Mode Toggle (White / Black) */}
+          <button
+            onClick={toggleTheme}
+            className={`p-1.5 rounded-lg border flex items-center justify-center transition-all ${
+              isLight
+                ? 'bg-amber-100 border-amber-300 text-amber-700'
+                : 'bg-zinc-900 border-white/10 text-amber-300 hover:text-white'
+            }`}
+            title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            data-cursor="hover"
+          >
+            {isLight ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Language Switcher (ENG / FA) */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg border font-mono text-[11px] font-bold bg-zinc-900 border-white/10 text-cyan-400 hover:text-white transition-all"
+            title="Switch Language: English / فارسی"
+            data-cursor="hover"
+          >
+            <Globe className="w-3 h-3 text-cyan-400" />
+            <span>{language === 'en' ? 'FA' : 'EN'}</span>
+          </button>
+
+          {/* Direction Switcher (LTR / RTL) */}
+          <button
+            onClick={toggleDirection}
+            className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-lg border font-mono text-[10px] font-bold bg-zinc-900 border-white/10 text-indigo-400 hover:text-white transition-all"
+            title="Switch Layout Direction: LTR / RTL"
+            data-cursor="hover"
+          >
+            <ArrowLeftRight className="w-3 h-3 text-indigo-400" />
+            <span>{direction.toUpperCase()}</span>
           </button>
         </div>
       </div>
