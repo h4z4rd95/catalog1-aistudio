@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { soundFx } from '../../utils/audio';
 import { useStore } from '../../context/StoreContext';
 import {
@@ -29,7 +29,16 @@ import {
   Sliders,
   Check,
   X,
-  Play
+  Play,
+  Volume2,
+  Terminal,
+  Compass,
+  Cpu,
+  ShieldCheck,
+  Maximize2,
+  Clock,
+  Send,
+  Plus
 } from 'lucide-react';
 
 interface WikiGameProps {
@@ -55,6 +64,8 @@ interface GameData {
   releaseYear: number;
   developer: string;
   publisher: string;
+  engine: string;
+  playtime: string;
   platforms: string[];
   genres: string[];
   bannerImage: string;
@@ -68,7 +79,7 @@ interface GameData {
     gamespot: number; // out of 10
     metacritic: number; // out of 100
     steam: string; // e.g. "96% Overwhelmingly Positive"
-    wikiGame: number; // our site score out of 10
+    wikiGame: number; // our editorial site score out of 10
   };
   systemReqs: {
     min: { os: string; cpu: string; gpu: string; ram: string; storage: string };
@@ -95,7 +106,7 @@ interface GameData {
   walkthrough: {
     chapters: { title: string; summary: string; tips: string[] }[];
   };
-  qa: { question: string; author: string; answer: string; votes: number }[];
+  qa: { id: string; question: string; author: string; answer: string; votes: number }[];
   reviews: GameReview[];
 }
 
@@ -107,8 +118,10 @@ export const WIKI_GAMES: GameData[] = [
     releaseYear: 2025,
     developer: 'Rockstar Games',
     publisher: 'Take-Two Interactive',
+    engine: 'RAGE Engine 9.0',
+    playtime: '۸۵+ ساعت داستان و جهان‌باز',
     platforms: ['PC', 'PlayStation 5', 'Xbox Series X/S'],
-    genres: ['Open World', 'Action-Adventure', 'Crime'],
+    genres: ['Open World', 'Action-Adventure', 'Crime', 'Next-Gen'],
     bannerImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80',
     coverImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
     shortDescription: 'Welcome to Leonida and the neon-soaked streets of Vice City in the most immersive open-world experience ever created.',
@@ -124,277 +137,277 @@ export const WIKI_GAMES: GameData[] = [
     },
     systemReqs: {
       min: {
-        os: 'Windows 11 (64-bit)',
-        cpu: 'Intel Core i7-8700K / AMD Ryzen 5 3600',
-        gpu: 'NVIDIA GeForce RTX 2070 8GB / AMD Radeon RX 5700 XT',
-        ram: '16 GB RAM',
-        storage: '150 GB DirectStorage NVMe SSD',
+        os: 'Windows 11 64-bit',
+        cpu: 'Intel Core i7-10700K / AMD Ryzen 7 3800X',
+        gpu: 'NVIDIA GeForce RTX 3060 12GB / AMD Radeon RX 6700 XT',
+        ram: '16 GB DDR4',
+        storage: '150 GB SSD (NVMe Recommended)',
       },
       rec: {
-        os: 'Windows 11 (64-bit)',
-        cpu: 'Intel Core i9-13900K / AMD Ryzen 7 7800X3D',
-        gpu: 'NVIDIA GeForce RTX 4080 16GB / AMD Radeon RX 7900 XTX',
-        ram: '32 GB DDR5 RAM',
-        storage: '150 GB High-Speed PCIe 5.0 SSD',
+        os: 'Windows 11 64-bit DirectStorage',
+        cpu: 'Intel Core i9-13900K / AMD Ryzen 9 7900X',
+        gpu: 'NVIDIA GeForce RTX 4080 Super 16GB / AMD RX 7900 XTX',
+        ram: '32 GB DDR5',
+        storage: '150 GB PCIe Gen4 NVMe SSD',
       },
     },
     screenshots: [
       'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80',
     ],
     trailers: [
       {
-        title: 'Official Reveal Trailer 1 (Vice City 4K)',
-        duration: '1:31 min',
+        title: 'GTA VI Reveal Trailer 1 - Vice City 4K',
+        duration: '1:31',
         url: 'https://www.youtube.com',
-        thumbnail: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80',
+        thumbnail: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
       },
       {
-        title: 'Gameplay Mechanics & RAGE 9 Tech Breakdown',
-        duration: '4:15 min',
+        title: 'Lucia & Jason Character Spotlight',
+        duration: '2:45',
         url: 'https://www.youtube.com',
-        thumbnail: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80',
+        thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
       },
     ],
     trainers: {
-      title: 'Fling Trainer v1.0.4 Plus 28 Options',
-      version: '1.0.4',
-      author: 'FLiNG & WikiGame Tech Lab',
+      title: 'GTA VI Ultimate Plus Trainer (v1.02 Fling)',
+      version: 'v1.02 Full Release',
+      author: 'FLiNG & WikiGame Team',
       features: [
-        'Numpad 1: سلامتی بی‌نهایت (God Mode / Infinite Health)',
-        'Numpad 2: استقامت و مهمات نامحدود (Infinite Stamina & Ammo)',
-        'Numpad 3: حذف پلیس و درجه تعقیب (Zero Wanted Level)',
-        'Numpad 4: پول و حساب بانکی بی‌نهایت (Infinite Cash)',
-        'Numpad 5: سوپر اسپید و تلمپورت به مارکر نقشه (Teleport to Waypoint)',
+        'Numpad 1: جان بی‌نهایت (God Mode)',
+        'Numpad 2: زره و استقامت نامحدود',
+        'Numpad 3: تیر و خشاب بی‌نهایت بدون نیاز به لود مجدد',
+        'Numpad 4: صفر کردن ستاره‌های تعقیب پلیس (Never Wanted)',
+        'Numpad 5: افزودن ۱,۰۰۰,۰۰۰ دلار به موجودی جیسون و لوسیا',
+        'Numpad 6: سرعت حرکت سوپرمن و تلپورت به نشانگر نقشه',
       ],
       downloadUrl: '#download-trainer-gta6',
     },
     persianMod: {
-      title: 'ماد فارسی‌ساز جامع وایس‌سیتی (زیرنویس منو و تمام دیالوگ‌ها)',
-      type: 'فارسی‌ساز متن + زیرنویس فارسی اختصاصی',
-      translator: 'گروه ترجمه تخصصی گیمینگ ویکی‌گیم',
+      title: 'ماد فارسی‌ساز و زیرنویس اختصاصی GTA VI (دوبله هوش مصنوعی + متن)',
+      type: 'زیرنویس کامل تمام دیالوگ‌ها، پیامک‌ها، وب‌سایت‌های داخل بازی و اخبار',
+      translator: 'دپارتمان بومی‌سازی ویکی‌گیم (نسخه طلایی)',
       features: [
-        'ترجمه ۱۰۰٪ تمامی مراحل داستانی و ماموریت‌های فرعی',
-        'زیرنویس همگام‌شده برای مکالمات رادیویی و مکالمات عابرین',
-        'سازگار با آخرین آپدیت استیم و سوشال کلاب راک‌استار',
-        'فونت اختصاصی فارسی خوانا با ابعاد استاندارد و تنظیم موقعیت',
+        'ترجمه ۱۰۰٪ خط داستانی، ماموریت‌های فرعی و رادیوهای وایس‌سیتی',
+        'پشتیبانی از فونت اختصاصی نئونی با خوانایی عالی در رزولوشن 4K',
+        'بدون تداخل با آپدیت‌های رسمی و سیستم آنلاین راک‌استار',
       ],
-      installGuide: 'فایل دانلودی را استخراج کرده و پوشه mods را در محل نصب بازی کپی نمایید. سپس لانچر اختصاصی را اجرا کنید.',
-      downloadUrl: '#download-persian-mod-gta6',
-      size: '280 MB',
+      installGuide: 'فایل نصبی را اجرا کرده و مسیر پوشه نصب GTA VI را انتخاب کنید. فعال‌سازی به صورت خودکار انجام می‌شود.',
+      downloadUrl: '#download-persian-gta6',
+      size: '340 MB',
     },
     walkthrough: {
       chapters: [
         {
-          title: 'فصل اول: فرار از زندان لئونیدا و بازگشت به وایس‌سیتی',
-          summary: 'آشنایی با مکانیزم‌های تیراندازی جدید، فرار در باتلاق‌های اورگلیدز و به سرقت بردن قایق تندرو.',
-          tips: ['همیشه از پوشش‌های بتنی استفاده کنید.', 'شلیک به مخزن سوخت هلیکوپتر پلیس سریع‌ترین راه خروج است.'],
+          title: 'مقدمه: فرار از زندان ایالتی لئونیدا',
+          summary: 'آشنایی با مکانیک‌های مخفی‌کاری و کاورگیری جدید لوسیا هنگام گریز از محوطه شمالی.',
+          tips: ['استفاده از دوربین‌های مداربسته برای شناسایی گشت‌های شبانه پیش از حرکت.'],
         },
         {
-          title: 'فصل دوم: سازماندهی سرقت بزرگ از صرافی اوشن درایو',
-          summary: 'برنامه‌ریزی نقشه‌های سرقت، استخدام راننده و کارگذاری بمب‌های الکترومغناطیسی EMP.',
-          tips: ['استفاده از گاز خواب‌آور از آلارم بانک جلوگیری می‌کند.'],
+          title: 'فصل اول: سرقت مسلحانه از فروشگاه زنجیره‌ای اوشن درایو',
+          summary: 'هماهنگی میان جیسون و لوسیا برای مهار گروگان‌ها و باز کردن گاوصندوق پشتی.',
+          tips: ['شلیک به جعبه تقسیم برق برای غیرفعال کردن آژیر خطر بی‌صدا.'],
         },
       ],
     },
     qa: [
       {
-        question: 'آیا برای اجرای بازی حتما به اس‌اس‌دی NVMe نیاز است یا روی HDD هم اجرا می‌شود؟',
-        author: 'سامان گیمر',
-        answer: 'به دلیل حجم بالای استریمینگ بافت‌ها و عدم وجود لودینگ اسکرین، نصب روی حافظه پرسرعت SSD NVMe با پشتیبانی از DirectStorage الزامی است.',
-        votes: 42,
-      },
-      {
-        question: 'آیا بازی روی ویندوز ۱۰ هم اجرا می‌شود؟',
-        author: 'کیانوش راد',
-        answer: 'بله، نسخه ۶۴ بیتی ویندوز ۱۰ با بیلد ۲۱H2 به بالا پشتیبانی می‌شود اما برای عملکرد پایدارتر ویندوز ۱۱ توصیه شده است.',
-        votes: 19,
+        id: 'qa-gta-1',
+        question: 'آیا برای اجرای نسخه PC بازی نیاز به اتصال مداوم به اینترنت وجود دارد؟',
+        author: 'علیرضا رادمان',
+        answer: 'برای بخش داستانی تنها یک‌بار فعال‌سازی اولیه در سوشال کلاب راک‌استار کافی است و بازی به صورت آفلاین قابل اجراست.',
+        votes: 142,
       },
     ],
     reviews: [
       {
-        id: 'rev-1',
-        author: 'آرشام پیروز',
+        id: 'rev-gta-1',
+        author: 'پویا مرادی',
         rating: 10,
         recommend: true,
-        pros: ['گرافیک و نورپردازی بی‌رقیب', 'هوش مصنوعی زنده شهروندان', 'روایت داستانی و شخصیت‌پردازی شاهکار'],
-        cons: ['سیستم مورد نیاز سنگین برای تنظیمات الترا'],
-        comment: 'شاهکار بدون چون‌وچرای راک‌استار. جزئیات بازی به حدی بالاست که ساعت‌ها فقط محو تماشای خیابان‌های وایس‌سیتی می‌شوید.',
-        date: '۱ روز پیش',
-        likes: 128,
+        pros: ['گرافیک فراواقعی با ری‌تریسینگ و انعکاس بی‌نظیر آب', 'شخصیت‌پردازی عمیق و شیمی بین لوسیا و جیسون', 'هوش مصنوعی زنده شهروندان'],
+        cons: ['حجم بالای بازی و سخت‌افزار سنگین برای 4K'],
+        comment: 'شاهکار قرن راک‌استار. از ثانیه اول تا آخر غرق در اتمسفر وایس‌سیتی می‌شوید. جزئیات فیزیک و هوای طوفانی باورنکردنی است.',
+        date: '۳ روز پیش',
+        likes: 245,
       },
       {
-        id: 'rev-2',
-        author: 'Farhad_Gamer99',
+        id: 'rev-gta-2',
+        author: 'سپهر نعمتی',
         rating: 9,
         recommend: true,
-        pros: ['گان‌پلی روان و واقع‌گرایانه', 'موسیقی و گویندگی استثنایی'],
-        cons: ['افت فریم مقطعی در مناطق شلوغ مرکز شهر'],
-        comment: 'بهترین جهان‌بازی که تا امروز خلق شده. داستان لوسیا و جیسون فوق‌العاده پرداخته شده است.',
-        date: '۳ روز پیش',
-        likes: 64,
+        pros: ['طراحی فوق‌العاده رادیوها و موسیقی متن', 'سیستم تیراندازی بهبود یافته'],
+        cons: ['کنترل برخی قایق‌ها در موج‌های سنگین کمی قلق دارد'],
+        comment: 'بهترین تجربه سندباکس در تمام تاریخ. ارزش هر سنت از خریدش را دارد.',
+        date: '۱ هفته پیش',
+        likes: 180,
       },
     ],
   },
   {
-    id: 'game-black-myth',
+    id: 'game-wukong',
     title: 'Black Myth: Wukong',
-    titleFa: 'افسانه سیاه: ووکانگ',
+    titleFa: 'افسانه سیاه: ووکانگ (Black Myth)',
     releaseYear: 2024,
     developer: 'Game Science',
     publisher: 'Game Science',
+    engine: 'Unreal Engine 5.4',
+    playtime: '۴۵ تا ۶۰ ساعت چالش اکشن',
     platforms: ['PC', 'PlayStation 5'],
     genres: ['Action RPG', 'Soulslike', 'Mythology'],
-    bannerImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1920&q=80',
-    coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-    shortDescription: 'Embark on a mythical journey across ancient China as the Destined One, armed with the legendary staff and 72 transformations.',
-    shortDescriptionFa: 'سفر به دل اساطیر کهن چین در نقش مقدرشده (The Destined One)؛ نبردهای حماسی با چوب‌دستی جادویی و تغییر شکل به ۷۲ فرم با موتور آنریل انجین ۵.',
-    fullDescription: 'Black Myth: Wukong is an action RPG rooted in Chinese mythology. Set out as the Destined One to venture into the challenges and marvels ahead, to uncover the obscured truth beneath the veil of a glorious legend from the past.',
-    fullDescriptionFa: 'بازی اکشن نقش‌آفرینی بر پایه رمان کلاسیک «سفر به باختر». جلوه‌های بصری خیره‌کننده با فناوری Nanite و Lumen آنریل انجین ۵، مبارزات سریع و بیش از ۸۰ باس‌فایت چالش‌برانگیز.',
+    bannerImage: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1920&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+    shortDescription: 'Destined One journeys into Chinese mythology in this visual tour-de-force built on Unreal Engine 5.',
+    shortDescriptionFa: 'نقش «مقدر شده» (Destined One) را در سفری حماسی به ژرفای اسطوره‌شناسی کهن چین و رمان سفر به باختر بر عهده بگیرید.',
+    fullDescription: 'Black Myth: Wukong is an action RPG rooted in Chinese mythology. As the Destined One, you shall venture into the vast and enchanting world to uncover the obscured truth beneath the veil of a glorious legend from the past.',
+    fullDescriptionFa: 'بازی اکشن نقش‌آفرینی خیره‌کننده با موتور آنریل انجین ۵.۴ که مبارزات با چوب‌دستی جادویی روئی جینگو بنگ، تغییر شکل به موجودات دیگر و جادوهای عناصر کهن را با بالاترین کیفیت بصری ممکن عرضه می‌کند.',
     scores: {
-      ign: 9.0,
-      gamespot: 8.5,
+      ign: 8.5,
+      gamespot: 8,
       metacritic: 82,
       steam: '96% Overwhelmingly Positive',
-      wikiGame: 9.2,
+      wikiGame: 9.3,
     },
     systemReqs: {
       min: {
         os: 'Windows 10 64-bit',
         cpu: 'Intel Core i5-8400 / AMD Ryzen 5 1600',
-        gpu: 'NVIDIA GeForce GTX 1060 6GB / AMD Radeon RX 580 8GB',
-        ram: '16 GB RAM',
+        gpu: 'NVIDIA GeForce GTX 1060 6GB / AMD RX 580 8GB',
+        ram: '16 GB',
         storage: '130 GB SSD',
       },
       rec: {
-        os: 'Windows 10/11 64-bit',
+        os: 'Windows 11 64-bit',
         cpu: 'Intel Core i7-9700 / AMD Ryzen 5 5500',
-        gpu: 'NVIDIA GeForce RTX 2060 / AMD Radeon RX 5700 XT',
-        ram: '16 GB RAM',
-        storage: '130 GB High-Speed SSD',
+        gpu: 'NVIDIA GeForce RTX 4070 / AMD RX 7800 XT',
+        ram: '16 GB DDR5',
+        storage: '130 GB NVMe SSD',
       },
     },
     screenshots: [
+      'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
     ],
     trailers: [
       {
-        title: 'Launch Trailer 4K Boss Rush',
-        duration: '3:20 min',
+        title: 'Black Myth: Wukong - Final Gameplay Trailer',
+        duration: '4:15',
         url: 'https://www.youtube.com',
-        thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+        thumbnail: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
       },
     ],
     trainers: {
-      title: 'WeMod Black Myth Trainer Plus 32',
-      version: '1.0.8',
-      author: 'WeMod & FLiNG',
+      title: 'Black Myth Wukong Trainer (+18 Features)',
+      version: 'v1.0.8 Latest Patch',
+      author: 'WikiGame Tech Lab',
       features: [
-        'F1: جان نامحدود (Infinite Health)',
-        'F2: مانا و استقامت بی‌نهایت (Infinite Mana & Stamina)',
-        'F3: افزایش فوکوس و آسیب ضربات (Max Focus / Instant Stance)',
-        'F4: سکه و ویل نامحدود (Infinite Will & Spark)',
+        'Numpad 1: خون بی‌نهایت',
+        'Numpad 2: مانا و انرژی بی‌نهایت برای جادوها',
+        'Numpad 3: استقامت (Stamina) نامحدود',
+        'Numpad 4: افزایش ضریب دمیج چوب‌دستی به ۱۰ برابر',
       ],
       downloadUrl: '#download-trainer-wukong',
     },
     persianMod: {
-      title: 'ماد ترجمه دیالوگ‌ها و لور اساطیری ووکانگ',
-      type: 'زیرنویس فارسی کامل',
+      title: 'زیرنویس فارسی کامل اسطوره‌ای ووکانگ',
+      type: 'ترجمه تمام اسناد اساطیری، دیالوگ‌ها و دفترچه راهنمای یائوگوای‌ها',
       translator: 'تیم زیرنویس ویکی‌گیم',
       features: [
-        'ترجمه اشعار و دیالوگ‌های فلسفی کهن',
-        'توضیحات فارسی برای تمام ارواح و اسپل‌ها',
+        'معادل‌سازی دقیق اصطلاحات بودیسم و اسطوره‌شناسی چین',
+        'فونت فارسی هنری متناسب با تم تاریخی بازی',
       ],
-      installGuide: 'فایل Pak را در مسیر Paks/~mods قرار دهید.',
-      downloadUrl: '#download-mod-wukong',
+      installGuide: 'محتوای پوشه را در فولدر Paks بازی کپی کنید و launch option را با عبارت -fileopenlog اجرا کنید.',
+      downloadUrl: '#download-persian-wukong',
       size: '85 MB',
     },
     walkthrough: {
       chapters: [
         {
-          title: 'فصل اول: کوهستان گرگ‌های سیاه و شکست گوانگ‌ژی',
-          summary: 'یادگیری فرم دفاعی صخره و کسب اولین ترنسفورمیشن.',
-          tips: ['استفاده از اسپل Freeze در هنگام شارژ حمله باس.'],
+          title: 'فصل اول: کوهستان باد سیاه (Black Wind Mountain)',
+          summary: 'مسیر مبارزه با گرگ سفید، راهب بودایی آتشین و باس فینال خرس سیاه.',
+          tips: ['قبل از مبارزه با خرس سیاه، حتما زنگ‌های سه‌گانه را به صدا درآورید تا باس مخفی باز شود.'],
         },
       ],
     },
     qa: [
       {
-        question: 'آیا درجه سختی در بازی قابل تغییر است؟',
-        author: 'رضا امینی',
-        answer: 'خیر، بازی درجه سختی پیش‌فرض ندارد اما با باز کردن اسپل‌های جادویی و تغییر فرم‌ها می‌توانید نبردها را بسیار آسان‌تر کنید.',
-        votes: 31,
+        id: 'qa-wukong-1',
+        question: 'آیا درجه سختی بازی قابل تغییر است؟',
+        author: 'رضا صبوری',
+        answer: 'خیر، بازی دارای درجه سختی ثابت مانند بازی‌های سبک سولزلایک است اما ارتقای جادوها و تغییر فرم بازی را آسان‌تر می‌کند.',
+        votes: 89,
       },
     ],
     reviews: [
       {
-        id: 'rev-wukong-1',
-        author: 'پرهام ناصری',
+        id: 'rev-wuk-1',
+        author: 'فرزاد کاظمی',
         rating: 9,
         recommend: true,
-        pros: ['باس‌فایت‌های بسیار متنوع', 'جلوه‌های صوتی و موسیقی سنتی چینی', 'طراحی مسحورکننده محیط‌ها'],
-        cons: ['دیوارهای نامرئی در برخی بخش‌های نقشه'],
-        comment: 'یک تجربه بی‌نظیر برای طرفداران سبک اکشن اسطوره‌ای. طراحی هر باس‌فایت منحصربه‌فرد است.',
-        date: 'هفته گذشته',
-        likes: 95,
+        pros: ['تنوع دیوانه‌وار باس‌فایت‌ها', 'سیستم تغییر فرم و جادوها', 'گرافیک نسل بعدی'],
+        cons: ['دیوارهای نامرئی در برخی گوشه‌های نقشه'],
+        comment: 'یکی از غافلگیرکننده‌ترین بازی‌های چند سال اخیر. طراحی باس‌ها و صداگذاری سازهای سنتی شاهکار است.',
+        date: '۲ هفته پیش',
+        likes: 194,
       },
     ],
   },
   {
-    id: 'game-cyberpunk-phantom',
+    id: 'game-cyberpunk',
     title: 'Cyberpunk 2077: Phantom Liberty',
     titleFa: 'سایبرپانک ۲۰۷۷: فانتوم لیبرتی',
     releaseYear: 2023,
     developer: 'CD Projekt RED',
     publisher: 'CD Projekt',
+    engine: 'REDengine 4 (Ray Tracing Overdrive)',
+    playtime: '۳۰+ ساعت ماجراجویی جاسوسی نایت‌سیتی',
     platforms: ['PC', 'PlayStation 5', 'Xbox Series X/S'],
-    genres: ['Sci-Fi', 'RPG', 'Open World', 'Cyberpunk'],
-    bannerImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1920&q=80',
-    coverImage: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
-    shortDescription: 'A gripping spy-thriller expansion set in the dangerous district of Dogtown starring Idris Elba as Solomon Reed.',
-    shortDescriptionFa: 'بسته الحاقی مهیج و جاسوسی در منطقه خطرناک داگ‌تاون با نقش‌آفرینی ادریس البا در نقش سالومون رید و بازگشت جانی سیلورهند.',
-    fullDescription: 'Phantom Liberty is a spy-thriller expansion for Cyberpunk 2077. Return as cyber-enhanced mercenary V, and embark on a high-stakes mission of espionage and survival to save the NUSA President. Re-engineered perk trees, vehicle combat, and Path Tracing graphics.',
-    fullDescriptionFa: 'فانتوم لیبرتی اوج پختگی سی‌دی‌پراجکت است. ارتقای بنیادین سیستم مهارت‌ها (Perk 2.0)، نبردهای ماشینی مجهز به مسلسل و راکت، و هوش مصنوعی تهاجمی پلیس نایت‌سیتی.',
+    genres: ['Open World', 'Cyberpunk', 'Sci-Fi RPG'],
+    bannerImage: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1920&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+    shortDescription: 'Spy-thriller expansion in the dangerous walled district of Dogtown starring Idris Elba as Solomon Reed.',
+    shortDescriptionFa: 'بسته الحاقی جاسوسی مهیج در منطقه خودمختار و خطرناک داگ‌تاون با نقش‌آفرینی ادریس البا و کیانو ریوز.',
+    fullDescription: 'Phantom Liberty is a spy-thriller adventure for Cyberpunk 2077. When the orbital shuttle of the President of the New USA is shot down over the deadliest district of Night City, there is only one person who can save her — you.',
+    fullDescriptionFa: 'داستان شاتل سرنگون‌شده رئیس‌جمهور مایرز در داگ‌تاون، منطقه زیر نظر کلنل کرت هنسن. به همراه سالومون رید و جانی سیلورهند، شبکه‌ای پیچیده از خیانت‌های اطلاعاتی و فناوری‌های غیرقانونی فراتر از بلک‌وال را کشف کنید.',
     scores: {
-      ign: 9.0,
-      gamespot: 9.0,
-      metacritic: 89,
+      ign: 9,
+      gamespot: 10,
+      metacritic: 90,
       steam: '95% Overwhelmingly Positive',
-      wikiGame: 9.4,
+      wikiGame: 9.7,
     },
     systemReqs: {
       min: {
         os: 'Windows 10 64-bit',
-        cpu: 'Intel Core i7-6700 / AMD Ryzen 5 1600',
-        gpu: 'NVIDIA GeForce GTX 1060 6GB / AMD Radeon RX 580',
-        ram: '12 GB RAM',
+        cpu: 'Core i7-6700 / Ryzen 5 1600',
+        gpu: 'GTX 1060 6GB / RX 580',
+        ram: '12 GB',
         storage: '70 GB SSD Required',
       },
       rec: {
-        os: 'Windows 10/11 64-bit',
-        cpu: 'Intel Core i7-12700 / AMD Ryzen 7 7800X',
-        gpu: 'NVIDIA GeForce RTX 3080 / AMD Radeon RX 6800 XT',
-        ram: '16 GB RAM',
-        storage: '70 GB NVMe SSD',
+        os: 'Windows 11 64-bit',
+        cpu: 'Core i7-12700 / Ryzen 7 7800X3D',
+        gpu: 'RTX 4070 Ti Super / RX 7900 XT',
+        ram: '32 GB',
+        storage: '70 GB NVMe',
       },
     },
     screenshots: [
-      'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
     ],
     trailers: [
       {
-        title: 'Cinematic Spy Thriller Trailer ft. Idris Elba',
-        duration: '2:45 min',
+        title: 'Cyberpunk 2077: Phantom Liberty Official Cinematic Trailer',
+        duration: '3:05',
         url: 'https://www.youtube.com',
-        thumbnail: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80',
+        thumbnail: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
       },
     ],
     trainers: {
-      title: 'Cyberpunk 2077 v2.13 Trainer +36 Options',
-      version: '2.13',
+      title: 'Cyberpunk 2077 + Phantom Liberty Trainer (+24)',
+      version: 'v2.13 Updated',
       author: 'FLiNG',
       features: [
         'Numpad 1: جان و زره بی‌نهایت',
@@ -427,6 +440,7 @@ export const WIKI_GAMES: GameData[] = [
     },
     qa: [
       {
+        id: 'qa-cp-1',
         question: 'آیا برای تجربه فانتوم لیبرتی باید بازی اصلی تمام شده باشد؟',
         author: 'امید فکری',
         answer: 'خیر، می‌توانید مستقیما از منوی اصلی با یک کاراکتر لول ۱۵ آماده وارد داستان داگ‌تاون شوید.',
@@ -483,6 +497,11 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
   const [formComment, setFormComment] = useState('');
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
+  // Ask Question Modal State
+  const [isAskingQuestion, setIsAskingQuestion] = useState(false);
+  const [newQuestionText, setNewQuestionText] = useState('');
+  const [newQuestionAuthor, setNewQuestionAuthor] = useState('');
+
   // Store for custom reviews added during session
   const [allGames, setAllGames] = useState<GameData[]>(WIKI_GAMES);
 
@@ -498,24 +517,23 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
   // Filtered games for omni-search
   const filteredGames = useMemo(() => {
     return allGames.filter((game) => {
-      const matchQuery =
+      const matchSearch =
         game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         game.titleFa.includes(searchQuery) ||
         game.developer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        game.publisher.toLowerCase().includes(searchQuery.toLowerCase());
+        game.genres.some((g) => g.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchPlatform =
-        selectedPlatformFilter === 'ALL' || game.platforms.some((p) => p.includes(selectedPlatformFilter));
+        selectedPlatformFilter === 'ALL' || game.platforms.includes(selectedPlatformFilter);
 
-      const matchGenre =
-        selectedGenreFilter === 'ALL' || game.genres.includes(selectedGenreFilter);
+      const matchGenre = selectedGenreFilter === 'ALL' || game.genres.includes(selectedGenreFilter);
 
-      return matchQuery && matchPlatform && matchGenre;
+      return matchSearch && matchPlatform && matchGenre;
     });
   }, [allGames, searchQuery, selectedPlatformFilter, selectedGenreFilter]);
 
   const handleSelectGame = (gameId: string) => {
-    soundFx.playClick(650);
+    soundFx.playClick(700);
     setSelectedGameId(gameId);
     setViewMode('GAME_DETAIL');
     setActiveTab('OVERVIEW');
@@ -524,35 +542,33 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
   };
 
   const handleNextCarousel = () => {
-    soundFx.playClick(500);
+    soundFx.playTick(900);
     setCarouselIndex((prev) => (prev + 1) % allGames.length);
   };
 
   const handlePrevCarousel = () => {
-    soundFx.playClick(500);
+    soundFx.playTick(800);
     setCarouselIndex((prev) => (prev - 1 + allGames.length) % allGames.length);
   };
 
-  // Submit Review Handler
+  // Submit Review and recalculate dynamic score
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formComment.trim()) return;
 
-    soundFx.playChime(850, 0.2);
+    soundFx.playChime(950, 0.25);
 
     const newReview: GameReview = {
-      id: `rev-user-${Date.now()}`,
-      author: formAuthor.trim() || (isFa ? 'کاربر منتقد' : 'Verified Gamer'),
+      id: `rev-${Date.now()}`,
+      author: formAuthor.trim() || (isFa ? 'کاربر گیمر ویکی‌گیم' : 'Anonymous Gamer'),
       rating: formRating,
       recommend: formRecommend,
       pros: formPros
-        ? formPros.split(',').map((s) => s.trim()).filter(Boolean)
+        ? formPros.split(',').map((p) => p.trim()).filter(Boolean)
         : [isFa ? 'گیم‌پلی روان' : 'Fluid Gameplay'],
-      cons: formCons
-        ? formCons.split(',').map((s) => s.trim()).filter(Boolean)
-        : [],
+      cons: formCons ? formCons.split(',').map((c) => c.trim()).filter(Boolean) : [],
       comment: formComment,
-      date: isFa ? 'همین الان' : 'Just Now',
+      date: isFa ? 'هم‌اکنون' : 'Just now',
       likes: 1,
     };
 
@@ -567,10 +583,33 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
     setTimeout(() => setReviewSubmitted(false), 4000);
   };
 
+  // Submit new QA Question
+  const handleAddQuestion = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newQuestionText.trim()) return;
+
+    soundFx.playClick(800);
+    const newQA = {
+      id: `qa-${Date.now()}`,
+      question: newQuestionText.trim(),
+      author: newQuestionAuthor.trim() || (isFa ? 'کاربر پرسشگر' : 'Community Member'),
+      answer: isFa ? 'پرسش شما با موفقیت ثبت شد و به زودی توسط کارشناسان ویکی‌گیم پاسخ داده می‌شود.' : 'Question submitted and pending editorial verification.',
+      votes: 1,
+    };
+
+    setAllGames((prev) =>
+      prev.map((g) => (g.id === currentGame.id ? { ...g, qa: [newQA, ...g.qa] } : g))
+    );
+
+    setNewQuestionText('');
+    setNewQuestionAuthor('');
+    setIsAskingQuestion(false);
+  };
+
   return (
     <div
       dir={direction}
-      className="min-h-screen bg-[#07090e] text-[#f1f5f9] font-['Plus_Jakarta_Sans'] selection:bg-rose-500 selection:text-white"
+      className="min-h-screen bg-[#07090e] text-[#f1f5f9] font-['Plus_Jakarta_Sans'] selection:bg-rose-500 selection:text-white relative overflow-x-hidden"
     >
       {/* Top Header & Portal Navigation */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#07090e]/90 border-b border-rose-500/20 px-4 sm:px-8 py-3 flex items-center justify-between">
@@ -582,7 +621,7 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
             }}
             className="flex items-center gap-2 group text-right"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 via-purple-600 to-cyan-500 p-[1px] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rose-500 via-purple-600 to-cyan-500 p-[1px] flex items-center justify-center shadow-lg shadow-rose-500/20">
               <div className="w-full h-full bg-[#0b0e14] rounded-[11px] flex items-center justify-center">
                 <Gamepad2 className="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform" />
               </div>
@@ -635,7 +674,7 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
             <div className="absolute inset-0 bg-gradient-to-b from-rose-950/20 via-transparent to-transparent pointer-events-none" />
 
             <div className="max-w-5xl mx-auto text-center space-y-6 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 font-mono text-xs">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-950/60 border border-rose-500/30 text-rose-300 font-mono text-xs shadow-lg shadow-rose-950/40">
                 <Sparkles className="w-3.5 h-3.5 text-rose-400" />
                 <span>{isFa ? 'بزرگ‌ترین پایگاه داده، ترینرها، مادها و تحلیل بازی‌ها' : 'GAMING REPOSITORIES & BENCHMARKS'}</span>
               </div>
@@ -679,7 +718,7 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
                         ? 'جستجوی نام بازی (مثلا: GTA VI، ووکانگ، سایبرپانک...)، شرکت سازنده، سبک...'
                         : 'Search game title (e.g. GTA VI, Wukong, Cyberpunk), developer, genre...'
                     }
-                    className="w-full py-5 pr-14 pl-6 sm:pr-16 rounded-2xl bg-zinc-900/90 border-2 border-rose-500/40 focus:border-rose-400 focus:ring-4 focus:ring-rose-500/20 text-white placeholder-zinc-500 font-bold text-sm sm:text-base outline-none transition-all"
+                    className="w-full py-5 pr-14 pl-6 sm:pr-16 rounded-2xl bg-zinc-900/90 border-2 border-rose-500/40 focus:border-rose-400 focus:ring-4 focus:ring-rose-500/20 text-white placeholder-zinc-500 font-bold text-sm sm:text-base outline-none transition-all shadow-inner"
                   />
                   {searchQuery && (
                     <button
@@ -722,13 +761,13 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
             </div>
           </section>
 
-          {/* 3D ROTATING CAROUSEL FOR TRENDING GAMES (کروسل متحرک سه‌بعدی) */}
-          <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+          {/* 3D PERSPECTIVE COVER FLOW CAROUSEL (کروسل متحرک سه‌بعدی واقعی) */}
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
                 <h2 className="font-['Syne'] text-2xl sm:text-3xl font-bold text-white">
-                  {isFa ? 'ویترین بازی‌های جدید و پربحث (کروسل سه‌بعدی)' : 'Trending Releases • 3D Carousel'}
+                  {isFa ? 'ویترین بازی‌های جدید و پربحث (کروسل سه‌بعدی)' : 'Trending Releases • 3D Cover Flow'}
                 </h2>
               </div>
 
@@ -749,35 +788,116 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
               </div>
             </div>
 
-            {/* 3D Showcase Card Container */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 3D Cover Flow Container with Perspective */}
+            <div
+              style={{
+                perspective: '1200px',
+                transformStyle: 'preserve-3d',
+              }}
+              className="relative min-h-[380px] flex items-center justify-center overflow-hidden py-8"
+            >
               {allGames.map((game, idx) => {
-                const isActive = idx === carouselIndex;
+                const offset = idx - carouselIndex;
+                const isActive = offset === 0;
+
+                // 3D positioning
+                const rotateY = offset * -28;
+                const translateZ = isActive ? 100 : -140 * Math.abs(offset);
+                const translateX = offset * 260;
+                const opacity = Math.abs(offset) > 1 ? 0.3 : 1;
+
                 return (
                   <div
                     key={game.id}
-                    onClick={() => handleSelectGame(game.id)}
-                    className={`rounded-3xl border cursor-pointer overflow-hidden transition-all duration-500 relative group ${
+                    onClick={() => {
+                      if (isActive) {
+                        handleSelectGame(game.id);
+                      } else {
+                        soundFx.playClick(600);
+                        setCarouselIndex(idx);
+                      }
+                    }}
+                    style={{
+                      transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg)`,
+                      transition: 'transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s',
+                      opacity,
+                    }}
+                    className={`absolute w-72 sm:w-84 rounded-3xl border cursor-pointer overflow-hidden backdrop-blur-md select-none shadow-2xl ${
                       isActive
-                        ? 'border-rose-500 bg-zinc-900 shadow-2xl shadow-rose-950/50 scale-[1.03] ring-1 ring-rose-400'
-                        : 'border-white/10 bg-zinc-950/60 hover:border-white/20'
+                        ? 'border-rose-500 bg-zinc-900 shadow-rose-950/60 ring-2 ring-rose-400 z-30'
+                        : 'border-white/15 bg-zinc-950/80 hover:border-white/30 z-10'
                     }`}
                   >
                     <div className="relative h-56 overflow-hidden">
                       <img
                         src={game.coverImage}
                         alt={game.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
                       <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-rose-500/40 text-rose-300 font-mono text-[10px] font-bold">
                         {game.releaseYear}
                       </div>
 
                       {/* Score Badge */}
-                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500/90 text-white font-mono text-xs font-black shadow-lg">
+                      <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-500 text-white font-mono text-xs font-black shadow-lg">
                         <Star className="w-3.5 h-3.5 fill-white" />
                         <span>WikiGame {game.scores.wikiGame}</span>
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-3">
+                      <div>
+                        <h3 className="font-['Syne'] font-bold text-lg text-white">
+                          {isFa ? game.titleFa : game.title}
+                        </h3>
+                        <span className="text-xs text-zinc-400 font-mono block mt-0.5">
+                          {game.developer} &bull; {game.publisher}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-zinc-300 line-clamp-2 leading-relaxed">
+                        {isFa ? game.shortDescriptionFa : game.shortDescription}
+                      </p>
+
+                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                        <span>{game.platforms.join(' / ')}</span>
+                        <span className="text-rose-400 font-bold flex items-center gap-1">
+                          {isFa ? 'ورود به صفحه بازی' : 'Open Wiki'} &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ALL GAMES GRID & SEARCH RESULTS */}
+          <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h2 className="font-['Syne'] text-xl font-bold text-white">
+                {isFa ? 'نتایج آرشیو دایره‌المعارف' : 'Encyclopedia Database'} ({filteredGames.length})
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGames.map((game) => (
+                <div
+                  key={game.id}
+                  onClick={() => handleSelectGame(game.id)}
+                  className="rounded-3xl border border-white/10 bg-zinc-950/70 overflow-hidden cursor-pointer hover:border-rose-500/50 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={game.bannerImage}
+                        alt={game.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/80 font-mono text-[10px] text-zinc-300 border border-white/10">
+                        {game.releaseYear}
                       </div>
                     </div>
 
@@ -794,81 +914,14 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
                       <p className="text-xs text-zinc-300 line-clamp-2 leading-relaxed">
                         {isFa ? game.shortDescriptionFa : game.shortDescription}
                       </p>
-
-                      <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                        <span>{game.platforms.join(' / ')}</span>
-                        <span className="text-rose-400 font-bold group-hover:underline flex items-center gap-1">
-                          <span>{isFa ? 'مشاهده پرونده کامل' : 'View Dossier'}</span>
-                          {isRtl ? <ArrowLeft className="w-3 h-3" /> : <ArrowRight className="w-3 h-3" />}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Search Results Grid (if search term is entered) */}
-          {searchQuery && (
-            <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
-              <h3 className="font-['Syne'] text-xl font-bold text-white flex items-center gap-2">
-                <Search className="w-4 h-4 text-rose-400" />
-                <span>{isFa ? `نتایج جستجو برای: «${searchQuery}» (${filteredGames.length} مورد)` : `Search Results (${filteredGames.length})`}</span>
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredGames.map((game) => (
-                  <div
-                    key={game.id}
-                    onClick={() => handleSelectGame(game.id)}
-                    className="p-5 rounded-2xl border border-white/10 bg-zinc-900/60 hover:border-rose-400 cursor-pointer transition-all"
-                  >
-                    <h4 className="font-bold text-base text-white">{game.title}</h4>
-                    <span className="text-xs text-rose-400 font-mono">{game.developer} ({game.releaseYear})</span>
-                    <p className="text-xs text-zinc-300 mt-2 line-clamp-2">{game.shortDescriptionFa}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Featured Community Reviews Section */}
-          <section className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
-            <h2 className="font-['Syne'] text-2xl sm:text-3xl font-bold text-white">
-              {isFa ? 'نظرات و تحلیل‌های برگزیده جامعه گیمرها' : 'Featured Community Reviews'}
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {allGames.flatMap((g) => g.reviews).slice(0, 4).map((rev) => (
-                <div key={rev.id} className="p-6 rounded-3xl border border-white/10 bg-zinc-950/60 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center font-bold text-xs text-rose-400">
-                        {rev.author[0]}
-                      </div>
-                      <div>
-                        <strong className="text-xs font-bold text-white">{rev.author}</strong>
-                        <span className="text-[10px] text-zinc-500 block">{rev.date}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-xs font-bold">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      <span>{rev.rating} / 10</span>
                     </div>
                   </div>
 
-                  <p className="text-xs text-zinc-300 leading-relaxed font-light">
-                    «{rev.comment}»
-                  </p>
-
-                  <div className="pt-2 flex flex-wrap gap-2">
-                    {rev.pros.map((p, i) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        + {p}
-                      </span>
-                    ))}
+                  <div className="p-5 border-t border-white/10 flex items-center justify-between font-mono text-xs">
+                    <span className="text-zinc-500">{game.platforms[0]}</span>
+                    <span className="text-rose-400 font-bold group-hover:underline">
+                      {isFa ? 'مشاهده تمام مشخصات' : 'View Full Details'} &rarr;
+                    </span>
                   </div>
                 </div>
               ))}
@@ -878,208 +931,233 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
       )}
 
       {/* ========================================================================= */}
-      {/* VIEW 2: GAME DOSSIER & DETAIL PAGE (صفحه اصلی و توضیحات بازی)             */}
+      {/* VIEW 2: GAME DETAIL & REVIEWS SUITE (صفحه اختصاصی هر بازی)                */}
       {/* ========================================================================= */}
       {viewMode === 'GAME_DETAIL' && (
-        <main className="space-y-12 pb-24">
-          {/* FULL-WIDTH IMMERSIVE HEADER WITH GLASSMORPHISM OVERLAY BOX */}
-          <div className="relative w-full min-h-[520px] flex items-end overflow-hidden border-b border-white/10">
-            {/* Background Full-Width Banner Image */}
+        <main className="space-y-12 pb-28 animate-in fade-in duration-300">
+          {/* 1. CINEMATIC FULL-WIDTH HEADER WITH GLASSMORPHIC HUD OVERLAY */}
+          <div className="relative min-h-[520px] sm:min-h-[580px] flex items-end justify-center overflow-hidden">
+            {/* Full-width Banner Image */}
             <img
               src={currentGame.bannerImage}
               alt={currentGame.title}
-              className="absolute inset-0 w-full h-full object-cover filter brightness-75 scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-center scale-105"
             />
+            {/* Vignette & Gradients */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#07090e] via-[#07090e]/60 to-transparent" />
+            <div className="absolute inset-0 bg-radial from-transparent via-black/40 to-black/80 pointer-events-none" />
 
-            {/* Glassmorphism Overlay Box (کادر با ترنسپرنسی کم روی هدر) */}
-            <div className="max-w-7xl mx-auto w-full px-4 sm:px-8 py-10 relative z-10">
-              <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950/80 backdrop-blur-2xl border border-white/20 shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                {/* Left: Metadata */}
-                <div className="lg:col-span-7 space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {currentGame.platforms.map((p, i) => (
-                      <span key={i} className="px-2.5 py-0.5 rounded-lg bg-white/10 text-[11px] font-mono text-zinc-300">
-                        {p}
+            {/* FLOATING GLASS HUD OVERLAY (کادر با ترنسپرنسی کم روی تصویر هدر) */}
+            <div className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 pb-10">
+              <div className="p-6 sm:p-8 rounded-3xl backdrop-blur-xl bg-black/45 border border-white/20 shadow-2xl space-y-6">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  {/* Left Side: Platforms, Title, Year, Developer, Publisher */}
+                  <div className="space-y-3">
+                    {/* Platform Chips */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {currentGame.platforms.map((plat) => (
+                        <span
+                          key={plat}
+                          className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 font-mono text-xs text-white font-bold"
+                        >
+                          {plat}
+                        </span>
+                      ))}
+                      <span className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 font-mono text-xs text-rose-300 font-bold">
+                        {currentGame.releaseYear}
                       </span>
-                    ))}
-                    <span className="px-2.5 py-0.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 font-mono text-[11px] font-bold">
-                      {currentGame.releaseYear}
-                    </span>
+                    </div>
+
+                    {/* Big Game Title */}
+                    <h1 className="font-['Syne'] text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight">
+                      {isFa ? currentGame.titleFa : currentGame.title}
+                    </h1>
+
+                    {/* Studio Metadata */}
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-sm font-mono text-zinc-300">
+                      <div>
+                        <span className="text-zinc-500 block text-[10px]">{isFa ? 'توسعه‌دهنده:' : 'Developer:'}</span>
+                        <span className="text-white font-bold">{currentGame.developer}</span>
+                      </div>
+                      <div className="border-r border-white/20 h-6" />
+                      <div>
+                        <span className="text-zinc-500 block text-[10px]">{isFa ? 'ناشر بین‌المللی:' : 'Publisher:'}</span>
+                        <span className="text-white font-bold">{currentGame.publisher}</span>
+                      </div>
+                      <div className="border-r border-white/20 h-6" />
+                      <div>
+                        <span className="text-zinc-500 block text-[10px]">{isFa ? 'موتور گرافیکی:' : 'Engine:'}</span>
+                        <span className="text-cyan-300 font-bold">{currentGame.engine}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <h1 className="font-['Syne'] text-3xl sm:text-5xl font-black text-white">
-                    {isFa ? currentGame.titleFa : currentGame.title}
-                  </h1>
+                  {/* Right Side: Scoreboard Matrix (Metacritic, IGN, GameSpot, Steam, WikiGame, User Score) */}
+                  <div className="flex flex-wrap items-center gap-3 bg-black/60 p-4 sm:p-5 rounded-2xl border border-white/15">
+                    {/* IGN Score */}
+                    <div className="text-center px-2">
+                      <span className="text-[10px] font-mono text-zinc-400 block">IGN</span>
+                      <span className="font-mono text-lg font-black text-red-500">{currentGame.scores.ign}/10</span>
+                    </div>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-zinc-400">
-                    <span>{isFa ? 'شرکت سازنده:' : 'Developer:'} <strong className="text-zinc-200">{currentGame.developer}</strong></span>
-                    <span>&bull;</span>
-                    <span>{isFa ? 'شرکت ناشر:' : 'Publisher:'} <strong className="text-zinc-200">{currentGame.publisher}</strong></span>
-                  </div>
-                </div>
+                    <div className="border-r border-white/10 h-8" />
 
-                {/* Right: Scores Dashboard (امتیازهای پلتفرم‌های معروف + WikiGame + امتیاز کاربران) */}
-                <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {/* IGN */}
-                  <div className="p-3 rounded-2xl bg-black/60 border border-white/10 text-center">
-                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">IGN SCORE</span>
-                    <span className="font-mono text-lg font-black text-red-400">{currentGame.scores.ign} / 10</span>
-                  </div>
+                    {/* Metacritic Score */}
+                    <div className="text-center px-2">
+                      <span className="text-[10px] font-mono text-zinc-400 block">METACRITIC</span>
+                      <span className="font-mono text-lg font-black text-emerald-400">{currentGame.scores.metacritic}</span>
+                    </div>
 
-                  {/* GameSpot */}
-                  <div className="p-3 rounded-2xl bg-black/60 border border-white/10 text-center">
-                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">GAMESPOT</span>
-                    <span className="font-mono text-lg font-black text-amber-400">{currentGame.scores.gamespot} / 10</span>
-                  </div>
+                    <div className="border-r border-white/10 h-8" />
 
-                  {/* Metacritic */}
-                  <div className="p-3 rounded-2xl bg-black/60 border border-white/10 text-center">
-                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">METACRITIC</span>
-                    <span className="font-mono text-lg font-black text-emerald-400">{currentGame.scores.metacritic}</span>
-                  </div>
+                    {/* WikiGame Editorial Score */}
+                    <div className="text-center px-3 py-1 rounded-xl bg-rose-500/20 border border-rose-500/40">
+                      <span className="text-[10px] font-mono text-rose-300 block font-bold">WIKIGAME</span>
+                      <span className="font-mono text-xl font-black text-rose-400">{currentGame.scores.wikiGame}</span>
+                    </div>
 
-                  {/* Steam */}
-                  <div className="p-3 rounded-2xl bg-black/60 border border-white/10 text-center">
-                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">STEAM</span>
-                    <span className="font-mono text-xs font-bold text-sky-400 leading-tight block mt-1">Positive</span>
-                  </div>
+                    <div className="border-r border-white/10 h-8" />
 
-                  {/* WIKIGAME OFFICIAL SCORE (سایت خودمون) */}
-                  <div className="p-3 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-center shadow-lg">
-                    <span className="text-[10px] text-rose-300 font-mono font-bold uppercase block">WIKIGAME</span>
-                    <span className="font-mono text-xl font-black text-rose-400">{currentGame.scores.wikiGame} / 10</span>
-                  </div>
-
-                  {/* USER SCORE (امتیاز کاربران سایت - محاسبه زنده) */}
-                  <div className="p-3 rounded-2xl bg-emerald-950/70 border border-emerald-500/40 text-center shadow-lg">
-                    <span className="text-[10px] text-emerald-300 font-mono font-bold uppercase block">
-                      {isFa ? 'امتیاز کاربران' : 'USER SCORE'}
-                    </span>
-                    <span className="font-mono text-xl font-black text-emerald-400">
-                      {calculatedUserScore} / 10
-                    </span>
-                    <span className="text-[9px] text-zinc-400 font-mono block">({currentGame.reviews.length} {isFa ? 'رای' : 'votes'})</span>
+                    {/* Live Community User Score */}
+                    <div className="text-center px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-500/40">
+                      <span className="text-[10px] font-mono text-amber-300 block font-bold">
+                        {isFa ? 'امتیاز کاربران' : 'USER SCORE'}
+                      </span>
+                      <span className="font-mono text-xl font-black text-amber-400">
+                        {calculatedUserScore}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SHORT DESCRIPTION RIGHT UNDER HEADER (توضیح کوتاه زیر هدر) */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-8">
-            <div className="p-6 rounded-2xl bg-zinc-900/60 border border-white/10">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-rose-400 block mb-1">
-                {isFa ? 'خلاصه داستان و ماهیت بازی:' : 'Synopsis & Game Essence:'}
-              </span>
-              <p className="text-sm text-zinc-200 leading-relaxed font-light">
+          {/* 2. SHORT DESCRIPTION DIRECTLY UNDER HEADER */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="p-6 rounded-2xl bg-zinc-900/60 border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <p className="text-sm sm:text-base text-zinc-200 leading-relaxed font-light max-w-4xl">
                 {isFa ? currentGame.shortDescriptionFa : currentGame.shortDescription}
               </p>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-mono text-zinc-400">
+                  {currentGame.playtime}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* ========================================================================= */}
-          {/* COMPREHENSIVE TAB NAVIGATION SYSTEM (سیستم تب‌بندی جامع)                 */}
-          {/* ========================================================================= */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto">
-              {(
-                [
-                  { id: 'OVERVIEW', label: isFa ? 'توضیح کامل و سیستم' : 'Overview & Specs', icon: <FileText className="w-4 h-4" /> },
-                  { id: 'SCREENSHOTS', label: isFa ? 'تصاویر بازی (4K)' : 'Screenshots', icon: <ImageIcon className="w-4 h-4" /> },
-                  { id: 'VIDEOS', label: isFa ? 'ویدیو و تریلرها' : 'Videos & Trailers', icon: <Video className="w-4 h-4" /> },
-                  { id: 'TRAINER', label: isFa ? 'ترینر و کد تقلب' : 'Trainer & Cheats', icon: <Download className="w-4 h-4" /> },
-                  { id: 'PERSIAN_MOD', label: isFa ? 'ماد فارسی‌ساز' : 'Persian Localization Mod', icon: <Award className="w-4 h-4" /> },
-                  { id: 'WALKTHROUGH', label: isFa ? 'راهنمای مراحل' : 'Walkthrough Guide', icon: <Layers className="w-4 h-4" /> },
-                  { id: 'QA', label: isFa ? 'پرسش و پاسخ' : 'Community Q&A', icon: <HelpCircle className="w-4 h-4" /> },
-                  { id: 'REVIEWS', label: isFa ? 'نقد و بررسی کاربران' : 'User Reviews & Score', icon: <MessageSquare className="w-4 h-4" /> },
-                ] as const
-              ).map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => {
-                    soundFx.playClick(600);
-                    setActiveTab(tab.id);
-                  }}
-                  className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 shrink-0 ${
-                    activeTab === tab.id
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
-                      : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </button>
-              ))}
+          {/* 3. RICH TABBED CYBER DECK (تب‌های زیر صفحه) */}
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
+            {/* Tabs Bar */}
+            <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-zinc-950 border border-white/15 overflow-x-auto">
+              {[
+                { id: 'OVERVIEW', label: isFa ? 'توضیحات و مشخصات' : 'Full Overview', icon: FileText },
+                { id: 'SCREENSHOTS', label: isFa ? 'تصاویر 4K' : 'Screenshots', icon: ImageIcon },
+                { id: 'VIDEOS', label: isFa ? 'ویدیوها و تریلر' : 'Trailers & Video', icon: Video },
+                { id: 'TRAINER', label: isFa ? 'ترینر و چیت' : 'Trainers & Cheats', icon: Terminal },
+                { id: 'PERSIAN_MOD', label: isFa ? 'ماد فارسی‌ساز' : 'Persian Mod', icon: Download },
+                { id: 'WALKTHROUGH', label: isFa ? 'راهنمای مراحل' : 'Walkthrough', icon: Compass },
+                { id: 'QA', label: isFa ? 'پرسش و پاسخ' : 'Q&A Community', icon: HelpCircle },
+                { id: 'REVIEWS', label: isFa ? 'نقد و بررسی موشکافانه' : 'In-Depth Reviews', icon: Star },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      soundFx.playClick(600);
+                      setActiveTab(tab.id as any);
+                    }}
+                    className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 whitespace-nowrap ${
+                      isActive
+                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* TAB 1: OVERVIEW & SYSTEM REQUIREMENTS */}
+            {/* TAB CONTENT 1: OVERVIEW & SYSTEM REQS */}
             {activeTab === 'OVERVIEW' && (
-              <div className="space-y-8 animate-in fade-in duration-300">
-                <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-4">
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-8 animate-in fade-in duration-200">
+                <div className="space-y-4">
                   <h3 className="font-['Syne'] font-bold text-2xl text-white">
-                    {isFa ? 'توضیحات و نقد تخصصی بازی' : 'Comprehensive Game Overview'}
+                    {isFa ? 'داستان و تحلیل موشکافانه بازی' : 'Plot Synopsis & Gameplay Mechanics'}
                   </h3>
-                  <p className="text-sm text-zinc-300 leading-relaxed font-light">
+                  <p className="text-sm text-zinc-300 leading-relaxed font-light whitespace-pre-line">
                     {isFa ? currentGame.fullDescriptionFa : currentGame.fullDescription}
                   </p>
                 </div>
 
-                {/* System Requirements Table */}
-                <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6">
-                  <h3 className="font-['Syne'] font-bold text-xl text-white flex items-center gap-2">
-                    <Monitor className="w-5 h-5 text-rose-400" />
-                    <span>{isFa ? 'جدول حداقل سیستم و سیستم پیشنهادی برای PC' : 'System Requirements Matrix'}</span>
-                  </h3>
+                {/* System Requirements Matrix */}
+                <div className="space-y-4 border-t border-white/10 pt-6">
+                  <h4 className="font-['Syne'] font-bold text-xl text-white">
+                    {isFa ? 'سیستم مورد نیاز برای اجرای بازی روی رایانه‌های شخصی (PC):' : 'PC System Requirements:'}
+                  </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Minimum */}
-                    <div className="p-6 rounded-2xl border border-white/10 bg-black/40 space-y-3 font-mono text-xs">
-                      <span className="font-bold text-amber-400 block mb-2">{isFa ? 'حداقل سیستم مورد نیاز (MINIMUM):' : 'MINIMUM REQUIREMENTS:'}</span>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">OS:</span>
-                        <span>{currentGame.systemReqs.min.os}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">CPU:</span>
-                        <span>{currentGame.systemReqs.min.cpu}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">GPU:</span>
-                        <span>{currentGame.systemReqs.min.gpu}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">RAM:</span>
-                        <span>{currentGame.systemReqs.min.ram}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-zinc-500">STORAGE:</span>
-                        <span>{currentGame.systemReqs.min.storage}</span>
+                    <div className="p-6 rounded-2xl bg-black/50 border border-white/10 space-y-3">
+                      <span className="font-mono text-xs text-amber-400 font-bold block uppercase">
+                        {isFa ? 'حداقل سیستم مورد نیاز (1080p 30 FPS)' : 'Minimum Requirements'}
+                      </span>
+                      <div className="space-y-2 text-xs font-mono text-zinc-300">
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">OS:</span>
+                          <span>{currentGame.systemReqs.min.os}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">CPU:</span>
+                          <span>{currentGame.systemReqs.min.cpu}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">GPU:</span>
+                          <span>{currentGame.systemReqs.min.gpu}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">RAM:</span>
+                          <span>{currentGame.systemReqs.min.ram}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-500">Storage:</span>
+                          <span>{currentGame.systemReqs.min.storage}</span>
+                        </div>
                       </div>
                     </div>
 
                     {/* Recommended */}
-                    <div className="p-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/10 space-y-3 font-mono text-xs">
-                      <span className="font-bold text-emerald-400 block mb-2">{isFa ? 'سیستم پیشنهادی (RECOMMENDED 60FPS):' : 'RECOMMENDED REQUIREMENTS:'}</span>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">OS:</span>
-                        <span>{currentGame.systemReqs.rec.os}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">CPU:</span>
-                        <span>{currentGame.systemReqs.rec.cpu}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">GPU:</span>
-                        <span>{currentGame.systemReqs.rec.gpu}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-white/5 pb-2">
-                        <span className="text-zinc-500">RAM:</span>
-                        <span>{currentGame.systemReqs.rec.ram}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-zinc-500">STORAGE:</span>
-                        <span>{currentGame.systemReqs.rec.storage}</span>
+                    <div className="p-6 rounded-2xl bg-black/50 border border-rose-500/30 space-y-3">
+                      <span className="font-mono text-xs text-rose-400 font-bold block uppercase">
+                        {isFa ? 'سیستم پیشنهادی (1440p / 4K 60+ FPS)' : 'Recommended Requirements'}
+                      </span>
+                      <div className="space-y-2 text-xs font-mono text-zinc-300">
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">OS:</span>
+                          <span>{currentGame.systemReqs.rec.os}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">CPU:</span>
+                          <span>{currentGame.systemReqs.rec.cpu}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">GPU:</span>
+                          <span>{currentGame.systemReqs.rec.gpu}</span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/5 pb-1">
+                          <span className="text-zinc-500">RAM:</span>
+                          <span>{currentGame.systemReqs.rec.ram}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-zinc-500">Storage:</span>
+                          <span>{currentGame.systemReqs.rec.storage}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1087,77 +1165,85 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
               </div>
             )}
 
-            {/* TAB 2: SCREENSHOTS GALLERY */}
+            {/* TAB CONTENT 2: SCREENSHOTS */}
             {activeTab === 'SCREENSHOTS' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-300">
-                {currentGame.screenshots.map((shot, idx) => (
-                  <div key={idx} className="relative rounded-3xl overflow-hidden border border-white/15 group">
-                    <img src={shot} alt="" className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="px-4 py-2 rounded-xl bg-black/80 font-mono text-xs text-white">4K ULTRA RES</span>
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <h3 className="font-['Syne'] font-bold text-2xl text-white">
+                  {isFa ? 'گالری تصاویر با کیفیت 4K و ریتریسنگ' : '4K Ray-Tracing Screenshot Gallery'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {currentGame.screenshots.map((shot, i) => (
+                    <div key={i} className="rounded-2xl overflow-hidden border border-white/15 relative group">
+                      <img
+                        src={shot}
+                        alt="Screenshot"
+                        className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-black/80 font-mono text-[10px] text-white">
+                        4K HDR CAPTURE
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* TAB 3: VIDEOS & TRAILERS */}
+            {/* TAB CONTENT 3: VIDEOS & TRAILERS */}
             {activeTab === 'VIDEOS' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-300">
-                {currentGame.trailers.map((tr, idx) => (
-                  <div key={idx} className="p-6 rounded-3xl border border-white/10 bg-zinc-950/80 space-y-4">
-                    <div className="relative h-48 rounded-2xl overflow-hidden group">
-                      <img src={tr.thumbnail} alt={tr.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-xl shadow-rose-500/40 group-hover:scale-110 transition-transform">
-                          <Play className="w-5 h-5 fill-white ml-0.5" />
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <h3 className="font-['Syne'] font-bold text-2xl text-white">
+                  {isFa ? 'ویدیوها، تریلرهای رسمی و گیم‌پلی بازی' : 'Official Trailers & Gameplay Footage'}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {currentGame.trailers.map((vid, idx) => (
+                    <div key={idx} className="rounded-2xl overflow-hidden border border-white/15 bg-black/60 space-y-3 p-4">
+                      <div className="relative h-60 rounded-xl overflow-hidden group cursor-pointer">
+                        <img src={vid.thumbnail} alt={vid.title} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-colors">
+                          <div className="w-14 h-14 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
+                            <Play className="w-6 h-6 fill-white ml-0.5" />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 font-mono text-xs text-white">
+                          {vid.duration}
                         </div>
                       </div>
-                      <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 text-[10px] font-mono text-zinc-300">
-                        {tr.duration}
-                      </span>
+                      <h4 className="font-['Syne'] font-bold text-base text-white">{vid.title}</h4>
                     </div>
-                    <h4 className="font-bold text-base text-white">{tr.title}</h4>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* TAB 4: TRAINER & CHEATS */}
+            {/* TAB CONTENT 4: TRAINER & CHEATS MATRIX */}
             {activeTab === 'TRAINER' && (
-              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/80 space-y-6 animate-in fade-in duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <div>
                     <h3 className="font-['Syne'] font-bold text-2xl text-white">
                       {currentGame.trainers.title}
                     </h3>
-                    <span className="text-xs text-zinc-400 font-mono block mt-1">
-                      {isFa ? 'نسخه سازگار:' : 'Build Version:'} {currentGame.trainers.version} &bull; {isFa ? 'سازنده:' : 'Author:'} {currentGame.trainers.author}
+                    <span className="font-mono text-xs text-zinc-400 mt-1 block">
+                      {currentGame.trainers.version} &bull; Author: {currentGame.trainers.author}
                     </span>
                   </div>
 
                   <a
-                    href="#download"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      soundFx.playChime(750, 0.2);
-                      alert(isFa ? 'دانلود ترینر آغاز شد.' : 'Trainer download initiated.');
-                    }}
-                    className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs font-mono uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-emerald-500/20"
+                    href={currentGame.trainers.downloadUrl}
+                    onClick={() => soundFx.playChime(800, 0.15)}
+                    className="px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-500/20 shrink-0"
                   >
                     <Download className="w-4 h-4" />
-                    <span>{isFa ? 'دانلود مستقیم ترینر' : 'Download Verified Trainer'}</span>
+                    <span>{isFa ? 'دانلود ترینر تست‌شده' : 'Download Verified Trainer'}</span>
                   </a>
                 </div>
 
-                <div className="space-y-3 pt-4 border-t border-white/10">
-                  <span className="font-mono text-xs uppercase tracking-wider text-amber-400 font-bold block">
-                    {isFa ? 'جدول کلیدهای فعال‌سازی تقلب:' : 'Hotkey Cheats Activation Table:'}
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {currentGame.trainers.features.map((feat, i) => (
-                      <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/10 font-mono text-xs text-zinc-200 flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <div className="p-6 rounded-2xl bg-black/60 border border-white/10 space-y-3 font-mono text-xs">
+                  <span className="text-rose-400 font-bold block">{isFa ? 'کلیدهای میانبر فعال‌سازی:' : 'Hotkey Mappings:'}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    {currentGame.trainers.features.map((feat, fIdx) => (
+                      <div key={fIdx} className="p-3 rounded-xl bg-zinc-900 border border-white/5 text-zinc-200 flex items-center gap-2">
+                        <Terminal className="w-4 h-4 text-rose-400 shrink-0" />
                         <span>{feat}</span>
                       </div>
                     ))}
@@ -1166,106 +1252,68 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
               </div>
             )}
 
-            {/* TAB 5: PERSIAN LOCALIZATION MOD (ماد فارسی ساز) */}
+            {/* TAB CONTENT 5: PERSIAN LOCALIZATION MOD */}
             {activeTab === 'PERSIAN_MOD' && (
-              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/80 space-y-6 animate-in fade-in duration-300">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
                   <div>
                     <h3 className="font-['Syne'] font-bold text-2xl text-white">
                       {currentGame.persianMod.title}
                     </h3>
-                    <span className="text-xs text-cyan-400 font-mono block mt-1">
-                      {currentGame.persianMod.type} &bull; {currentGame.persianMod.size}
+                    <span className="font-mono text-xs text-zinc-400 mt-1 block">
+                      {currentGame.persianMod.type} &bull; {currentGame.persianMod.translator} &bull; {currentGame.persianMod.size}
                     </span>
                   </div>
 
                   <a
-                    href="#download-mod"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      soundFx.playChime(750, 0.2);
-                      alert(isFa ? 'دانلود ماد فارسی‌ساز با موفقیت شروع شد.' : 'Persian mod download initiated.');
-                    }}
-                    className="px-6 py-3.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs font-mono uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-cyan-500/20"
+                    href={currentGame.persianMod.downloadUrl}
+                    onClick={() => soundFx.playChime(800, 0.15)}
+                    className="px-6 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-500/20 shrink-0"
                   >
                     <Download className="w-4 h-4" />
-                    <span>{isFa ? 'دانلود رایگان ماد فارسی‌ساز' : 'Download Persian Mod'}</span>
+                    <span>{isFa ? 'دانلود رایگان پچ فارسی‌ساز' : 'Download Localization Mod'}</span>
                   </a>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-white/10">
-                  <h4 className="font-bold text-sm text-white">{isFa ? 'ویژگی‌های این نسخه فارسی‌ساز:' : 'Mod Features:'}</h4>
-                  <ul className="space-y-2 text-xs text-zinc-300">
-                    {currentGame.persianMod.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-zinc-300 space-y-1">
-                    <strong className="text-cyan-300 block">{isFa ? 'راهنمای گام‌به‌گام نصب ماد:' : 'Installation Instructions:'}</strong>
-                    <p>{currentGame.persianMod.installGuide}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 6: WALKTHROUGH & GUIDES */}
-            {activeTab === 'WALKTHROUGH' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                {currentGame.walkthrough.chapters.map((chap, i) => (
-                  <div key={i} className="p-6 rounded-3xl border border-white/10 bg-zinc-950/80 space-y-3">
-                    <h3 className="font-['Syne'] font-bold text-lg text-white">
-                      {chap.title}
-                    </h3>
-                    <p className="text-xs text-zinc-300 leading-relaxed">
-                      {chap.summary}
-                    </p>
-                    <div className="pt-2 border-t border-white/10 space-y-1">
-                      <span className="text-[10px] font-mono text-amber-400 uppercase font-bold block">{isFa ? 'نکات طلایی عبور از مرحله:' : 'Pro Survival Tips:'}</span>
-                      {chap.tips.map((t, idx) => (
-                        <span key={idx} className="text-xs text-zinc-400 block">• {t}</span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* TAB 7: COMMUNITY Q&A */}
-            {activeTab === 'QA' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-['Syne'] font-bold text-xl text-white">
-                    {isFa ? 'پرسش‌ها و پاسخ‌های فنی کاربران' : 'Community Technical Q&A'}
-                  </h3>
-                  <button
-                    onClick={() => {
-                      soundFx.playClick(600);
-                      const q = prompt(isFa ? 'پرسش خود درباره بازی را بنویسید:' : 'Write your technical question:');
-                      if (q) alert(isFa ? 'پرسش شما ثبت شد و در انتظار پاسخ جامعه کاربران است.' : 'Question submitted.');
-                    }}
-                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono transition-colors"
-                  >
-                    + {isFa ? 'ثبت پرسش جدید' : 'Ask Question'}
-                  </button>
-                </div>
-
                 <div className="space-y-4">
-                  {currentGame.qa.map((item, i) => (
-                    <div key={i} className="p-6 rounded-3xl border border-white/10 bg-zinc-950/80 space-y-3">
-                      <div className="flex justify-between items-start gap-4">
-                        <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                          <HelpCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                          <span>{item.question}</span>
-                        </h4>
-                        <span className="text-[10px] font-mono text-zinc-500 shrink-0">{item.author}</span>
+                  <div className="p-6 rounded-2xl bg-black/60 border border-white/10 space-y-2">
+                    <span className="text-rose-400 font-bold text-xs font-mono block">{isFa ? 'ویژگی‌های بسته ترجمه:' : 'Features:'}</span>
+                    {currentGame.persianMod.features.map((f, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs text-zinc-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>{f}</span>
                       </div>
-                      <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-zinc-300 leading-relaxed">
-                        <strong className="text-emerald-400 block mb-1">{isFa ? 'پاسخ تاییدشده کارشناسان:' : 'Verified Community Answer:'}</strong>
-                        {item.answer}
+                    ))}
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-1">
+                    <span className="text-zinc-400 font-bold text-xs font-mono block">{isFa ? 'راهنمای نصب:' : 'Installation Guide:'}</span>
+                    <p className="text-xs text-zinc-300 leading-relaxed font-mono">
+                      {currentGame.persianMod.installGuide}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT 6: WALKTHROUGH & SECRETS */}
+            {activeTab === 'WALKTHROUGH' && (
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <h3 className="font-['Syne'] font-bold text-2xl text-white">
+                  {isFa ? 'راهنمای قدم‌به‌قدم مراحل و استراتژی شکست باس‌ها' : 'Comprehensive Walkthrough & Secrets'}
+                </h3>
+                <div className="space-y-4">
+                  {currentGame.walkthrough.chapters.map((ch, idx) => (
+                    <div key={idx} className="p-6 rounded-2xl bg-black/50 border border-white/10 space-y-3">
+                      <h4 className="font-['Syne'] font-bold text-lg text-white">{ch.title}</h4>
+                      <p className="text-xs text-zinc-300 leading-relaxed font-light">{ch.summary}</p>
+                      <div className="pt-2 border-t border-white/5 space-y-1">
+                        {ch.tips.map((tip, tIdx) => (
+                          <div key={tIdx} className="flex items-center gap-2 text-xs text-amber-300 font-mono">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>{tip}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
@@ -1273,237 +1321,351 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
               </div>
             )}
 
-            {/* TAB 8: USER REVIEWS & INTERACTIVE SCORING FORM WITH "HAVE YOU PLAYED?" GATE */}
-            {activeTab === 'REVIEWS' && (
-              <div className="space-y-8 animate-in fade-in duration-300">
-                {/* INTERACTIVE REVIEW GATE: "آیا تجربه بازی را دارید؟" */}
-                <div className="p-8 rounded-3xl border border-rose-500/30 bg-gradient-to-br from-rose-950/30 via-zinc-950 to-black space-y-6">
-                  <div className="text-center space-y-2 max-w-xl mx-auto">
+            {/* TAB CONTENT 7: Q&A COMMUNITY */}
+            {activeTab === 'QA' && (
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-6 animate-in fade-in duration-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
                     <h3 className="font-['Syne'] font-bold text-2xl text-white">
-                      {isFa ? 'ثبت نقد و بررسی و تعیین امتیاز کاربران' : 'Submit Game Review & Influence Score'}
+                      {isFa ? 'پرسش‌ها و پاسخ‌های جامعه گیمرها' : 'Community Questions & Answers'}
                     </h3>
-                    <p className="text-xs text-zinc-400 leading-relaxed">
-                      {isFa
-                        ? 'برای ثبت نظر و تاثیر مستقیم روی امتیاز کاربران سایت، پاسخ به سوال زیر الزامی است:'
-                        : 'To maintain score integrity, please confirm if you have hands-on playtime:'}
+                    <p className="text-xs text-zinc-400 mt-1">
+                      {isFa ? 'درباره مراحل، خطاهای اجرای بازی، حل معماها و کرک‌ها سوال بپرسید.' : 'Ask questions about quests, PC errors, or system compatibility.'}
                     </p>
                   </div>
 
-                  {/* Yes / No Question Gate */}
-                  <div className="p-6 rounded-2xl bg-black/60 border border-white/10 text-center space-y-4 max-w-md mx-auto">
-                    <h4 className="font-bold text-base text-amber-300">
-                      {isFa ? 'آیا تجربه بازی را دارید؟' : 'Have you played this game?'}
+                  <button
+                    onClick={() => {
+                      soundFx.playClick(600);
+                      setIsAskingQuestion(!isAskingQuestion);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-colors flex items-center gap-1.5 shrink-0"
+                  >
+                    <Plus className="w-4 h-4 text-rose-400" />
+                    <span>{isFa ? 'ثبت پرسش جدید' : 'Ask a Question'}</span>
+                  </button>
+                </div>
+
+                {/* Ask Question Form */}
+                {isAskingQuestion && (
+                  <form onSubmit={handleAddQuestion} className="p-6 rounded-2xl bg-black/60 border border-rose-500/30 space-y-4 animate-in fade-in">
+                    <h4 className="font-['Syne'] font-bold text-base text-white">
+                      {isFa ? 'طرح پرسش جدید درباره این بازی:' : 'Submit New Inquiry:'}
                     </h4>
-
-                    <div className="flex justify-center gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <input
+                        type="text"
+                        required
+                        value={newQuestionAuthor}
+                        onChange={(e) => setNewQuestionAuthor(e.target.value)}
+                        placeholder={isFa ? 'نام یا نام مستعار شما' : 'Your Gamer Tag'}
+                        className="p-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs outline-none focus:border-rose-400"
+                      />
+                    </div>
+                    <textarea
+                      required
+                      rows={3}
+                      value={newQuestionText}
+                      onChange={(e) => setNewQuestionText(e.target.value)}
+                      placeholder={isFa ? 'متن سوال یا مشکل خود را به صورت دقیق بنویسید...' : 'Describe your question or issue in detail...'}
+                      className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs outline-none focus:border-rose-400"
+                    />
+                    <div className="flex justify-end gap-2">
                       <button
-                        onClick={() => {
-                          soundFx.playChime(750, 0.2);
-                          setHasPlayedGame(true);
-                        }}
-                        className={`px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
-                          hasPlayedGame === true
-                            ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/30 scale-105'
-                            : 'bg-white/10 text-white hover:bg-emerald-500 hover:text-black'
-                        }`}
+                        type="button"
+                        onClick={() => setIsAskingQuestion(false)}
+                        className="px-4 py-2 rounded-xl bg-white/5 text-zinc-400 text-xs font-mono"
                       >
-                        <Check className="w-4 h-4" />
-                        <span>{isFa ? 'بله، بازی کرده‌ام' : 'Yes, I played'}</span>
+                        {isFa ? 'انصراف' : 'Cancel'}
                       </button>
-
                       <button
-                        onClick={() => {
-                          soundFx.playTick(400);
-                          setHasPlayedGame(false);
-                        }}
-                        className={`px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
-                          hasPlayedGame === false
-                            ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30 scale-105'
-                            : 'bg-white/10 text-white hover:bg-rose-500'
-                        }`}
+                        type="submit"
+                        className="px-6 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-mono font-bold flex items-center gap-1.5"
                       >
-                        <X className="w-4 h-4" />
-                        <span>{isFa ? 'خیر، بازی نکرده‌ام' : 'No, not yet'}</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>{isFa ? 'ارسال پرسش' : 'Submit Question'}</span>
                       </button>
                     </div>
+                  </form>
+                )}
+
+                {/* Questions List */}
+                <div className="space-y-4">
+                  {currentGame.qa.map((item) => (
+                    <div key={item.id} className="p-6 rounded-2xl bg-black/50 border border-white/10 space-y-3">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-2">
+                          <HelpCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                          <h4 className="font-['Syne'] font-bold text-base text-white">{item.question}</h4>
+                        </div>
+                        <span className="font-mono text-xs text-zinc-500 shrink-0">{item.votes} رای تایید</span>
+                      </div>
+                      <div className="pl-6 border-l-2 border-rose-500/40 space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400 block">{isFa ? 'پاسخ کارشناس ویکی‌گیم:' : 'Official Answer:'}</span>
+                        <p className="text-xs text-zinc-200 leading-relaxed">{item.answer}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB CONTENT 8: USER REVIEWS & CRITIQUE GATE */}
+            {activeTab === 'REVIEWS' && (
+              <div className="p-8 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-8 animate-in fade-in duration-200">
+                {/* Gate: "آیا تجربه بازی را دارید؟" */}
+                <div className="p-6 rounded-2xl bg-black/60 border border-rose-500/30 text-center space-y-4">
+                  <h3 className="font-['Syne'] font-bold text-xl sm:text-2xl text-white">
+                    {isFa ? 'آیا تجربه این بازی را دارید؟' : 'Have you personally played this game?'}
+                  </h3>
+                  <p className="text-xs text-zinc-300 max-w-xl mx-auto font-light">
+                    {isFa
+                      ? 'برای حفظ دقت و صداقت نمرات جامعه کاربری ویکی‌گیم، تنها بازیکنانی که بازی را تجربه کرده‌اند مجاز به ثبت نمره و بررسی موشکافانه هستند.'
+                      : 'To preserve editorial integrity, verified gamers with hands-on gameplay experience grade our community score.'}
+                  </p>
+
+                  <div className="flex items-center justify-center gap-4 pt-2">
+                    <button
+                      onClick={() => {
+                        soundFx.playChime(750, 0.15);
+                        setHasPlayedGame(true);
+                      }}
+                      className={`px-8 py-3 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                        hasPlayedGame === true
+                          ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-400'
+                          : 'bg-white/10 hover:bg-white/20 text-white'
+                      }`}
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>{isFa ? 'بله، بازی را تجربه کرده‌ام' : 'Yes, I have played it'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        soundFx.playTick(500);
+                        setHasPlayedGame(false);
+                      }}
+                      className={`px-8 py-3 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                        hasPlayedGame === false
+                          ? 'bg-zinc-800 text-zinc-400'
+                          : 'bg-white/5 hover:bg-white/10 text-zinc-400'
+                      }`}
+                    >
+                      <X className="w-4 h-4" />
+                      <span>{isFa ? 'خیر، هنوز بازی نکرده‌ام' : 'No, not yet'}</span>
+                    </button>
                   </div>
 
-                  {/* Feedback when user clicked NO */}
                   {hasPlayedGame === false && (
-                    <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center max-w-md mx-auto text-xs text-amber-300">
+                    <div className="p-4 rounded-xl bg-zinc-900 text-xs text-zinc-400 font-mono animate-in fade-in">
                       {isFa
-                        ? 'برای ثبت نقد منصفانه، لطفا ابتدا بازی را تجربه کنید تا بتوانید نقاط قوت و ضعف واقعی آن را ثبت فرمایید.'
-                        : 'Please play the title before submitting a critique to keep our community rating calibrated.'}
+                        ? 'می‌توانید نظرات دیگر بازیکنان را در پایین مطالعه کنید و پس از تجربه این شاهکار، نمره خود را ثبت فرمایید.'
+                        : 'Explore player impressions below. Return here after your playthrough to record your review.'}
                     </div>
                   )}
+                </div>
 
-                  {/* FORM OPENS WHEN USER CLICKED YES! */}
-                  {hasPlayedGame === true && (
-                    <form onSubmit={handleSubmitReview} className="space-y-6 pt-4 border-t border-white/10 max-w-2xl mx-auto animate-in fade-in">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Rating Slider (1 to 10) */}
-                        <div className="space-y-2">
-                          <label className="text-xs text-zinc-300 font-bold block">
-                            {isFa ? 'امتیاز شما به بازی (از ۱۰):' : 'Your Rating (1 to 10):'}
-                          </label>
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="range"
-                              min="1"
-                              max="10"
-                              value={formRating}
-                              onChange={(e) => setFormRating(Number(e.target.value))}
-                              className="w-full accent-rose-500 cursor-pointer"
-                            />
-                            <span className="font-mono text-xl font-black text-rose-400 w-8">{formRating}</span>
-                          </div>
-                        </div>
+                {/* REVIEW FORM (باز شدن فرم در صورت انتخاب بله) */}
+                {hasPlayedGame === true && (
+                  <form onSubmit={handleSubmitReview} className="p-6 sm:p-8 rounded-3xl bg-black/80 border border-white/20 space-y-6 animate-in fade-in">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                      <h4 className="font-['Syne'] font-bold text-xl text-white">
+                        {isFa ? 'فرم ثبت نقد و بررسی و محاسبه در امتیاز سایت:' : 'Submit In-Depth Review & Score:'}
+                      </h4>
+                      <div className="flex items-center gap-2 font-mono text-sm">
+                        <span className="text-zinc-400">{isFa ? 'نمره شما:' : 'Your Score:'}</span>
+                        <span className="px-3 py-1 rounded-lg bg-rose-500 text-white font-black">{formRating}/10</span>
+                      </div>
+                    </div>
 
-                        {/* Recommend toggle */}
-                        <div className="space-y-2">
-                          <label className="text-xs text-zinc-300 font-bold block">
-                            {isFa ? 'آیا بازی را پیشنهاد می‌کنید؟' : 'Do you recommend?'}
-                          </label>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setFormRecommend(true)}
-                              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                                formRecommend ? 'bg-emerald-500 text-black' : 'bg-white/10 text-zinc-400'
-                              }`}
-                            >
-                              <ThumbsUp className="w-3.5 h-3.5" />
-                              <span>{isFa ? 'پیشنهاد می‌کنم' : 'Recommend'}</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setFormRecommend(false)}
-                              className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-                                !formRecommend ? 'bg-rose-500 text-white' : 'bg-white/10 text-zinc-400'
-                              }`}
-                            >
-                              <ThumbsDown className="w-3.5 h-3.5" />
-                              <span>{isFa ? 'پیشنهاد نمی‌کنم' : 'Do not recommend'}</span>
-                            </button>
-                          </div>
-                        </div>
+                    {/* Recommendation Toggle & Score Slider */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Score Slider */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-400 block">
+                          {isFa ? 'نمره کلی از ۱۰ به این اثر:' : 'Score from 1 to 10:'}
+                        </label>
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={formRating}
+                          onChange={(e) => {
+                            soundFx.playTick(600 + Number(e.target.value) * 40);
+                            setFormRating(Number(e.target.value));
+                          }}
+                          className="w-full h-2.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                        />
                       </div>
 
-                      {/* Author Name */}
-                      <div className="space-y-1">
-                        <label className="text-xs text-zinc-300 font-bold block">{isFa ? 'نام یا نام مستعار منتقد:' : 'Gamer Handle / Name:'}</label>
+                      {/* Recommend / Don't Recommend */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-zinc-400 block">
+                          {isFa ? 'آیا تجربه بازی را به دیگران پیشنهاد می‌کنید؟' : 'Do you recommend this game?'}
+                        </label>
+                        <div className="flex gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              soundFx.playClick(700);
+                              setFormRecommend(true);
+                            }}
+                            className={`flex-1 py-2.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                              formRecommend
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
+                                : 'bg-white/5 text-zinc-400'
+                            }`}
+                          >
+                            <ThumbsUp className="w-3.5 h-3.5" />
+                            <span>{isFa ? 'پیشنهاد می‌کنم' : 'Recommend'}</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              soundFx.playClick(500);
+                              setFormRecommend(false);
+                            }}
+                            className={`flex-1 py-2.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                              !formRecommend
+                                ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50'
+                                : 'bg-white/5 text-zinc-400'
+                            }`}
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                            <span>{isFa ? 'پیشنهاد نمی‌کنم' : 'Do not recommend'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pros and Cons */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-emerald-400 block">
+                          {isFa ? 'نقاط قوت (+) با ویرگول جدا کنید:' : 'Pros (+) separated by comma:'}
+                        </label>
+                        <input
+                          type="text"
+                          value={formPros}
+                          onChange={(e) => setFormPros(e.target.value)}
+                          placeholder={isFa ? 'مثال: گرافیک خیره‌کننده، موسیقی شاهکار، داستان عمیق' : 'e.g. Stunning visuals, Great OST'}
+                          className="w-full p-3 rounded-xl bg-zinc-900 border border-emerald-500/30 text-white text-xs outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-mono text-rose-400 block">
+                          {isFa ? 'نقاط ضعف (-) با ویرگول جدا کنید:' : 'Cons (-) separated by comma:'}
+                        </label>
+                        <input
+                          type="text"
+                          value={formCons}
+                          onChange={(e) => setFormCons(e.target.value)}
+                          placeholder={isFa ? 'مثال: افت فریم در شلوغی، باگ‌های جزئی' : 'e.g. Occasional stuttering'}
+                          className="w-full p-3 rounded-xl bg-zinc-900 border border-rose-500/30 text-white text-xs outline-none focus:border-rose-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Author & Review Comment */}
+                    <div className="space-y-4">
+                      <div className="max-w-md">
+                        <label className="text-xs font-mono text-zinc-400 block mb-1">
+                          {isFa ? 'نام نویسنده نقد:' : 'Your Gamer Name:'}
+                        </label>
                         <input
                           type="text"
                           value={formAuthor}
                           onChange={(e) => setFormAuthor(e.target.value)}
-                          placeholder={isFa ? 'مثلا: سهراب گیمر' : 'e.g. CyberV'}
-                          className="w-full py-2.5 px-4 rounded-xl bg-black/60 border border-white/20 text-xs text-white outline-none focus:border-rose-400"
+                          placeholder={isFa ? 'نام یا شناسه شما' : 'Gamer Tag'}
+                          className="w-full p-3 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs outline-none focus:border-rose-400"
                         />
                       </div>
 
-                      {/* Pros (+) and Cons (-) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                          <label className="text-xs text-emerald-400 font-bold block">{isFa ? 'نقاط قوت (+) با ویرگول جدا کنید:' : 'Pros (+):'}</label>
-                          <input
-                            type="text"
-                            value={formPros}
-                            onChange={(e) => setFormPros(e.target.value)}
-                            placeholder={isFa ? 'گرافیک عالی، گیم‌پلی روان...' : 'Great graphics, fast combat'}
-                            className="w-full py-2.5 px-4 rounded-xl bg-black/60 border border-white/20 text-xs text-white outline-none focus:border-emerald-400"
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-xs text-rose-400 font-bold block">{isFa ? 'نکات بد و منفی (-) با ویرگول جدا کنید:' : 'Cons (-):'}</label>
-                          <input
-                            type="text"
-                            value={formCons}
-                            onChange={(e) => setFormCons(e.target.value)}
-                            placeholder={isFa ? 'افت فریم، باگ‌های صوتی...' : 'Occasional frame drop'}
-                            className="w-full py-2.5 px-4 rounded-xl bg-black/60 border border-white/20 text-xs text-white outline-none focus:border-rose-400"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Comment text */}
                       <div className="space-y-1">
-                        <label className="text-xs text-zinc-300 font-bold block">{isFa ? 'متن نقد و تجربه شما:' : 'Detailed Review Narrative:'}</label>
+                        <label className="text-xs font-mono text-zinc-400 block">
+                          {isFa ? 'متن کامل تحلیل و نقد شما:' : 'Detailed Review Commentary:'}
+                        </label>
                         <textarea
-                          rows={3}
+                          required
+                          rows={4}
                           value={formComment}
                           onChange={(e) => setFormComment(e.target.value)}
-                          placeholder={isFa ? 'توضیحات و احساس شما از تجربه این بازی...' : 'Share your comprehensive thoughts...'}
-                          className="w-full p-4 rounded-xl bg-black/60 border border-white/20 text-xs text-white outline-none focus:border-rose-400"
+                          placeholder={isFa ? 'دیدگاه موشکافانه خود درباره گیم‌پلی، گرافیک، داستان و ارزش خرید را بنویسید...' : 'Share your critique on story, performance, and replayability...'}
+                          className="w-full p-4 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs outline-none focus:border-rose-400 leading-relaxed"
                         />
                       </div>
+                    </div>
 
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="text-[11px] font-mono text-zinc-400">
+                        {isFa ? 'نمره شما بلافاصله در میانگین امتیاز کاربران سایت محاسبه می‌شود.' : 'Your rating will immediately update the community aggregate.'}
+                      </span>
                       <button
                         type="submit"
-                        className="w-full py-3.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-rose-500/25 transition-all"
+                        className="px-8 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-mono font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-500/25 transition-all hover:scale-105"
                       >
-                        {isFa ? 'ذخیره نقد و محاسبه مجدد امتیاز کاربران' : 'Publish Review & Update Score'}
+                        <Award className="w-4 h-4" />
+                        <span>{isFa ? 'ثبت و انتشار نقد' : 'Publish Review'}</span>
                       </button>
+                    </div>
 
-                      {reviewSubmitted && (
-                        <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-300 text-center text-xs font-bold border border-emerald-500/40">
-                          {isFa ? 'نقد شما با موفقیت ثبت شد و امتیاز کاربران به‌روزرسانی گردید!' : 'Review published and user score updated!'}
-                        </div>
-                      )}
-                    </form>
-                  )}
-                </div>
+                    {reviewSubmitted && (
+                      <div className="p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 font-mono text-xs text-center flex items-center justify-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>{isFa ? 'نقد شما با موفقیت ثبت شد و امتیاز کاربران سایت بروزرسانی گردید!' : 'Review published & community score refreshed!'}</span>
+                      </div>
+                    )}
+                  </form>
+                )}
 
-                {/* List of Existing Reviews */}
-                <div className="space-y-4">
-                  <h3 className="font-['Syne'] font-bold text-xl text-white">
-                    {isFa ? `آرشیو نقدهای ثبت‌شده (${currentGame.reviews.length})` : `All Verified Reviews (${currentGame.reviews.length})`}
-                  </h3>
+                {/* REVIEWS LIST */}
+                <div className="space-y-4 pt-4">
+                  <h4 className="font-['Syne'] font-bold text-lg text-white">
+                    {isFa ? 'دیدگاه‌های موشکافانه ثبت‌شده توسط کاربران ویکی‌گیم:' : 'Community Published Reviews:'}
+                  </h4>
 
                   {currentGame.reviews.map((rev) => (
-                    <div key={rev.id} className="p-6 rounded-3xl border border-white/10 bg-zinc-950/70 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center font-bold text-xs text-rose-400">
-                            {rev.author[0]}
+                    <div key={rev.id} className="p-6 rounded-2xl bg-black/50 border border-white/10 space-y-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-['Syne'] font-bold text-base text-white">{rev.author}</span>
+                            <span className="text-[10px] font-mono text-zinc-500">{rev.date}</span>
                           </div>
-                          <div>
-                            <strong className="text-xs font-bold text-white block">{rev.author}</strong>
-                            <span className="text-[10px] text-zinc-500 font-mono">{rev.date}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            {rev.recommend ? (
+                              <span className="flex items-center gap-1 text-[11px] font-mono text-emerald-400">
+                                <ThumbsUp className="w-3 h-3" /> {isFa ? 'پیشنهاد می‌کند' : 'Recommends'}
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-[11px] font-mono text-rose-400">
+                                <ThumbsDown className="w-3 h-3" /> {isFa ? 'پیشنهاد نمی‌کند' : 'Does not recommend'}
+                              </span>
+                            )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${
-                              rev.recommend ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                            }`}
-                          >
-                            {rev.recommend ? (isFa ? 'پیشنهاد می‌کند 👍' : 'Recommended') : (isFa ? 'پیشنهاد نمی‌کند 👎' : 'Not Recommended')}
-                          </span>
-                          <span className="px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 font-mono text-amber-300 font-bold text-xs">
-                            ★ {rev.rating}/10
-                          </span>
+                        <div className="px-3 py-1 rounded-xl bg-rose-500 text-white font-mono font-black text-sm">
+                          {rev.rating}/10
                         </div>
                       </div>
 
-                      <p className="text-xs text-zinc-200 leading-relaxed">
-                        «{rev.comment}»
-                      </p>
+                      <p className="text-xs text-zinc-200 leading-relaxed font-light">{rev.comment}</p>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-white/5 text-[11px]">
-                        {rev.pros.length > 0 && (
-                          <div className="text-emerald-400">
-                            <strong>{isFa ? 'نقاط قوت: ' : 'Pros: '}</strong>
-                            <span>{rev.pros.join(' • ')}</span>
-                          </div>
-                        )}
-                        {rev.cons.length > 0 && (
-                          <div className="text-rose-400">
-                            <strong>{isFa ? 'نقاط ضعف: ' : 'Cons: '}</strong>
-                            <span>{rev.cons.join(' • ')}</span>
-                          </div>
-                        )}
+                      {/* Pros & Cons Pills */}
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+                        {rev.pros.map((p, i) => (
+                          <span key={i} className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-500/20 text-[10px] font-mono">
+                            + {p}
+                          </span>
+                        ))}
+                        {rev.cons.map((c, i) => (
+                          <span key={i} className="px-2.5 py-0.5 rounded-full bg-rose-950/60 text-rose-400 border border-rose-500/20 text-[10px] font-mono">
+                            - {c}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   ))}
@@ -1513,6 +1675,25 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
           </div>
         </main>
       )}
+
+      {/* Footer Return Bar */}
+      <footer className="py-12 px-4 sm:px-6 border-t border-white/10 text-center font-mono text-xs text-zinc-500 relative z-10">
+        <p className="mb-3">
+          {isFa
+            ? 'دایره‌المعارف ویکی‌گیم • تمامی تحلیل‌ها، تریلرها و نمرات تحت استاندارد مرجع گیمینگ.'
+            : 'WikiGame Definitive Encyclopedia • All rights reserved.'}
+        </p>
+        <button
+          onClick={() => {
+            soundFx.playClick(500);
+            onReturnToCatalog();
+          }}
+          className="text-rose-400 hover:underline inline-flex items-center gap-1"
+        >
+          <span>{isFa ? 'بازگشت به نمایشگاه ۶۰ قطعه ای' : 'Return to Catalog Showroom'}</span>
+          {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+        </button>
+      </footer>
     </div>
   );
 }
