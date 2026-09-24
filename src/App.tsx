@@ -74,8 +74,11 @@ import SpatialCyberLidarTerrain from './components/spatial/SpatialCyberLidarTerr
 import SpatialLuxurySilkClothSim from './components/spatial/SpatialLuxurySilkClothSim';
 import SpatialParametricGimbalField3D from './components/spatial/SpatialParametricGimbalField3D';
 
-// Full Production Website Sample
+// Full Production Website Sample & Domain Experiences
 import AuraWebsiteSample from './components/sample/AuraWebsiteSample';
+import CoffeeLanding from './components/sample/123CoffeeLanding';
+import PcBuilderLanding from './components/sample/PcBuilderLanding';
+import WikiGameLanding from './components/sample/WikiGameLanding';
 
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { CATALOG_SEARCH_DATA } from './data/catalogSearchData';
@@ -84,11 +87,13 @@ import { AestheticFilter, TechFilter } from './types';
 import { Sparkles, Layers, ArrowUp, CheckCircle2, ChevronRight, Terminal, BookOpen, Compass, Hourglass, MoveHorizontal, Anchor, LayoutDashboard, ShoppingBag, Radio, Type } from 'lucide-react';
 import { soundFx } from './utils/audio';
 
+export type AppViewMode = 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
+
 export default function App() {
   const [currentAesthetic, setCurrentAesthetic] = useState<AestheticFilter>('ALL');
   const [currentTech, setCurrentTech] = useState<TechFilter>('ALL');
   const [activeBatch, setActiveBatch] = useState<string>('ALL');
-  const [viewMode, setViewMode] = useState<'CATALOG' | 'SAMPLE_WEBSITE'>('CATALOG');
+  const [viewMode, setViewMode] = useState<AppViewMode>('SAMPLE_WEBSITE');
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
 
@@ -268,9 +273,20 @@ export default function App() {
         </button>
       </nav>
 
-      {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystem */}
+      {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystems */}
       {viewMode === 'SAMPLE_WEBSITE' ? (
-        <AuraWebsiteSample onReturnToCatalog={() => setViewMode('CATALOG')} />
+        <AuraWebsiteSample
+          onReturnToCatalog={() => setViewMode('CATALOG')}
+          onOpenCoffeeSample={() => setViewMode('COFFEE_SAMPLE')}
+          onOpenPcBuilderSample={() => setViewMode('PC_BUILDER_SAMPLE')}
+          onOpenWikiGameSample={() => setViewMode('WIKI_GAME_SAMPLE')}
+        />
+      ) : viewMode === 'COFFEE_SAMPLE' ? (
+        <CoffeeLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
+      ) : viewMode === 'PC_BUILDER_SAMPLE' ? (
+        <PcBuilderLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
+      ) : viewMode === 'WIKI_GAME_SAMPLE' ? (
+        <WikiGameLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
       ) : (
         <>
           {/* Main Continuous Scroll Catalog Container */}

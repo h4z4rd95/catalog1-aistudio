@@ -140,20 +140,21 @@ export const CartDrawer: React.FC = () => {
             ) : (
               cart.map((item) => {
                 const itemPrice = item.product.price + (item.selectedVariant?.priceDelta || 0);
+                const title = isFa && item.product.nameFa ? item.product.nameFa : item.product.name;
                 return (
                   <div
                     key={`${item.product.id}-${item.selectedVariant?.id || 'def'}`}
-                    className={`p-4 rounded-xl border flex gap-3 transition-colors ${
+                    className={`p-4 rounded-xl border flex gap-3 transition-all duration-300 ${
                       isLight
-                        ? 'bg-slate-50 border-slate-200 hover:border-cyan-400'
+                        ? 'bg-slate-50 border-slate-200 hover:border-cyan-400 shadow-sm'
                         : 'bg-white/5 border-white/10 hover:border-white/20'
                     }`}
                   >
                     {/* Item Thumbnail */}
                     <img
                       src={item.product.image}
-                      alt={item.product.name}
-                      className="w-16 h-16 rounded-lg object-cover bg-black shrink-0"
+                      alt={title}
+                      className="w-16 h-16 rounded-lg object-cover bg-black shrink-0 border border-white/10"
                     />
 
                     {/* Info */}
@@ -161,19 +162,21 @@ export const CartDrawer: React.FC = () => {
                       <div>
                         <div className="flex items-center justify-between">
                           <h4 className={`font-bold text-xs ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-                            {item.product.name}
+                            {title}
                           </h4>
                           <button
-                            onClick={() => removeFromCart(item.product.id, item.selectedVariant?.id)}
-                            className="text-zinc-400 hover:text-rose-500 transition-colors p-1"
-                            title="Remove item"
+                            onClick={() => {
+                              removeFromCart(item.product.id, item.selectedVariant?.id);
+                            }}
+                            className="text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 p-1.5 rounded-md transition-colors"
+                            title={isFa ? 'حذف محصول از سبد' : 'Remove item'}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
                         {item.selectedVariant && (
-                          <span className={`text-[10px] font-mono block ${isLight ? 'text-cyan-700' : 'text-cyan-400'}`}>
+                          <span className={`text-[10px] font-mono block mt-0.5 ${isLight ? 'text-cyan-700' : 'text-cyan-400'}`}>
                             {item.selectedVariant.name}
                           </span>
                         )}
@@ -191,6 +194,7 @@ export const CartDrawer: React.FC = () => {
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedVariant?.id)}
                             className="p-1 hover:text-cyan-400 transition-colors"
+                            title={isFa ? 'کاهش تعداد' : 'Decrease'}
                           >
                             <Minus className="w-3 h-3" />
                           </button>
@@ -198,6 +202,7 @@ export const CartDrawer: React.FC = () => {
                           <button
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedVariant?.id)}
                             className="p-1 hover:text-cyan-400 transition-colors"
+                            title={isFa ? 'افزایش تعداد' : 'Increase'}
                           >
                             <Plus className="w-3 h-3" />
                           </button>
@@ -211,6 +216,23 @@ export const CartDrawer: React.FC = () => {
                   </div>
                 );
               })
+            )}
+
+            {/* Iranian Trust Badges & Guarantee in Cart */}
+            {cart.length > 0 && (
+              <div className={`p-3.5 rounded-xl border space-y-2 text-[11px] ${
+                isLight ? 'bg-slate-100/70 border-slate-200 text-zinc-600' : 'bg-white/5 border-white/10 text-zinc-400'
+              }`}>
+                <div className="flex items-center gap-2 text-emerald-500 font-bold">
+                  <ShieldCheck className="w-4 h-4 shrink-0" />
+                  <span>{isFa ? 'تضمین اصالت کالا و گارانتی بازگشت وجه ۷ روزه' : 'Authenticity & 7-Day Money Back Guarantee'}</span>
+                </div>
+                <p className="text-[10px] leading-relaxed opacity-80">
+                  {isFa
+                    ? 'پشتیبانی ۲۴ ساعته، ارسال مستقیم با بیمه خسارت و امکان بازگردانی سریع کالا.'
+                    : '24/7 dedicated client support, insured worldwide freight and instantaneous cryptographic licensing.'}
+                </p>
+              </div>
             )}
           </div>
 

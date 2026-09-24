@@ -28,9 +28,18 @@ import {
 interface WebsiteHeaderProps {
   onSwitchToShowroom: () => void;
   onOpenPresentationMode?: () => void;
+  onOpenCoffeeSample?: () => void;
+  onOpenPcBuilderSample?: () => void;
+  onOpenWikiGameSample?: () => void;
 }
 
-export const WebsiteHeader: React.FC<WebsiteHeaderProps> = ({ onSwitchToShowroom, onOpenPresentationMode }) => {
+export const WebsiteHeader: React.FC<WebsiteHeaderProps> = ({
+  onSwitchToShowroom,
+  onOpenPresentationMode,
+  onOpenCoffeeSample,
+  onOpenPcBuilderSample,
+  onOpenWikiGameSample,
+}) => {
   const {
     activePage,
     setActivePage,
@@ -52,6 +61,7 @@ export const WebsiteHeader: React.FC<WebsiteHeaderProps> = ({ onSwitchToShowroom
   const [soundEnabled, setSoundEnabled] = useState(soundFx.enabled);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showCategoryMegaMenu, setShowCategoryMegaMenu] = useState(false);
+  const [showSamplesMenu, setShowSamplesMenu] = useState(false);
 
   const isRtl = direction === 'rtl';
   const isLight = theme === 'light';
@@ -330,6 +340,93 @@ export const WebsiteHeader: React.FC<WebsiteHeaderProps> = ({ onSwitchToShowroom
             <Music className={`w-3.5 h-3.5 ${ambientActive ? 'animate-pulse text-cyan-400' : ''}`} />
             <span className="hidden lg:inline">{ambientActive ? t.musicOn : t.musicOff}</span>
           </button>
+
+          {/* Samples Showcase Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                soundFx.playClick(650);
+                setShowSamplesMenu(!showSamplesMenu);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-mono text-xs font-bold transition-all shadow-sm"
+              title="Switch Between Sample Web Apps"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">{language === 'fa' ? 'نمونه‌سایت‌ها' : 'Sample Sites'}</span>
+              <ChevronDown className="w-3 h-3 text-rose-400" />
+            </button>
+
+            {showSamplesMenu && (
+              <div
+                dir={direction}
+                className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-56 rounded-2xl border p-2 shadow-2xl z-50 animate-in fade-in duration-150 ${
+                  isLight ? 'bg-white border-slate-200 text-zinc-900' : 'bg-zinc-950 border-white/20 text-white'
+                }`}
+              >
+                <button
+                  onClick={() => {
+                    soundFx.playChime(750, 0.2);
+                    setShowSamplesMenu(false);
+                    onOpenCoffeeSample?.();
+                  }}
+                  className="w-full text-right p-2.5 rounded-xl hover:bg-amber-500/10 text-xs font-bold flex items-center justify-between text-amber-400 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>☕</span>
+                    <span>{language === 'fa' ? 'لندینگ ۱۲۳کافی (اسکرول)' : '123 Coffee Landing'}</span>
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">SCROLL</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    soundFx.playChime(780, 0.2);
+                    setShowSamplesMenu(false);
+                    onOpenPcBuilderSample?.();
+                  }}
+                  className="w-full text-right p-2.5 rounded-xl hover:bg-blue-500/10 text-xs font-bold flex items-center justify-between text-blue-400 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🖥️</span>
+                    <span>{language === 'fa' ? 'اسمبلر کامپیوتر (۳ بعدی)' : 'PC Builder Rig'}</span>
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">3D BUILD</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    soundFx.playChime(820, 0.2);
+                    setShowSamplesMenu(false);
+                    onOpenWikiGameSample?.();
+                  }}
+                  className="w-full text-right p-2.5 rounded-xl hover:bg-rose-500/10 text-xs font-bold flex items-center justify-between text-rose-400 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🎮</span>
+                    <span>{language === 'fa' ? 'ویکی‌گیم (دایره‌المعارف)' : 'WikiGame Portal'}</span>
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">WIKI</span>
+                </button>
+
+                <div className="border-t border-white/10 my-1" />
+
+                <button
+                  onClick={() => {
+                    soundFx.playClick(600);
+                    setShowSamplesMenu(false);
+                    onSwitchToShowroom();
+                  }}
+                  className="w-full text-right p-2.5 rounded-xl hover:bg-cyan-500/10 text-xs font-bold flex items-center justify-between text-cyan-400 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🏛️</span>
+                    <span>{language === 'fa' ? 'نمایشگاه ۶۰ قطعه' : '60 Showroom'}</span>
+                  </span>
+                  <span className="text-[10px] text-zinc-500 font-mono">CATALOG</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Cart Trigger with Bouncy Badge */}
           <button

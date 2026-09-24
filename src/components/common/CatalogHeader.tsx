@@ -12,8 +12,8 @@ interface CatalogHeaderProps {
   activeBatch: string;
   onSelectBatch: (b: string) => void;
   onOpenSearch?: () => void;
-  viewMode?: 'CATALOG' | 'SAMPLE_WEBSITE';
-  onSelectViewMode?: (mode: 'CATALOG' | 'SAMPLE_WEBSITE') => void;
+  viewMode?: 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
+  onSelectViewMode?: (mode: 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE') => void;
 }
 
 export default function CatalogHeader({
@@ -79,34 +79,73 @@ export default function CatalogHeader({
             </span>
           </div>
 
-          {/* View Mode Switcher */}
-          <div className="flex items-center bg-black/70 border border-white/15 rounded-lg p-0.5 ml-2 font-mono text-[11px]">
+          {/* View Mode Switcher for all Samples */}
+          <div className="flex flex-wrap items-center bg-black/70 border border-white/15 rounded-xl p-0.5 ml-2 font-mono text-[11px] gap-1">
             <button
               onClick={() => {
                 soundFx.playClick(600);
                 onSelectViewMode?.('CATALOG');
               }}
-              className={`px-3 py-1 rounded-md transition-all font-bold ${
+              className={`px-2.5 py-1 rounded-lg transition-all font-bold ${
                 viewMode === 'CATALOG'
                   ? 'bg-amber-400 text-black shadow-sm'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              {language === 'fa' ? 'نمایشگاه قطعات (۶۰ تنوع)' : 'Showroom (60 Variations)'}
+              {language === 'fa' ? 'نمایشگاه ۶۰ قطعه' : 'Showroom (60)'}
             </button>
             <button
               onClick={() => {
                 soundFx.playChime(700, 0.2);
                 onSelectViewMode?.('SAMPLE_WEBSITE');
               }}
-              className={`px-3 py-1 rounded-md transition-all font-bold flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 rounded-lg transition-all font-bold flex items-center gap-1 ${
                 viewMode === 'SAMPLE_WEBSITE'
                   ? 'bg-cyan-400 text-black shadow-sm'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
               <Sparkles className="w-3 h-3 text-cyan-300" />
-              <span>{language === 'fa' ? 'سایت کامل آورا (فروشگاه، اخبار، سبد، تسویه)' : 'Full Usable Website (Store, News, Cart, Auth)'}</span>
+              <span>{language === 'fa' ? 'وبسایت و فروشگاه آورا' : 'Aura Website'}</span>
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playChime(750, 0.2);
+                onSelectViewMode?.('COFFEE_SAMPLE');
+              }}
+              className={`px-2.5 py-1 rounded-lg transition-all font-bold flex items-center gap-1 ${
+                viewMode === 'COFFEE_SAMPLE'
+                  ? 'bg-amber-500 text-black shadow-sm'
+                  : 'text-amber-300/70 hover:text-amber-200'
+              }`}
+            >
+              <span>☕ {language === 'fa' ? '۱۲۳کافی' : '123 Coffee'}</span>
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playChime(780, 0.2);
+                onSelectViewMode?.('PC_BUILDER_SAMPLE');
+              }}
+              className={`px-2.5 py-1 rounded-lg transition-all font-bold flex items-center gap-1 ${
+                viewMode === 'PC_BUILDER_SAMPLE'
+                  ? 'bg-blue-400 text-black shadow-sm'
+                  : 'text-blue-300/70 hover:text-blue-200'
+              }`}
+            >
+              <span>🖥️ {language === 'fa' ? 'اسمبلر کامپیوتر' : 'PC Builder'}</span>
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playChime(820, 0.2);
+                onSelectViewMode?.('WIKI_GAME_SAMPLE');
+              }}
+              className={`px-2.5 py-1 rounded-lg transition-all font-bold flex items-center gap-1 ${
+                viewMode === 'WIKI_GAME_SAMPLE'
+                  ? 'bg-rose-500 text-white shadow-sm'
+                  : 'text-rose-300/70 hover:text-rose-200'
+              }`}
+            >
+              <span>🎮 {language === 'fa' ? 'ویکی‌گیم' : 'WikiGame'}</span>
             </button>
           </div>
         </div>

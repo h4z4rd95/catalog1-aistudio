@@ -32,6 +32,7 @@ export const ProductDetailPage: React.FC = () => {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [isRotating, setIsRotating] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [activeTab, setActiveTab] = useState<'SPECS' | 'COMPARISON' | 'DOCS' | 'REVIEWS'>('SPECS');
 
   const unitPrice = product.price + selectedVariant.priceDelta;
   const totalPrice = unitPrice * quantity;
@@ -347,6 +348,319 @@ export const ProductDetailPage: React.FC = () => {
               </ul>
             </div>
           </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* COMPREHENSIVE TECHNICAL TABLES & DEEP SPECIFICATIONS (FULL PERSIAN VIEW) */}
+        {/* ========================================================================= */}
+        <div className="mt-16 pt-10 border-t border-white/10">
+          {/* Tab Headers */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 border-b border-white/10 pb-4">
+            <button
+              onClick={() => {
+                soundFx.playClick(600);
+                setActiveTab('SPECS');
+              }}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                activeTab === 'SPECS'
+                  ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-500/20'
+                  : isLight
+                  ? 'bg-slate-200 text-zinc-700 hover:bg-slate-300'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>{isFa ? 'جدول مشخصات فنی جامع' : 'Full Technical Specifications'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playClick(650);
+                setActiveTab('COMPARISON');
+              }}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                activeTab === 'COMPARISON'
+                  ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-500/20'
+                  : isLight
+                  ? 'bg-slate-200 text-zinc-700 hover:bg-slate-300'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{isFa ? 'جدول مقایسه سطوح دسترسی و لایسنس' : 'Tier Comparison Matrix'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playClick(700);
+                setActiveTab('DOCS');
+              }}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                activeTab === 'DOCS'
+                  ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-500/20'
+                  : isLight
+                  ? 'bg-slate-200 text-zinc-700 hover:bg-slate-300'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Zap className="w-4 h-4" />
+              <span>{isFa ? 'مستندات و راهنمای پیاده‌سازی' : 'Integration & Architecture'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playClick(750);
+                setActiveTab('REVIEWS');
+              }}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-2 ${
+                activeTab === 'REVIEWS'
+                  ? 'bg-cyan-400 text-black shadow-lg shadow-cyan-500/20'
+                  : isLight
+                  ? 'bg-slate-200 text-zinc-700 hover:bg-slate-300'
+                  : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Star className="w-4 h-4" />
+              <span>{isFa ? 'دیدگاه‌ها و نظرات خریداران (۱۴۲)' : 'Verified Customer Reviews (142)'}</span>
+            </button>
+          </div>
+
+          {/* TAB 1: FULL TECHNICAL SPECIFICATIONS TABLE */}
+          {activeTab === 'SPECS' && (
+            <div className="mt-8 space-y-6 animate-in fade-in duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className={`font-['Syne'] font-bold text-xl ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                    {isFa ? 'جدول کامل مشخصات مهندسی و پارامترها' : 'Complete Engineering Specifications Table'}
+                  </h3>
+                  <p className={`text-xs mt-1 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    {isFa
+                      ? 'تمامی جزئیات ساختار نرم‌افزاری، استانداردهای کامپایلر، معماری گرافیکی و متریال صنعتی این محصول در جدول زیر آورده شده است.'
+                      : 'Comprehensive breakdown of software architecture, compiler specifications, and engineering metrics.'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 font-mono text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg w-fit">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{isFa ? 'تست‌شده بر اساس استانداردهای وب ۲۰۲۶' : 'Verified Web Standards 2026'}</span>
+                </div>
+              </div>
+
+              {/* Styled Table */}
+              <div className={`overflow-x-auto rounded-2xl border shadow-sm ${
+                isLight ? 'bg-white border-slate-200' : 'bg-zinc-950/70 border-white/15'
+              }`}>
+                <table className="w-full text-right text-xs">
+                  <thead>
+                    <tr className={`border-b font-mono font-bold uppercase tracking-wider ${
+                      isLight ? 'bg-slate-100 text-zinc-800 border-slate-200' : 'bg-white/5 text-zinc-300 border-white/10'
+                    }`}>
+                      <th className="py-4 px-6">{isFa ? 'پارامتر فنی' : 'Parameter'}</th>
+                      <th className="py-4 px-6">{isFa ? 'مقدار / استاندارد تعریف‌شده' : 'Specification Value'}</th>
+                      <th className="py-4 px-6 hidden sm:table-cell">{isFa ? 'دسته‌بندی ارزیابی' : 'Domain Category'}</th>
+                      <th className="py-4 px-6">{isFa ? 'وضعیت تایید' : 'Compliance'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isLight ? 'divide-slate-200 text-zinc-700' : 'divide-white/10 text-zinc-300'}`}>
+                    {Object.entries(product.specs).map(([key, val], idx) => (
+                      <tr
+                        key={key}
+                        className={`transition-colors ${
+                          idx % 2 === 0
+                            ? (isLight ? 'bg-white' : 'bg-transparent')
+                            : (isLight ? 'bg-slate-50/60' : 'bg-white/[0.02]')
+                        } hover:bg-cyan-500/5`}
+                      >
+                        <td className="py-4 px-6 font-bold flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                          <span>{key}</span>
+                        </td>
+                        <td className="py-4 px-6 font-mono text-cyan-500 font-semibold">{val}</td>
+                        <td className="py-4 px-6 font-mono text-[11px] opacity-70 hidden sm:table-cell">
+                          {idx === 0 ? 'معماری و کامپایلر' : idx === 1 ? 'تایپ‌سیفتی و تایپ‌اسکریپت' : idx === 2 ? 'موتور استایل‌دهی' : idx === 3 ? 'رندرر گرافیکی' : 'قوانین توزیع و حق نشر'}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>{isFa ? 'تایید رسمی' : 'Pass'}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {/* Additional enriched rows for deep Persian specs */}
+                    <tr className={isLight ? 'bg-white' : 'bg-transparent'}>
+                      <td className="py-4 px-6 font-bold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                        <span>{isFa ? 'پشتیبانی از مرورگرها' : 'Browser Support'}</span>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-cyan-500 font-semibold">Chrome 110+, Safari 16+, Edge, Firefox</td>
+                      <td className="py-4 px-6 font-mono text-[11px] opacity-70 hidden sm:table-cell">سازگاری کراس‌پلتفرم</td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <CheckCircle2 className="w-3 h-3" /> 100%
+                        </span>
+                      </td>
+                    </tr>
+                    <tr className={isLight ? 'bg-slate-50/60' : 'bg-white/[0.02]'}>
+                      <td className="py-4 px-6 font-bold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                        <span>{isFa ? 'فریم‌ریت هدف رندرینگ' : 'Target Frame Budget'}</span>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-cyan-500 font-semibold">60 to 120 FPS (&lt; 2.4ms frame time)</td>
+                      <td className="py-4 px-6 font-mono text-[11px] opacity-70 hidden sm:table-cell">بهینه‌سازی سخت‌افزاری</td>
+                      <td className="py-4 px-6">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <CheckCircle2 className="w-3 h-3" /> Ultra Low Latency
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: TIER COMPARISON MATRIX */}
+          {activeTab === 'COMPARISON' && (
+            <div className="mt-8 space-y-6 animate-in fade-in duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className={`font-['Syne'] font-bold text-xl ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                    {isFa ? 'جدول مقایسه سطوح لایسنس و کانفیگ‌ها' : 'Licensing & Tier Comparison Matrix'}
+                  </h3>
+                  <p className={`text-xs mt-1 ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    {isFa
+                      ? 'مقایسه جامع بین نسخه‌های انفرادی، استودیو و سازمانی انترپرایز برای انتخاب بهترین گزینه متناسب با بودجه شما.'
+                      : 'Side-by-side comparison of features, seat limits, and commercial rights across editions.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className={`overflow-x-auto rounded-2xl border shadow-sm ${
+                isLight ? 'bg-white border-slate-200' : 'bg-zinc-950/70 border-white/15'
+              }`}>
+                <table className="w-full text-right text-xs">
+                  <thead>
+                    <tr className={`border-b font-mono font-bold uppercase tracking-wider ${
+                      isLight ? 'bg-slate-100 text-zinc-800 border-slate-200' : 'bg-white/5 text-zinc-300 border-white/10'
+                    }`}>
+                      <th className="py-4 px-6">{isFa ? 'ویژگی و امکانات' : 'Capability'}</th>
+                      <th className="py-4 px-6 text-center text-cyan-400">{isFa ? 'نسخه مستقل (Indie)' : 'Indie Tier'}</th>
+                      <th className="py-4 px-6 text-center text-purple-400">{isFa ? 'نسخه استودیو (Studio)' : 'Studio Tier'}</th>
+                      <th className="py-4 px-6 text-center text-amber-400">{isFa ? 'سازمانی (Enterprise)' : 'Enterprise'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isLight ? 'divide-slate-200 text-zinc-700' : 'divide-white/10 text-zinc-300'}`}>
+                    <tr>
+                      <td className="py-4 px-6 font-bold">{isFa ? 'تعداد برنامه‌نویس مجاز' : 'Authorized Developers'}</td>
+                      <td className="py-4 px-6 text-center font-mono">۱ نفر</td>
+                      <td className="py-4 px-6 text-center font-mono font-bold text-purple-400">تا ۱۰ نفر</td>
+                      <td className="py-4 px-6 text-center font-mono font-bold text-amber-400">نامحدود جهانی</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-bold">{isFa ? 'دسترسی کامل به سورس‌کد و شیدرها' : 'Full Source Code & Shaders'}</td>
+                      <td className="py-4 px-6 text-center text-emerald-400">✓ تاییدشده</td>
+                      <td className="py-4 px-6 text-center text-emerald-400">✓ تاییدشده</td>
+                      <td className="py-4 px-6 text-center text-emerald-400">✓ تاییدشده + فایل‌های خام CAD</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-bold">{isFa ? 'حق استفاده در پروژه‌های تجاری مشتریان' : 'Client Commercial Rights'}</td>
+                      <td className="py-4 px-6 text-center font-mono">حداکثر ۳ پروژه</td>
+                      <td className="py-4 px-6 text-center font-mono text-purple-400">نامحدود</td>
+                      <td className="py-4 px-6 text-center font-mono text-amber-400">نامحدود + حق بازفروش</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-bold">{isFa ? 'کانال پشتیبانی اختصاصی' : 'Priority Support Channel'}</td>
+                      <td className="py-4 px-6 text-center font-mono">ایمیل (۴۸ ساعته)</td>
+                      <td className="py-4 px-6 text-center font-mono text-purple-400">دیسکورد VIP (۱۲ ساعته)</td>
+                      <td className="py-4 px-6 text-center font-mono text-amber-400">تماس و اسلک اختصاصی (۲۴/۷)</td>
+                    </tr>
+                    <tr>
+                      <td className="py-4 px-6 font-bold">{isFa ? 'به‌روزرسانی‌های آینده' : 'Future Version Updates'}</td>
+                      <td className="py-4 px-6 text-center font-mono">۱ سال رایگان</td>
+                      <td className="py-4 px-6 text-center font-mono text-purple-400">مادام‌العمر</td>
+                      <td className="py-4 px-6 text-center font-mono text-amber-400">مادام‌العمر + فیچرهای سفارشی</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: INTEGRATION & DOCS */}
+          {activeTab === 'DOCS' && (
+            <div className="mt-8 space-y-6 animate-in fade-in duration-300">
+              <h3 className={`font-['Syne'] font-bold text-xl ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                {isFa ? 'راهنمای پیاده‌سازی و ساختار کدهای فرگمنت' : 'Quick Start & Architecture Documentation'}
+              </h3>
+              <p className={`text-xs ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                {isFa
+                  ? 'نمونه کد زیر نحوه فراخوانی و بارگذاری شیدرهای کامپوننت را در ری‌اکت ۱۹ نمایش می‌دهد:'
+                  : 'Install via npm and import the pre-compiled WebGL bundle into your React 19 application.'}
+              </p>
+
+              <div className="p-4 rounded-2xl bg-black/90 border border-white/15 text-left font-mono text-xs overflow-x-auto" dir="ltr">
+                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3 text-zinc-500">
+                  <span>Terminal / Bash</span>
+                  <span className="text-[10px] text-emerald-400">BASH</span>
+                </div>
+                <pre className="text-cyan-300">
+                  {`npm install @aura/vibe-matrix three @types/three\n# Initialize with GLSL Shader Uniforms`}
+                </pre>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-black/90 border border-white/15 text-left font-mono text-xs overflow-x-auto" dir="ltr">
+                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3 text-zinc-500">
+                  <span>App.tsx</span>
+                  <span className="text-[10px] text-purple-400">REACT 19 + GLSL</span>
+                </div>
+                <pre className="text-zinc-300">
+                  {`import { VibeMatrixRenderer } from '@aura/vibe-matrix';\n\nexport default function StudioCanvas() {\n  return (\n    <VibeMatrixRenderer\n      refractionIndex={1.52}\n      dispersionStrength={0.08}\n      interactiveDetent={true}\n      audioFeedback="synthesized"\n    />\n  );\n}`}
+                </pre>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: VERIFIED CUSTOMER REVIEWS */}
+          {activeTab === 'REVIEWS' && (
+            <div className="mt-8 space-y-6 animate-in fade-in duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className={`font-['Syne'] font-bold text-xl ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                    {isFa ? 'نظرات و ارزیابی خریداران تاییدشده' : 'Verified Buyer Impressions & Reviews'}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-amber-400 text-sm">★★★★★</span>
+                    <span className="font-bold text-xs font-mono">4.98 / 5.0</span>
+                    <span className="text-xs text-zinc-500">({isFa ? 'بر اساس ۱۴۲ ارزیابی مشتریان بین‌المللی' : 'Based on 142 client evaluations'})</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`p-5 rounded-2xl border space-y-2 ${isLight ? 'bg-white border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex justify-between items-center">
+                    <strong className="font-bold text-xs">مهندس سهراب رادمنش</strong>
+                    <span className="text-amber-400 text-xs">★★★★★</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-cyan-400 block">مدیر فنی استودیو دیزاین تهران</span>
+                  <p className={`text-xs leading-relaxed ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    «شیدرهای وب‌جی‌ال این مجموعه شگفت‌انگیز است. فریم‌ریت بالای ۱۰۰ اف‌پی‌اس بدون هیچ لگی لود شد و مشتری بین‌المللی ما از انکسار نور شیشه‌ای شگفت‌زده شد. پشتیبانی عالی بود.»
+                  </p>
+                </div>
+
+                <div className={`p-5 rounded-2xl border space-y-2 ${isLight ? 'bg-white border-slate-200' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex justify-between items-center">
+                    <strong className="font-bold text-xs">Elena Rostova</strong>
+                    <span className="text-amber-400 text-xs">★★★★★</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-400 block">Lead Creative Dev @ Zurich</span>
+                  <p className={`text-xs leading-relaxed ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                    «The tactile detent physics and Three.js performance surpassed all expectations. Easily worth 10x the price for production deliverables.»
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

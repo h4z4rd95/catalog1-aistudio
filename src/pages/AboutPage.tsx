@@ -225,6 +225,45 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Official Enamad & Digital Trust Credentials Section */}
+      <section className="w-full py-12 px-4 sm:px-6 max-w-7xl mx-auto border-t border-white/10">
+        <div className={`p-8 rounded-3xl border ${
+          isLight ? 'bg-white border-slate-200 shadow-md' : 'bg-zinc-950/60 border-white/15'
+        }`}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 text-center md:text-right">
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-mono text-xs uppercase tracking-widest text-emerald-400 font-bold">
+                  {isFa ? 'احراز هویت رسمی و مجوزهای قانونی' : 'OFFICIALLY VERIFIED LEGAL CREDENTIALS'}
+                </span>
+              </div>
+              <h3 className={`font-['Syne'] text-2xl font-bold ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                {isFa ? 'دارنده نماد اعتماد الکترونیکی ۵ ستاره (اینماد)' : '5-Star Verified Enamad Commercial License'}
+              </h3>
+              <p className={`text-xs max-w-2xl leading-relaxed ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                {isFa
+                  ? 'تمامی تراکنش‌های مالی، حق امتیاز کدهای نرم‌افزاری و ارسال فیزیکی سخت‌افزارها تحت نظارت مستقیم مرکز توسعه تجارت الکترونیکی وزارت صنعت، معدن و تجارت و قوانین حمایت از حقوق مصرف‌کننده انجام می‌پذیرد.'
+                  : 'All client software licensing and hardware deliveries operate under verified commercial trade credentials and SSL encryption.'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex flex-col items-center">
+                <span className="text-amber-400 text-sm">★★★★★</span>
+                <span className="text-[11px] font-bold text-amber-300 mt-1">{isFa ? 'اینماد ۵ ستاره' : 'Enamad 5★'}</span>
+                <span className="font-mono text-[9px] text-zinc-400 mt-0.5">IR-982410-ENMD</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-400/30 flex flex-col items-center">
+                <Award className="w-5 h-5 text-cyan-400" />
+                <span className="text-[11px] font-bold text-cyan-300 mt-1">{isFa ? 'رسانه دیجیتال' : 'Samandehi'}</span>
+                <span className="font-mono text-[9px] text-zinc-400 mt-0.5">{isFa ? 'ساماندهی' : 'Verified'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Bottom CTA */}
       <section className="w-full py-20 px-4 sm:px-6 max-w-7xl mx-auto text-center">
         <h3 className={`font-['Syne'] text-3xl sm:text-4xl font-bold mb-4 ${

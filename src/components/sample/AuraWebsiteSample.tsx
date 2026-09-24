@@ -16,9 +16,17 @@ import { NewsPage } from '../../pages/NewsPage';
 
 interface AuraWebsiteSampleProps {
   onReturnToCatalog?: () => void;
+  onOpenCoffeeSample?: () => void;
+  onOpenPcBuilderSample?: () => void;
+  onOpenWikiGameSample?: () => void;
 }
 
-export default function AuraWebsiteSample({ onReturnToCatalog = () => {} }: AuraWebsiteSampleProps) {
+export default function AuraWebsiteSample({
+  onReturnToCatalog = () => {},
+  onOpenCoffeeSample,
+  onOpenPcBuilderSample,
+  onOpenWikiGameSample,
+}: AuraWebsiteSampleProps) {
   const { activePage, theme, direction } = useStore();
   const [isPresentationOpen, setIsPresentationOpen] = useState(false);
 
@@ -35,6 +43,9 @@ export default function AuraWebsiteSample({ onReturnToCatalog = () => {} }: Aura
       <WebsiteHeader
         onSwitchToShowroom={onReturnToCatalog}
         onOpenPresentationMode={() => setIsPresentationOpen(true)}
+        onOpenCoffeeSample={onOpenCoffeeSample}
+        onOpenPcBuilderSample={onOpenPcBuilderSample}
+        onOpenWikiGameSample={onOpenWikiGameSample}
       />
 
       {/* Slide-over AJAX Cart Drawer */}

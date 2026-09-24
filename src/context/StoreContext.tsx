@@ -31,6 +31,11 @@ export interface Product {
   description: string;
   features: string[];
   specs: Record<string, string>;
+  specsFa?: Record<string, string>;
+  nameFa?: string;
+  subtitleFa?: string;
+  descriptionFa?: string;
+  featuresFa?: string[];
   variants: ProductVariant[];
 }
 
@@ -46,6 +51,8 @@ export interface ToastNotification {
   message: string;
   type: 'add' | 'remove' | 'coupon' | 'info';
   timestamp: number;
+  image?: string;
+  undoAction?: () => void;
 }
 
 export interface CustomerOrder {
@@ -348,6 +355,8 @@ interface StoreContextType {
   selectedCategoryFilter: string;
   setSelectedCategoryFilter: (cat: string) => void;
   setSelectedProductId: (id: string) => void;
+  cartAnimationKey: number;
+  restoreLastRemoved: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -364,9 +373,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currency, setCurrency] = useState<CurrencyType>('USD');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [theme, setTheme] = useState<ThemeMode>('dark');
-  const [language, setLanguage] = useState<Language>('en');
-  const [direction, setDirection] = useState<Direction>('ltr');
+  const [language, setLanguage] = useState<Language>('fa');
+  const [direction, setDirection] = useState<Direction>('rtl');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('ALL');
+  const [cartAnimationKey, setCartAnimationKey] = useState<number>(0);
+  const [lastRemovedItem, setLastRemovedItem] = useState<{ item: CartItem; index: number } | null>(null);
 
   useEffect(() => {
     document.documentElement.dir = direction;
@@ -448,9 +459,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
   ]);
 
-  const addToast = (title: string, message: string, type: ToastNotification['type']) => {
+  const addToast = (
+    title: string,
+    message: string,
+    type: ToastNotification['type'],
+    image?: string,
+    undoAction?: () => void
+  ) => {
     const id = 'toast-' + Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, title, message, type, timestamp: Date.now() }]);
+    setToasts((prev) => [...prev, { id, title, message, type, timestamp: Date.now(), image, undoAction }]);
     setTimeout(() => {
       dismissToast(id);
     }, 4500);
@@ -460,9 +477,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const restoreLastRemoved = () => {
+    if (lastRemovedItem) {
+      soundFx.playChime(750, 0.15);
+      setCart((prev) => {
+        const next = [...prev];
+        next.splice(lastRemovedItem.index, 0, lastRemovedItem.item);
+        return next;
+      });
+      const isFa = language === 'fa';
+      addToast(
+        isFa ? 'محصول بازیابی شد' : 'Item Restored',
+        isFa
+          ? `«${lastRemovedItem.item.product.nameFa || lastRemovedItem.item.product.name}» مجدداً به سبد خرید بازگردانده شد.`
+          : `${lastRemovedItem.item.product.name} was restored to your cart.`,
+        'info',
+        lastRemovedItem.item.product.image
+      );
+      setLastRemovedItem(null);
+    }
+  };
+
   const addToCart = (product: Product, quantity: number = 1, variant?: ProductVariant) => {
     const chosenVariant = variant || product.variants[0];
     soundFx.playChime(780, 0.15);
+    setCartAnimationKey((k) => k + 1);
 
     setCart((prev) => {
       const existingIndex = prev.findIndex(
@@ -478,30 +517,45 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     });
 
+    const isFa = language === 'fa';
+    const prodTitle = isFa && product.nameFa ? product.nameFa : product.name;
+    const variantTitle = chosenVariant.name;
+
     addToast(
-      'Added to Cart',
-      `${quantity}x ${product.name} (${chosenVariant.name}) added to your session.`,
-      'add'
+      isFa ? 'به سبد خرید اضافه شد' : 'Added to Cart',
+      isFa
+        ? `${quantity} عدد از «${prodTitle}» (${variantTitle}) با موفقیت به سبد خرید افزوده شد.`
+        : `${quantity}x ${product.name} (${variantTitle}) added to your session.`,
+      'add',
+      product.image
     );
   };
 
   const removeFromCart = (productId: string, variantId?: string) => {
     soundFx.playTick(450);
-    const itemToRemove = cart.find(
+    const existingIndex = cart.findIndex(
       (item) => item.product.id === productId && (!variantId || item.selectedVariant.id === variantId)
     );
 
-    setCart((prev) =>
-      prev.filter(
-        (item) => !(item.product.id === productId && (!variantId || item.selectedVariant.id === variantId))
-      )
-    );
+    if (existingIndex > -1) {
+      const itemToRemove = cart[existingIndex];
+      setLastRemovedItem({ item: itemToRemove, index: existingIndex });
 
-    if (itemToRemove) {
+      setCart((prev) =>
+        prev.filter((_, idx) => idx !== existingIndex)
+      );
+
+      const isFa = language === 'fa';
+      const prodTitle = isFa && itemToRemove.product.nameFa ? itemToRemove.product.nameFa : itemToRemove.product.name;
+
       addToast(
-        'Item Removed',
-        `${itemToRemove.product.name} removed from your cart.`,
-        'remove'
+        isFa ? 'محصول از سبد حذف شد' : 'Item Removed',
+        isFa
+          ? `«${prodTitle}» از سبد خرید حذف شد. برای بازگرداندن کلیک کنید.`
+          : `${itemToRemove.product.name} removed from your cart.`,
+        'remove',
+        itemToRemove.product.image,
+        restoreLastRemoved
       );
     }
   };
@@ -658,6 +712,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         selectedCategoryFilter,
         setSelectedCategoryFilter,
         setSelectedProductId: setActiveProductId,
+        cartAnimationKey,
+        restoreLastRemoved,
       }}
     >
       {children}
