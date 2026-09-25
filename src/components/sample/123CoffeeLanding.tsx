@@ -21,6 +21,284 @@ import {
   Star
 } from 'lucide-react';
 
+// ---------------------------------------------------------------------------
+// Authentic 3D Coffee Bean Procedural Canvas Component
+// Realistic 3D Ellipsoid with signature curved central crease/cleft & roast sheen
+// ---------------------------------------------------------------------------
+function AuthenticCoffeeBean3D({
+  scrollY,
+  roastColor = '#8b5a2b',
+  roastLevel = 'MEDIUM',
+  isFa = true,
+}: {
+  scrollY: number;
+  roastColor?: string;
+  roastLevel?: 'LIGHT' | 'MEDIUM' | 'DARK';
+  isFa?: boolean;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ isDown: false, startX: 0, startY: 0, dragX: 0, dragY: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || 340);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 340);
+
+    const handleResize = () => {
+      if (!canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    let time = 0;
+
+    const render = () => {
+      time += 0.015;
+      ctx.clearRect(0, 0, width, height);
+
+      // Rotation angles driven by scroll + mouse drag + gentle idle tumble
+      const rotX = scrollY * 0.003 + mouseRef.current.dragY * 0.01 + Math.sin(time * 0.5) * 0.15;
+      const rotY = scrollY * 0.005 + mouseRef.current.dragX * 0.01 + time * 0.6;
+      const rotZ = Math.sin(time * 0.3) * 0.1;
+
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+
+      // Light source vector
+      const lx = 0.577;
+      const ly = -0.577;
+      const lz = 0.577;
+
+      const project = (x: number, y: number, z: number) => {
+        // Rot Y
+        const x1 = x * cosY - z * sinY;
+        const z1 = z * cosY + x * sinY;
+        // Rot X
+        const y2 = y * cosX - z1 * sinX;
+        const z2 = z1 * cosX + y * sinX;
+
+        const fov = 320;
+        const dist = 380;
+        const scale = fov / (dist + z2);
+
+        return {
+          px: width / 2 + x1 * scale,
+          py: height / 2 + y2 * scale,
+          depth: z2,
+          scale,
+        };
+      };
+
+      // Mesh of genuine Coffee Bean with characteristic central curved cleft
+      const rings = 24;
+      const sectors = 32;
+      const a = 64; // width
+      const b = 100; // length
+      const c = 48; // thickness
+
+      const polygons: {
+        points: { px: number; py: number }[];
+        depth: number;
+        color: string;
+        specular: number;
+        isCrease: boolean;
+      }[] = [];
+
+      // Determine roast base RGB values
+      const baseR = roastLevel === 'LIGHT' ? 194 : roastLevel === 'MEDIUM' ? 139 : 66;
+      const baseG = roastLevel === 'LIGHT' ? 134 : roastLevel === 'MEDIUM' ? 78 : 36;
+      const baseB = roastLevel === 'LIGHT' ? 76 : roastLevel === 'MEDIUM' ? 38 : 18;
+
+      for (let r = 0; r < rings; r++) {
+        const phi1 = (r / rings) * Math.PI - Math.PI / 2;
+        const phi2 = ((r + 1) / rings) * Math.PI - Math.PI / 2;
+
+        for (let s = 0; s < sectors; s++) {
+          const theta1 = (s / sectors) * Math.PI * 2;
+          const theta2 = ((s + 1) / sectors) * Math.PI * 2;
+
+          const getPoint = (theta: number, phi: number) => {
+            let x = a * Math.cos(phi) * Math.sin(theta);
+            let y = b * Math.sin(phi);
+            let z = c * Math.cos(phi) * Math.cos(theta);
+
+            // Coffee bean geometry deformation:
+            // 1. Flat front face when z > 0
+            if (z > 0) {
+              z *= 0.88;
+            }
+            // 2. Iconic central cleft/crease indentation running down the front face (z > 0 and near x = 0)
+            const cleftCenter = Math.sin(y / 28) * 12; // curved S-shape cleft
+            const distToCleft = Math.abs(x - cleftCenter);
+
+            let isCrease = false;
+            if (z > 0 && distToCleft < 20) {
+              isCrease = true;
+              const depthFactor = (20 - distToCleft) / 20;
+              z -= depthFactor * 32 * Math.cos(phi); // deep cleft fissure
+            }
+
+            return { x, y, z, isCrease };
+          };
+
+          const pt1 = getPoint(theta1, phi1);
+          const pt2 = getPoint(theta2, phi1);
+          const pt3 = getPoint(theta2, phi2);
+          const pt4 = getPoint(theta1, phi2);
+
+          const proj1 = project(pt1.x, pt1.y, pt1.z);
+          const proj2 = project(pt2.x, pt2.y, pt2.z);
+          const proj3 = project(pt3.x, pt3.y, pt3.z);
+          const proj4 = project(pt4.x, pt4.y, pt4.z);
+
+          const avgDepth = (proj1.depth + proj2.depth + proj3.depth + proj4.depth) / 4;
+
+          // Normal estimation
+          const nx = Math.sin((theta1 + theta2) / 2) * Math.cos((phi1 + phi2) / 2);
+          const ny = Math.sin((phi1 + phi2) / 2);
+          const nz = Math.cos((theta1 + theta2) / 2) * Math.cos((phi1 + phi2) / 2);
+
+          // Rotate normal
+          const nRotX = nx * cosY - nz * sinY;
+          const nRotZ = nz * cosY + nx * sinY;
+          const nRotY = ny * cosX - nRotZ * sinX;
+          const nFinalZ = nRotZ * cosX + ny * sinX;
+
+          // Backface culling
+          if (nFinalZ < -0.1) continue;
+
+          // Diffuse illumination
+          const diff = Math.max(0.12, nRotX * lx + nRotY * ly + nFinalZ * lz);
+
+          // Specular highlight for roasted bean oils
+          const halfX = lx;
+          const halfY = ly;
+          const halfZ = lz + 1;
+          const halfLen = Math.sqrt(halfX * halfX + halfY * halfY + halfZ * halfZ);
+          const spec = Math.pow(Math.max(0, (nRotX * halfX + nRotY * halfY + nFinalZ * halfZ) / halfLen), 18);
+
+          const isCreaseArea = pt1.isCrease || pt2.isCrease || pt3.isCrease;
+
+          let rCol = Math.min(255, Math.floor(baseR * diff + spec * 90));
+          let gCol = Math.min(255, Math.floor(baseG * diff + spec * 75));
+          let bCol = Math.min(255, Math.floor(baseB * diff + spec * 45));
+
+          if (isCreaseArea) {
+            // Dark caramelized cleft groove
+            rCol = Math.floor(rCol * 0.32);
+            gCol = Math.floor(gCol * 0.25);
+            bCol = Math.floor(bCol * 0.2);
+          }
+
+          polygons.push({
+            points: [proj1, proj2, proj3, proj4],
+            depth: avgDepth,
+            color: `rgb(${rCol}, ${gCol}, ${bCol})`,
+            specular: spec,
+            isCrease: isCreaseArea,
+          });
+        }
+      }
+
+      // Sort by depth for correct 3D rendering
+      polygons.sort((a, b) => b.depth - a.depth);
+
+      // Render polygon faces
+      for (const poly of polygons) {
+        ctx.beginPath();
+        ctx.moveTo(poly.points[0].px, poly.points[0].py);
+        for (let i = 1; i < poly.points.length; i++) {
+          ctx.lineTo(poly.points[i].px, poly.points[i].py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = poly.color;
+        ctx.fill();
+
+        // Subtle wire line for organic micro-texture
+        if (!poly.isCrease) {
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [scrollY, roastColor, roastLevel]);
+
+  return (
+    <div
+      onMouseDown={(e) => {
+        mouseRef.current.isDown = true;
+        mouseRef.current.startX = e.clientX;
+        mouseRef.current.startY = e.clientY;
+      }}
+      onMouseMove={(e) => {
+        if (!mouseRef.current.isDown) return;
+        const dx = e.clientX - mouseRef.current.startX;
+        const dy = e.clientY - mouseRef.current.startY;
+        mouseRef.current.dragX += dx;
+        mouseRef.current.dragY += dy;
+        mouseRef.current.startX = e.clientX;
+        mouseRef.current.startY = e.clientY;
+      }}
+      onMouseUp={() => {
+        mouseRef.current.isDown = false;
+      }}
+      onMouseLeave={() => {
+        mouseRef.current.isDown = false;
+      }}
+      className="relative w-72 sm:w-80 h-[420px] rounded-3xl p-6 border border-amber-600/40 bg-gradient-to-b from-[#18110b] via-[#0d0906] to-black shadow-2xl flex flex-col justify-between overflow-hidden cursor-grab active:cursor-grabbing select-none group"
+    >
+      {/* Top Header */}
+      <div className="flex justify-between items-center border-b border-amber-900/40 pb-3 z-10">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+          <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300 font-bold">
+            {isFa ? 'دانه ۳بعدی قهوه با شیار مرکزی' : '3D SPECIALTY COFFEE BEAN'}
+          </span>
+        </div>
+        <span className="font-mono text-[9px] text-amber-400/80 px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30">
+          {roastLevel} ROAST
+        </span>
+      </div>
+
+      {/* 3D Canvas Center */}
+      <div className="relative flex-1 flex items-center justify-center my-2">
+        <canvas ref={canvasRef} className="w-full h-full" />
+        {/* Subtle Specular Glow Ring */}
+        <div className="absolute inset-0 bg-radial from-amber-500/10 via-transparent to-transparent pointer-events-none" />
+      </div>
+
+      {/* Bottom Metadata & Gesture Hint */}
+      <div className="border-t border-amber-900/40 pt-3 flex items-center justify-between text-[11px] font-mono z-10">
+        <span className="text-zinc-400 flex items-center gap-1">
+          <Compass className="w-3 h-3 text-amber-400" />
+          <span>{isFa ? 'چرخش ۳۶۰° با اسکرول و درگ' : '360° Scroll / Drag Orbit'}</span>
+        </span>
+        <span className="text-amber-400 font-bold font-mono">
+          {isFa ? 'شیار ارگانیک عمیق' : 'Curved Cleft'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 interface CoffeeLandingProps {
   onReturnToCatalog?: () => void;
 }
@@ -39,6 +317,7 @@ export default function CoffeeLanding({ onReturnToCatalog = () => {} }: CoffeeLa
   const [brewMethod, setBrewMethod] = useState<'V60' | 'AEROPRESS' | 'ESPRESSO' | 'COLDBREW'>('V60');
   const [coffeeGrams, setCoffeeGrams] = useState(20);
   const [isBagHovered, setIsBagHovered] = useState(false);
+  const [heroDisplayMode, setHeroDisplayMode] = useState<'3D_BEAN' | 'POUCH_CARD'>('3D_BEAN');
   const [addedAnimation, setAddedAnimation] = useState(false);
 
   useEffect(() => {
@@ -303,10 +582,43 @@ export default function CoffeeLanding({ onReturnToCatalog = () => {} }: CoffeeLa
             </div>
           </div>
 
-          {/* Right: 3D Coffee Bag Showcase with Steam Effect */}
-          <div className="lg:col-span-5 flex justify-center relative">
+          {/* Right: 3D Specialty Coffee Bean & Pouch Showcase */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+            {/* View Mode Toggle Pill: Authentic 3D Bean vs Specialty Bag */}
+            <div className="mb-4 p-1 rounded-2xl bg-black/80 border border-amber-500/30 flex items-center gap-1 z-20 shadow-xl backdrop-blur-md">
+              <button
+                onClick={() => {
+                  soundFx.playClick(600);
+                  setHeroDisplayMode('3D_BEAN');
+                }}
+                className={`px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  heroDisplayMode === '3D_BEAN'
+                    ? 'bg-amber-400 text-black shadow-md shadow-amber-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <Coffee className="w-3.5 h-3.5" />
+                <span>{isFa ? 'دانه ۳بعدی قهوه با شیار' : '3D Coffee Bean'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  soundFx.playClick(600);
+                  setHeroDisplayMode('POUCH_CARD');
+                }}
+                className={`px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  heroDisplayMode === 'POUCH_CARD'
+                    ? 'bg-amber-400 text-black shadow-md shadow-amber-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <ShoppingBag className="w-3.5 h-3.5" />
+                <span>{isFa ? 'پاکت قهوه ۲۵۰ گرمی' : 'Specialty Pouch'}</span>
+              </button>
+            </div>
+
             {/* Steam Aura SVG particles */}
-            <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-28 pointer-events-none opacity-60">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 h-28 pointer-events-none opacity-60">
               <svg viewBox="0 0 100 100" className="w-full h-full stroke-amber-400/40 fill-none stroke-[2]">
                 <path d="M 30 90 Q 20 60 40 40 T 35 10" className="animate-pulse" />
                 <path d="M 50 90 Q 60 60 45 40 T 55 10" className="animate-pulse" style={{ animationDelay: '0.4s' }} />
@@ -314,66 +626,75 @@ export default function CoffeeLanding({ onReturnToCatalog = () => {} }: CoffeeLa
               </svg>
             </div>
 
-            {/* Interactive 3D Coffee Pouch Card */}
-            <div
-              onMouseEnter={() => {
-                soundFx.playChime(650, 0.1);
-                setIsBagHovered(true);
-              }}
-              onMouseLeave={() => setIsBagHovered(false)}
-              className="relative w-72 sm:w-80 h-[420px] rounded-3xl p-6 border border-amber-600/40 bg-gradient-to-b from-[#1c130d] via-[#100a07] to-black shadow-2xl transition-all duration-500 flex flex-col justify-between overflow-hidden group"
-              style={{
-                transform: isBagHovered ? 'perspective(1000px) rotateY(8deg) rotateX(4deg) scale(1.03)' : 'perspective(1000px)',
-              }}
-            >
-              {/* Gold Valve on Pouch Top */}
-              <div className="flex justify-between items-center border-b border-amber-900/40 pb-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400" />
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-amber-400">123 SPECIALTY</span>
-                </div>
-                {/* One-way Aroma Valve */}
-                <div className="w-6 h-6 rounded-full border border-amber-500/60 bg-amber-950 flex items-center justify-center shadow-inner" title="One-Way Gas Valve">
-                  <Wind className="w-3 h-3 text-amber-400 animate-spin" style={{ animationDuration: '8s' }} />
-                </div>
-              </div>
-
-              {/* Pouch Label Content */}
-              <div className="space-y-4 my-auto text-center py-4">
-                <div className="w-20 h-20 rounded-2xl mx-auto bg-gradient-to-tr from-amber-600 to-amber-300 p-0.5 shadow-xl shadow-amber-950/60 flex items-center justify-center">
-                  <div className="w-full h-full rounded-[14px] bg-[#0c0806] flex items-center justify-center flex-col">
-                    <span className="font-['Syne'] font-black text-2xl text-amber-300">۱۲۳</span>
-                    <span className="font-mono text-[8px] text-amber-400/80 uppercase tracking-widest">COFFEE</span>
+            {heroDisplayMode === '3D_BEAN' ? (
+              <AuthenticCoffeeBean3D
+                scrollY={scrollY}
+                roastColor={ROAST_PROFILES[activeRoast].color}
+                roastLevel={activeRoast}
+                isFa={isFa}
+              />
+            ) : (
+              /* Interactive 3D Coffee Pouch Card */
+              <div
+                onMouseEnter={() => {
+                  soundFx.playChime(650, 0.1);
+                  setIsBagHovered(true);
+                }}
+                onMouseLeave={() => setIsBagHovered(false)}
+                className="relative w-72 sm:w-80 h-[420px] rounded-3xl p-6 border border-amber-600/40 bg-gradient-to-b from-[#1c130d] via-[#100a07] to-black shadow-2xl transition-all duration-500 flex flex-col justify-between overflow-hidden group"
+                style={{
+                  transform: isBagHovered ? 'perspective(1000px) rotateY(8deg) rotateX(4deg) scale(1.03)' : 'perspective(1000px)',
+                }}
+              >
+                {/* Gold Valve on Pouch Top */}
+                <div className="flex justify-between items-center border-b border-amber-900/40 pb-4">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-amber-400">123 SPECIALTY</span>
+                  </div>
+                  {/* One-way Aroma Valve */}
+                  <div className="w-6 h-6 rounded-full border border-amber-500/60 bg-amber-950 flex items-center justify-center shadow-inner" title="One-Way Gas Valve">
+                    <Wind className="w-3 h-3 text-amber-400 animate-spin" style={{ animationDuration: '8s' }} />
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="font-['Syne'] font-bold text-lg text-white">
-                    {currentBlend.name.split(' (')[0]}
-                  </h3>
-                  <span className="font-mono text-xs text-amber-400/90 block mt-0.5">
-                    {currentBlend.altitude} &bull; {currentBlend.origin.split(' •')[0]}
-                  </span>
-                </div>
+                {/* Pouch Label Content */}
+                <div className="space-y-4 my-auto text-center py-4">
+                  <div className="w-20 h-20 rounded-2xl mx-auto bg-gradient-to-tr from-amber-600 to-amber-300 p-0.5 shadow-xl shadow-amber-950/60 flex items-center justify-center">
+                    <div className="w-full h-full rounded-[14px] bg-[#0c0806] flex items-center justify-center flex-col">
+                      <span className="font-['Syne'] font-black text-2xl text-amber-300">۱۲۳</span>
+                      <span className="font-mono text-[8px] text-amber-400/80 uppercase tracking-widest">COFFEE</span>
+                    </div>
+                  </div>
 
-                <div className="flex flex-wrap justify-center gap-1.5 pt-1">
-                  {currentBlend.notes.map((note, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-full text-[10px] bg-amber-950/60 border border-amber-500/30 text-amber-200"
-                    >
-                      {note}
+                  <div>
+                    <h3 className="font-['Syne'] font-bold text-lg text-white">
+                      {currentBlend.name.split(' (')[0]}
+                    </h3>
+                    <span className="font-mono text-xs text-amber-400/90 block mt-0.5">
+                      {currentBlend.altitude} &bull; {currentBlend.origin.split(' •')[0]}
                     </span>
-                  ))}
+                  </div>
+
+                  <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                    {currentBlend.notes.map((note, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 rounded-full text-[10px] bg-amber-950/60 border border-amber-500/30 text-amber-200"
+                      >
+                        {note}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Bottom Pouch Metadata */}
+                <div className="border-t border-amber-900/40 pt-4 flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-zinc-400">WEIGHT: <strong className="text-white">{bagWeight}g</strong></span>
+                  <span className="text-amber-400 font-bold">{formatPrice(unitPrice)}</span>
                 </div>
               </div>
-
-              {/* Bottom Pouch Metadata */}
-              <div className="border-t border-amber-900/40 pt-4 flex items-center justify-between text-[11px] font-mono">
-                <span className="text-zinc-400">WEIGHT: <strong className="text-white">{bagWeight}g</strong></span>
-                <span className="text-amber-400 font-bold">{formatPrice(unitPrice)}</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

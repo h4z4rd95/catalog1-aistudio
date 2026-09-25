@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AestheticFilter, TechFilter } from '../../types';
-import { Volume2, VolumeX, Sparkles, Activity, Layers, ArrowDown, Search, Radio, Music, Sun, Moon, Globe, ArrowLeftRight } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Activity, Layers, ArrowDown, Search, Radio, Music, Sun, Moon, Globe, ArrowLeftRight, BookOpen } from 'lucide-react';
 import { soundFx } from '../../utils/audio';
 import { useStore } from '../../context/StoreContext';
 
@@ -12,6 +12,7 @@ interface CatalogHeaderProps {
   activeBatch: string;
   onSelectBatch: (b: string) => void;
   onOpenSearch?: () => void;
+  onOpenDesignDocs?: () => void;
   viewMode?: 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
   onSelectViewMode?: (mode: 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE') => void;
 }
@@ -24,6 +25,7 @@ export default function CatalogHeader({
   activeBatch,
   onSelectBatch,
   onOpenSearch,
+  onOpenDesignDocs,
   viewMode = 'CATALOG',
   onSelectViewMode,
 }: CatalogHeaderProps) {
@@ -146,6 +148,18 @@ export default function CatalogHeader({
               }`}
             >
               <span>🎮 {language === 'fa' ? 'ویکی‌گیم' : 'WikiGame'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playChime(850, 0.2);
+                onOpenDesignDocs?.();
+              }}
+              className="px-2.5 py-1 rounded-lg border border-amber-400/40 bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 font-bold text-xs font-mono transition-all flex items-center gap-1.5 shadow-sm"
+              title={language === 'fa' ? 'بررسی داکیومنت کامل سبک‌ها، تکنولوژی‌ها و تحلیل لندینگ‌ها' : 'Design Styles & Architecture Dossier'}
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>{language === 'fa' ? '📖 داکیومنت سبک و تکنولوژی‌ها' : '📖 Styles Dossier'}</span>
             </button>
           </div>
         </div>

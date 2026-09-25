@@ -80,6 +80,10 @@ import CoffeeLanding from './components/sample/123CoffeeLanding';
 import PcBuilderLanding from './components/sample/PcBuilderLanding';
 import WikiGameLanding from './components/sample/WikiGameLanding';
 
+import TypographyPersianCalligraphyMorph from './components/typography/TypographyPersianCalligraphyMorph';
+import SpatialPersianGeometricMuqarnas3D from './components/spatial/SpatialPersianGeometricMuqarnas3D';
+import DesignSystemsDocsModal from './components/common/DesignSystemsDocsModal';
+
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { CATALOG_SEARCH_DATA } from './data/catalogSearchData';
 
@@ -96,6 +100,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>('SAMPLE_WEBSITE');
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
+  const [showDesignDocsModal, setShowDesignDocsModal] = useState<boolean>(false);
 
   // Global Keyboard Shortcut: ⌘K or Ctrl+K for Omni-Search
   React.useEffect(() => {
@@ -239,6 +244,7 @@ export default function App() {
         activeBatch={activeBatch}
         onSelectBatch={setActiveBatch}
         onOpenSearch={() => setShowSearchModal(true)}
+        onOpenDesignDocs={() => setShowDesignDocsModal(true)}
         viewMode={viewMode}
         onSelectViewMode={setViewMode}
       />
@@ -719,6 +725,9 @@ export default function App() {
             {(currentAesthetic === 'ALL' || currentAesthetic === 'WEBGL_3D') && (
               <TypographyParametric3DRibbonMesh />
             )}
+
+            {/* Persian Showcase: Dynamic Kinetic Calligraphy & Fluid Blackletter */}
+            <TypographyPersianCalligraphyMorph />
           </>
         )}
 
@@ -863,6 +872,9 @@ export default function App() {
             {(currentAesthetic === 'ALL' || currentAesthetic === 'WEBGL_3D') && (
               <SpatialParametricGimbalField3D />
             )}
+
+            {/* Persian 3D Showcase: Interactive Parametric Muqarnas & Orsi Geometric Matrix */}
+            <SpatialPersianGeometricMuqarnas3D />
           </>
         )}
       </main>
@@ -1146,6 +1158,12 @@ export default function App() {
         onClose={() => setShowSearchModal(false)}
         onSelectComponent={jumpToComponent}
         items={CATALOG_SEARCH_DATA}
+      />
+
+      {/* Global Design Systems & Technology Matrix Documentation Modal */}
+      <DesignSystemsDocsModal
+        isOpen={showDesignDocsModal}
+        onClose={() => setShowDesignDocsModal(false)}
       />
     </div>
   );

@@ -802,7 +802,7 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
             </p>
           </div>
 
-          {/* Mode Switcher: Protractor Arc vs 3D Exploded Slider */}
+          {/* Mode Switcher: Celestial Arc vs Star Convergence Assembly */}
           <div className="flex justify-center">
             <div className="p-1.5 rounded-2xl bg-zinc-950/90 border border-white/15 inline-flex gap-2">
               <button
@@ -817,7 +817,7 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                 }`}
               >
                 <Sun className="w-4 h-4" />
-                <span>{isFa ? '۱. زاویه نقاله و مدار طلوع خورشید (Protractor Arc)' : 'Protractor Sunrise Arc'}</span>
+                <span>{isFa ? '۱. مدار قوسی طلوع و غروب قطعات (Celestial Arc)' : 'Celestial Orbit Arc'}</span>
               </button>
 
               <button
@@ -832,17 +832,17 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                 }`}
               >
                 <Box className="w-4 h-4" />
-                <span>{isFa ? '۲. نمای انفجاری سه‌بعدی و جمع‌شدن کیس (3D Exploded View)' : '3D Exploded Case Matrix'}</span>
+                <span>{isFa ? '۲. همگرایی ستاره‌ای با اسکرول موس (Star Convergence)' : 'Star Convergence Assembly'}</span>
               </button>
             </div>
           </div>
 
           {/* ===================================================================== */}
-          {/* MODE A: PROTRACTOR SUNRISE ARC (زاویه نقاله و افق طلوع و غروب خورشید)  */}
+          {/* MODE A: CELESTIAL ORBIT ARC (بدون رسم نقاله فیزیکی - مدار قوسی خالص)     */}
           {/* ===================================================================== */}
           {assemblyVisualizationMode === 'PROTRACTOR' && (
             <div className="p-8 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-[#0a101f] to-[#04060a] shadow-2xl space-y-8 animate-in fade-in duration-500">
-              {/* Protractor HUD Control Header */}
+              {/* Celestial Orbit HUD Control Header */}
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center text-cyan-400 font-mono font-bold text-xs">
@@ -850,7 +850,7 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                   </div>
                   <div>
                     <h3 className="font-['Syne'] font-bold text-lg text-white">
-                      {isFa ? 'مدار نقاله ۱۸۰ درجه طلوع و غروب قطعات' : '180° Protractor Celestial Orbit'}
+                      {isFa ? 'مدار قوسی ۱۸۰ درجه طلوع تا تکمیل کیس' : '180° Celestial Orbit Trajectory'}
                     </h3>
                     <span className="font-mono text-xs text-cyan-400">
                       {activeProtractorPart.arcLabel} &bull; {activeProtractorPart.name}
@@ -871,61 +871,75 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                     }`}
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isProtractorAutoOrbit ? 'animate-spin' : ''}`} />
-                    <span>{isProtractorAutoOrbit ? (isFa ? 'توقف مدار خودکار' : 'Pause Orbit') : (isFa ? 'گردش خودکار مدار' : 'Auto Orbit')}</span>
+                    <span>{isProtractorAutoOrbit ? (isFa ? 'توقف گردش خودکار' : 'Pause Orbit') : (isFa ? 'گردش خودکار مدار' : 'Auto Orbit')}</span>
                   </button>
                 </div>
               </div>
 
-              {/* Graphic Protractor Arc Display */}
+              {/* Cosmic Orbital Flight Path (Clean Curvature without literal plastic protractor) */}
               <div className="relative py-6 flex flex-col items-center">
-                {/* SVG Protractor Semi-Circle with Degree Ticks */}
                 <div className="relative w-full max-w-2xl h-56 flex items-end justify-center overflow-hidden">
                   <svg viewBox="0 0 600 300" className="w-full h-full stroke-cyan-500/40 fill-none overflow-visible">
-                    {/* Outer semi-circle arc */}
-                    <path d="M 50 280 A 250 250 0 0 1 550 280" strokeWidth="2" strokeDasharray="6 4" />
-                    <path d="M 100 280 A 200 200 0 0 1 500 280" strokeWidth="1" stroke="rgba(56, 189, 248, 0.2)" />
-                    <line x1="50" y1="280" x2="550" y2="280" strokeWidth="1.5" stroke="rgba(255, 255, 255, 0.3)" />
+                    {/* Glowing Horizon Arc Trajectory */}
+                    <path
+                      d="M 50 280 A 250 250 0 0 1 550 280"
+                      strokeWidth="3"
+                      stroke="url(#arcGlow)"
+                      className="drop-shadow-[0_0_12px_rgba(56,189,248,0.5)]"
+                    />
+                    <path d="M 50 280 A 250 250 0 0 1 550 280" strokeWidth="1" strokeDasharray="4 6" stroke="rgba(255,255,255,0.4)" />
+                    <line x1="50" y1="280" x2="550" y2="280" strokeWidth="1" stroke="rgba(56, 189, 248, 0.2)" />
 
-                    {/* Degree Ticks */}
-                    {[0, 30, 45, 60, 90, 120, 135, 150, 180].map((deg) => {
-                      const rad = (Math.PI / 180) * (180 - deg);
-                      const x1 = 300 + 250 * Math.cos(rad);
-                      const y1 = 280 - 250 * Math.sin(rad);
-                      const x2 = 300 + 235 * Math.cos(rad);
-                      const y2 = 280 - 235 * Math.sin(rad);
+                    <defs>
+                      <linearGradient id="arcGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
+                        <stop offset="50%" stopColor="#38bdf8" stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#818cf8" stopOpacity="0.3" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Milestone nodes along the cosmic arc */}
+                    {PC_COMPONENTS.map((comp) => {
+                      const rad = (Math.PI / 180) * (180 - comp.angle);
+                      const nx = 300 + 250 * Math.cos(rad);
+                      const ny = 280 - 250 * Math.sin(rad);
+                      const isCurrent = Math.abs(comp.angle - protractorAngle) < 12;
+
                       return (
-                        <g key={deg}>
-                          <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#38bdf8" strokeWidth="1.5" />
+                        <g
+                          key={comp.id}
+                          className="cursor-pointer"
+                          onClick={() => {
+                            soundFx.playClick(750);
+                            setProtractorAngle(comp.angle);
+                          }}
+                        >
+                          <circle cx={nx} cy={ny} r={isCurrent ? 7 : 4} fill={isCurrent ? '#38bdf8' : '#1e293b'} stroke="#38bdf8" strokeWidth="1.5" />
                           <text
-                            x={300 + 265 * Math.cos(rad)}
-                            y={280 - 265 * Math.sin(rad)}
-                            fill="rgba(56, 189, 248, 0.7)"
-                            fontSize="10"
+                            x={nx}
+                            y={ny - 14}
+                            fill={isCurrent ? '#38bdf8' : 'rgba(255,255,255,0.5)'}
+                            fontSize="9"
                             fontFamily="JetBrains Mono"
                             textAnchor="middle"
-                            dominantBaseline="central"
+                            fontWeight={isCurrent ? 'bold' : 'normal'}
                           >
-                            {deg}°
+                            {comp.angle}°
                           </text>
                         </g>
                       );
                     })}
 
-                    {/* Active Needle & Orbiting Celestial Sun / Component */}
+                    {/* Active Celestial Orbit Beacon */}
                     {(() => {
                       const rad = (Math.PI / 180) * (180 - protractorAngle);
                       const targetX = 300 + 250 * Math.cos(rad);
                       const targetY = 280 - 250 * Math.sin(rad);
                       return (
                         <g>
-                          {/* Radial Line from origin */}
-                          <line x1="300" y1="280" x2={targetX} y2={targetY} stroke="#38bdf8" strokeWidth="2" strokeDasharray="3 3" />
-                          {/* Glow Center pivot */}
-                          <circle cx="300" cy="280" r="8" fill="#38bdf8" />
-                          <circle cx="300" cy="280" r="16" fill="rgba(56, 189, 248, 0.2)" />
-                          {/* Orbiting Component Head */}
-                          <circle cx={targetX} cy={targetY} r="12" fill="#38bdf8" className="animate-ping opacity-30" />
-                          <circle cx={targetX} cy={targetY} r="9" fill="#0284c7" stroke="#ffffff" strokeWidth="2" />
+                          <line x1="300" y1="280" x2={targetX} y2={targetY} stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1.5" strokeDasharray="3 3" />
+                          <circle cx={targetX} cy={targetY} r="14" fill="#38bdf8" className="animate-ping opacity-25" />
+                          <circle cx={targetX} cy={targetY} r="8" fill="#38bdf8" stroke="#ffffff" strokeWidth="2" />
                         </g>
                       );
                     })()}
@@ -933,20 +947,20 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
 
                   {/* Horizon labels */}
                   <div className="absolute bottom-1 left-4 font-mono text-xs text-cyan-400 font-bold">
-                    0° {isFa ? 'طلوع افق قطعات' : 'Sunrise Horizon'}
+                    {isFa ? 'طلوع افق قطعات (۰°)' : 'Component Horizon (0°)'}
                   </div>
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-xs text-cyan-300 font-bold bg-black/60 px-3 py-1 rounded-full border border-cyan-400/30">
-                    90° {isFa ? 'اوج مونتاژ (زنیت)' : 'Zenith'}
+                    {isFa ? 'اوج مونتاژ (۹۰° زنیت)' : 'Assembly Zenith (90°)'}
                   </div>
                   <div className="absolute bottom-1 right-4 font-mono text-xs text-cyan-400 font-bold">
-                    180° {isFa ? 'غروب و اتمام کیس' : 'Chassis Docking'}
+                    {isFa ? 'اتمام شاسی (۱۸۰°)' : 'Monolith Completion (180°)'}
                   </div>
                 </div>
 
                 {/* Range Slider for Protractor Angle */}
                 <div className="w-full max-w-xl space-y-2 mt-4">
                   <div className="flex justify-between text-xs font-mono text-zinc-400">
-                    <span>{isFa ? 'زاویه را بکشید یا اسکرول کنید:' : 'Adjust Angle Slider:'}</span>
+                    <span>{isFa ? 'جابجایی زاویه مدار:' : 'Trajectory Angle:'}</span>
                     <span className="text-cyan-400 font-bold font-mono">{protractorAngle}° DEG</span>
                   </div>
                   <input
@@ -1041,119 +1055,248 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
           )}
 
           {/* ===================================================================== */}
-          {/* MODE B: 3D EXPLODED VIEW & ASSEMBLE SLIDER (نمای انفجاری سه‌بعدی)     */}
+          {/* MODE B: STAR CONVERGENCE ASSEMBLY ON MOUSE / TOUCH SCROLL             */}
+          {/* (المان‌ها از نوک گوشه‌های ستاره فرضی به مرکز جمع می‌شوند با اسکرول موس)  */}
           {/* ===================================================================== */}
           {assemblyVisualizationMode === 'EXPLODED' && (
-            <div className="p-8 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-[#0a101f] to-[#04060a] shadow-2xl space-y-8 animate-in fade-in duration-500">
+            <div className="p-6 sm:p-8 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-[#0a101f] to-[#04060a] shadow-2xl space-y-8 animate-in fade-in duration-500">
+              {/* Top HUD info */}
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
                 <div>
-                  <h3 className="font-['Syne'] font-bold text-xl text-white">
-                    {isFa ? 'انفجار سه‌بعدی و اسمبل قطعات در شاسی کیس' : '3D Spatial Exploded Disassembly Matrix'}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <h3 className="font-['Syne'] font-bold text-xl text-white">
+                      {isFa ? 'همگرایی ستاره‌ای قطعات با اسکرول موس' : 'Star Convergence Assembly'}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-1">
                     {isFa
-                      ? 'اسلایدر زیر را جابجا کنید تا قطعات از هم تفکیک شده یا درون شاسی کامل چفت شوند.'
-                      : 'Drag the explosion slider to separate motherboard, GPU, cooler, and RAM in 3D space.'}
+                      ? 'با چرخاندن اسکرول موس یا سوایپ لمسی، قطعات از گوشه‌ها به سمت مرکز هدایت می‌شوند تا کیس کامل تشکیل گردد.'
+                      : 'Scroll mouse wheel or swipe to converge components from radial star vertices into the central chassis.'}
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 bg-black/60 px-4 py-2 rounded-2xl border border-white/10">
-                  <span className="text-xs font-mono text-zinc-400">EXPLOSION DEPTH:</span>
-                  <span className="font-mono text-cyan-400 font-black text-sm">{explodedSlider}%</span>
+                <div className="flex items-center gap-3">
+                  <div className="bg-black/60 px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2 font-mono text-xs">
+                    <span className="text-zinc-400">{isFa ? 'میزان همگرایی:' : 'CONVERGENCE:'}</span>
+                    <span className="text-cyan-400 font-black text-sm">{explodedSlider}%</span>
+                  </div>
+                  {/* Quick Reset or 100% buttons */}
+                  <button
+                    onClick={() => {
+                      soundFx.playClick(600);
+                      setExplodedSlider(explodedSlider >= 90 ? 0 : 100);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all"
+                  >
+                    {explodedSlider >= 90 ? (isFa ? 'تفکیک مجدد' : 'Explode') : (isFa ? 'اسمبل کامل' : 'Assemble 100%')}
+                  </button>
                 </div>
               </div>
 
-              {/* Interactive 3D Exploded Stage Canvas Simulation */}
-              <div className="relative min-h-[460px] rounded-3xl bg-radial from-slate-900/60 to-black/90 border border-white/10 overflow-hidden flex items-center justify-center p-6">
-                {/* 3D Isometric Hardware Layers Projection */}
+              {/* STAR CONVERGENCE INTERACTIVE STAGE (DRIVEN BY MOUSE WHEEL SCROLL & TOUCH SWIPE) */}
+              <div
+                onWheel={(e) => {
+                  e.preventDefault();
+                  // Smooth wheel scrolling
+                  const delta = e.deltaY > 0 ? 6 : -6;
+                  setExplodedSlider((prev) => {
+                    const next = Math.max(0, Math.min(100, prev + delta));
+                    if (Math.abs(next - prev) > 2) soundFx.playTick(450 + next * 4);
+                    return next;
+                  });
+                }}
+                onTouchMove={(e) => {
+                  // Touch swipe support
+                  if (e.touches.length > 0) {
+                    const delta = 4;
+                    setExplodedSlider((prev) => Math.max(0, Math.min(100, prev + delta)));
+                  }
+                }}
+                className="relative min-h-[520px] sm:min-h-[580px] rounded-3xl bg-radial from-slate-900/90 via-[#060a14] to-black border-2 border-cyan-500/20 overflow-hidden flex items-center justify-center p-4 cursor-ns-resize select-none"
+              >
+                {/* Scroll Prompt Notice */}
+                <div className="absolute top-4 inset-x-0 flex justify-center pointer-events-none z-30">
+                  <div className="px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-cyan-400/30 text-cyan-300 font-mono text-[11px] flex items-center gap-2 shadow-lg">
+                    <Compass className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '10s' }} />
+                    <span>
+                      {isFa
+                        ? 'موس را در این کادر اسکرول کنید (Scroll Down / Up) یا انگشت خود را بکشید'
+                        : 'Scroll mouse wheel inside stage to converge/explode hardware'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Convergence Progress Bar Indicator */}
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-1.5 h-48 bg-white/10 rounded-full overflow-hidden hidden sm:block pointer-events-none">
+                  <div
+                    className="w-full bg-gradient-to-b from-cyan-400 to-indigo-500 transition-all duration-200"
+                    style={{ height: `${explodedSlider}%` }}
+                  />
+                </div>
+
+                {/* 1. CENTRAL ASSEMBLED CHASSIS MONOLITH (Fades in when explodedSlider >= 85%) */}
                 <div
                   style={{
-                    perspective: '1400px',
-                    transformStyle: 'preserve-3d',
+                    opacity: explodedSlider >= 85 ? Math.min(1, (explodedSlider - 85) / 15) : 0,
+                    transform: `scale(${explodedSlider >= 85 ? 0.8 + ((explodedSlider - 85) / 15) * 0.2 : 0.6})`,
+                    pointerEvents: explodedSlider >= 85 ? 'auto' : 'none',
+                    transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
                   }}
-                  className="relative w-full max-w-lg h-96 flex items-center justify-center"
+                  className="absolute z-20 flex flex-col items-center justify-center text-center max-w-md p-6"
                 >
-                  {PC_COMPONENTS.map((part, idx) => {
-                    const factor = explodedSlider / 100;
-                    const translateX = part.offset3D.x * factor * 2.2;
-                    const translateY = part.offset3D.y * factor * 2.2;
-                    const translateZ = part.offset3D.z * factor * 2.5;
-                    const isSelected = activeExplodedPartIdx === idx;
+                  {/* Glowing Complete PC Case */}
+                  <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_50px_rgba(56,189,248,0.45)] mb-4 bg-black/90 group">
+                    <img
+                      src={PC_COMPONENTS[0].image}
+                      alt="Completed Monolith Chassis"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-cyan-400 text-black font-mono text-[10px] font-black uppercase tracking-wider shadow-lg">
+                      100% ASSEMBLED
+                    </div>
+                  </div>
+
+                  {/* PROMINENT USER TURN-KEY NOTICE BANNER (دقیقا مطابق خواسته شما) */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-cyan-950/90 border border-cyan-400/40 backdrop-blur-xl shadow-2xl space-y-3">
+                    <div className="flex items-center justify-center gap-1.5 text-cyan-300 font-bold text-xs sm:text-sm font-['Syne']">
+                      <Sparkles className="w-4 h-4 text-cyan-400" />
+                      <span>
+                        {isFa
+                          ? 'می‌تونیم پکیج کامل رو براتون خودمون جمع کنیم و تک به تک خرید نکنید!'
+                          : 'We can turn-key assemble the complete rig so you don’t have to buy part by part!'}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-zinc-300 font-light leading-relaxed">
+                      {isFa
+                        ? 'تیم مهندسی آورا کل قطعات را با خمیر حرارتی فلز مایع، کابل‌کشی دستی CableMod و تست استرس ۲۴ ساعته فورمارک مونتاژ کرده و کیس آماده را همراه گارانتی تعویض ارسال می‌کند.'
+                        : 'Our certified hardware engineers assemble, stress-test with FurMark 24h, and dispatch ready-to-game.'}
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                      <button
+                        onClick={() => handleOrderPackage(PACKAGES[0])}
+                        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-black text-xs uppercase tracking-wider shadow-lg shadow-cyan-500/30 transition-all flex items-center gap-1.5"
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                        <span>{isFa ? 'سفارش کیس کامل با اسمبل رایگان' : 'Order Turn-key Complete Rig'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          soundFx.playClick(600);
+                          const el = document.getElementById('packages-and-customizer');
+                          el?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className="px-3.5 py-2.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 text-white font-mono text-xs transition-colors"
+                      >
+                        {isFa ? 'شخصی‌سازی قطعات در پکیج' : 'Customize Parts'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. EIGHT CONVERGING HARDWARE COMPONENTS FROM RADIAL STAR VERTICES */}
+                {/* (نوک گوشه‌های ستاره فرضی به سمت مرکز جمع می‌شوند همراه با نام زیر آن و قابلیت کلیک برای خرید) */}
+                <div className="relative w-full h-full flex items-center justify-center pointer-events-none">
+                  {PC_COMPONENTS.map((comp, idx) => {
+                    // 8-point radial star geometry:
+                    const angle = (idx * Math.PI * 2) / 8; // 8 angles: 0, 45, 90, 135, 180, 225, 270, 315 deg
+                    // Outer star apex distance:
+                    const outerRadius = typeof window !== 'undefined' && window.innerWidth < 640 ? 190 : 250;
+                    // Convergence factor: at 0% parts are at outerRadius; at 100% parts converge to 0
+                    const convergenceProgress = explodedSlider / 100;
+                    const currentRadius = outerRadius * (1 - convergenceProgress);
+
+                    const posX = Math.cos(angle) * currentRadius;
+                    const posY = Math.sin(angle) * currentRadius;
+
+                    // When convergence is near 85-100%, parts fade out smoothly into the monolith chassis
+                    const opacity = explodedSlider >= 85 ? Math.max(0, 1 - (explodedSlider - 85) / 12) : 1;
+                    const scale = 1 - convergenceProgress * 0.25;
 
                     return (
                       <div
-                        key={part.id}
+                        key={comp.id}
                         onClick={() => {
                           soundFx.playClick(800);
                           setActiveExplodedPartIdx(idx);
                         }}
                         style={{
-                          transform: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${15 - factor * 10}deg) rotateY(${-25 + factor * 15}deg)`,
-                          transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                          transform: `translate(${posX}px, ${posY}px) scale(${scale})`,
+                          opacity,
+                          pointerEvents: opacity > 0.1 ? 'auto' : 'none',
+                          transition: 'transform 0.15s ease-out, opacity 0.25s ease-out',
                         }}
-                        className={`absolute w-44 sm:w-56 p-3 rounded-2xl border cursor-pointer backdrop-blur-md transition-shadow select-none ${
-                          isSelected
-                            ? 'border-cyan-400 bg-cyan-950/80 shadow-2xl shadow-cyan-500/40 ring-2 ring-cyan-400'
-                            : 'border-white/20 bg-zinc-950/70 hover:border-white/40 shadow-lg'
-                        }`}
+                        className="absolute w-36 sm:w-44 flex flex-col items-center cursor-pointer group"
                       >
-                        <div className="relative h-24 rounded-xl overflow-hidden mb-2">
-                          <img src={part.image} alt={part.name} className="w-full h-full object-cover" />
-                          <div className="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/80 font-mono text-[9px] text-cyan-300 font-bold">
-                            L-0{idx + 1}
+                        {/* 3D Component Card */}
+                        <div
+                          className={`w-full p-2 rounded-2xl border backdrop-blur-md transition-all shadow-xl ${
+                            activeExplodedPartIdx === idx
+                              ? 'border-cyan-400 bg-cyan-950/85 ring-2 ring-cyan-400/50 shadow-cyan-500/40'
+                              : 'border-white/15 bg-zinc-950/80 hover:border-cyan-400/40 hover:bg-zinc-900/90'
+                          }`}
+                        >
+                          <div className="relative h-20 sm:h-24 rounded-xl overflow-hidden mb-1.5 bg-black">
+                            <img
+                              src={comp.image}
+                              alt={comp.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-black/80 font-mono text-[8px] text-cyan-300 font-bold border border-white/10">
+                              {comp.wattage}W
+                            </div>
+                          </div>
+
+                          {/* CATEGORY & NAME WRITTEN UNDERNEATH (حرکت هماهنگ با قطعه) */}
+                          <div className="text-center px-1">
+                            <span className="font-mono text-[8px] text-cyan-400 uppercase tracking-wider block truncate">
+                              {comp.category.split(' ')[0]}
+                            </span>
+                            <h5 className="font-['Syne'] font-bold text-[11px] text-white truncate group-hover:text-cyan-300 transition-colors">
+                              {comp.name.split(' (')[0]}
+                            </h5>
                           </div>
                         </div>
 
-                        <span className="font-mono text-[9px] text-cyan-400 uppercase tracking-wider block truncate">
-                          {part.category}
-                        </span>
-                        <h5 className="font-['Syne'] font-bold text-xs text-white truncate">
-                          {part.name}
-                        </h5>
+                        {/* Floating Click-to-Shop Pill Underneath Component */}
+                        <div className="mt-1 px-2.5 py-0.5 rounded-full bg-black/80 border border-cyan-500/30 text-[9px] font-mono text-cyan-300 opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all shadow-md">
+                          {isFa ? 'مشاهده و خرید قطعه' : 'Click to Inspect'}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-
-                {/* Exploded Depth Range Slider */}
-                <div className="absolute bottom-4 inset-x-6 sm:inset-x-12 z-20 flex flex-col items-center">
-                  <div className="w-full max-w-lg bg-black/80 backdrop-blur-md p-3 rounded-2xl border border-white/10 space-y-1">
-                    <div className="flex justify-between text-[11px] font-mono">
-                      <span className="text-zinc-400">
-                        {isFa ? '۰٪ کیس کامل اسمبل‌شده' : '0% Monolith Assembled'}
-                      </span>
-                      <span className="text-cyan-400 font-bold">
-                        {isFa ? '۱۰۰٪ انفجار قطعات در فضا' : '100% Exploded Parts'}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={explodedSlider}
-                      onChange={(e) => {
-                        soundFx.playTick(500 + Number(e.target.value) * 5);
-                        setExplodedSlider(Number(e.target.value));
-                      }}
-                      className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-cyan-400"
-                    />
-                  </div>
-                </div>
               </div>
 
-              {/* Exploded Selected Part Callout Box */}
+              {/* Selected Component Purchase / Spec Details Card */}
               {PC_COMPONENTS[activeExplodedPartIdx] && (
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div>
-                    <span className="font-mono text-xs text-cyan-400 uppercase font-bold">
-                      {PC_COMPONENTS[activeExplodedPartIdx].category}
-                    </span>
-                    <h4 className="font-['Syne'] font-bold text-lg text-white">
-                      {PC_COMPONENTS[activeExplodedPartIdx].name}
-                    </h4>
-                    <p className="text-xs text-zinc-300 mt-1">
-                      {PC_COMPONENTS[activeExplodedPartIdx].desc}
-                    </p>
+                <div className="p-6 rounded-2xl bg-black/50 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl animate-in fade-in duration-300">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={PC_COMPONENTS[activeExplodedPartIdx].image}
+                      alt={PC_COMPONENTS[activeExplodedPartIdx].name}
+                      className="w-16 h-16 rounded-xl object-cover border border-white/15 shrink-0"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-cyan-400 uppercase font-bold">
+                          {PC_COMPONENTS[activeExplodedPartIdx].category}
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] border border-cyan-500/30">
+                          {PC_COMPONENTS[activeExplodedPartIdx].wattage}W TDP
+                        </span>
+                      </div>
+                      <h4 className="font-['Syne'] font-bold text-lg text-white mt-0.5">
+                        {PC_COMPONENTS[activeExplodedPartIdx].name}
+                      </h4>
+                      <p className="text-xs text-zinc-300 mt-1 max-w-xl font-light">
+                        {PC_COMPONENTS[activeExplodedPartIdx].specs} &bull; {PC_COMPONENTS[activeExplodedPartIdx].desc}
+                      </p>
+                    </div>
                   </div>
 
                   <button
@@ -1187,10 +1330,10 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                         1
                       );
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-mono font-bold text-xs shrink-0 flex items-center gap-1.5 shadow-md shadow-cyan-500/20"
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-bold font-mono text-xs uppercase tracking-wider shrink-0 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105 flex items-center gap-2"
                   >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                    <span>{isFa ? 'سفارش این قطعه به‌صورت تکی' : 'Order Single Component'}</span>
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>{isFa ? 'خرید تکی این قطعه ($۴۵۰)' : 'Purchase Component ($450)'}</span>
                   </button>
                 </div>
               )}
