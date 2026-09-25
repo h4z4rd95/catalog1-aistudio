@@ -83,6 +83,7 @@ import WikiGameLanding from './components/sample/WikiGameLanding';
 import TypographyPersianCalligraphyMorph from './components/typography/TypographyPersianCalligraphyMorph';
 import SpatialPersianGeometricMuqarnas3D from './components/spatial/SpatialPersianGeometricMuqarnas3D';
 import DesignSystemsDocsModal from './components/common/DesignSystemsDocsModal';
+import MasterShowcaseNav, { AppViewMode } from './components/common/MasterShowcaseNav';
 
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { CATALOG_SEARCH_DATA } from './data/catalogSearchData';
@@ -91,13 +92,12 @@ import { AestheticFilter, TechFilter } from './types';
 import { Sparkles, Layers, ArrowUp, CheckCircle2, ChevronRight, Terminal, BookOpen, Compass, Hourglass, MoveHorizontal, Anchor, LayoutDashboard, ShoppingBag, Radio, Type } from 'lucide-react';
 import { soundFx } from './utils/audio';
 
-export type AppViewMode = 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
-
 export default function App() {
   const [currentAesthetic, setCurrentAesthetic] = useState<AestheticFilter>('ALL');
   const [currentTech, setCurrentTech] = useState<TechFilter>('ALL');
   const [activeBatch, setActiveBatch] = useState<string>('ALL');
-  const [viewMode, setViewMode] = useState<AppViewMode>('SAMPLE_WEBSITE');
+  // Default to COFFEE_SAMPLE so user immediately sees the 3D coffee bean & requested samples
+  const [viewMode, setViewMode] = useState<AppViewMode>('COFFEE_SAMPLE');
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
   const [showDesignDocsModal, setShowDesignDocsModal] = useState<boolean>(false);
@@ -235,19 +235,28 @@ export default function App() {
       {/* Precision Trailing Inertia Cursor */}
       <CursorFollower />
 
-      {/* Persistent Showroom Sticky Header */}
-      <CatalogHeader
-        currentAesthetic={currentAesthetic}
-        onSelectAesthetic={setCurrentAesthetic}
-        currentTech={currentTech}
-        onSelectTech={setCurrentTech}
-        activeBatch={activeBatch}
-        onSelectBatch={setActiveBatch}
-        onOpenSearch={() => setShowSearchModal(true)}
-        onOpenDesignDocs={() => setShowDesignDocsModal(true)}
-        viewMode={viewMode}
+      {/* Universal Master Navigation Header - Always Visible Across All Samples */}
+      <MasterShowcaseNav
+        currentViewMode={viewMode}
         onSelectViewMode={setViewMode}
+        onOpenDesignDocs={() => setShowDesignDocsModal(true)}
       />
+
+      {/* Showroom Filter Bar (Active in 60-Item Catalog View) */}
+      {viewMode === 'CATALOG' && (
+        <CatalogHeader
+          currentAesthetic={currentAesthetic}
+          onSelectAesthetic={setCurrentAesthetic}
+          currentTech={currentTech}
+          onSelectTech={setCurrentTech}
+          activeBatch={activeBatch}
+          onSelectBatch={setActiveBatch}
+          onOpenSearch={() => setShowSearchModal(true)}
+          onOpenDesignDocs={() => setShowDesignDocsModal(true)}
+          viewMode={viewMode}
+          onSelectViewMode={setViewMode}
+        />
+      )}
 
       {/* Floating Quick-Jump Quick Bar */}
       <nav 
