@@ -14,7 +14,7 @@ import {
   Globe
 } from 'lucide-react';
 
-export type AppViewMode = 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
+export type AppViewMode = 'STUDIO_123' | 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
 
 interface MasterShowcaseNavProps {
   currentViewMode: AppViewMode;
@@ -32,8 +32,15 @@ export default function MasterShowcaseNav({
 
   const navItems = [
     {
+      id: 'STUDIO_123' as AppViewMode,
+      labelFa: '⚡ استودیو ۱۲۳سرویس (موتور خلاقیت)',
+      labelEn: '⚡ 123Service Studio Site',
+      tag: isFa ? 'سایت درخواستی' : 'Studio Site',
+      activeColor: 'bg-gradient-to-r from-violet-600 to-cyan-400 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
+    },
+    {
       id: 'COFFEE_SAMPLE' as AppViewMode,
-      labelFa: '☕ ۱۲۳کافی (دانه سه‌بعدی و اسکرول)',
+      labelFa: '☕ ۱۲۳کافی (دانه ۳بعدی و اسکرول)',
       labelEn: '☕ 123 Coffee (3D Bean)',
       tag: isFa ? 'دانه ۳بعدی' : '3D Bean',
       activeColor: 'bg-amber-500 text-black shadow-lg shadow-amber-500/30 border-amber-400',

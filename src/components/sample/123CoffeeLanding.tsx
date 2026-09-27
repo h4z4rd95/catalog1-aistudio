@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { soundFx } from '../../utils/audio';
 import { useStore } from '../../context/StoreContext';
+import AuthenticThreeCoffeeBean from './coffee/AuthenticThreeCoffeeBean';
 import {
   Coffee,
   Flame,
@@ -627,12 +628,35 @@ export default function CoffeeLanding({ onReturnToCatalog = () => {} }: CoffeeLa
             </div>
 
             {heroDisplayMode === '3D_BEAN' ? (
-              <AuthenticCoffeeBean3D
-                scrollY={scrollY}
-                roastColor={ROAST_PROFILES[activeRoast].color}
-                roastLevel={activeRoast}
-                isFa={isFa}
-              />
+              <div className="relative w-80 sm:w-96 h-[440px] rounded-3xl p-4 border border-amber-600/40 bg-gradient-to-b from-[#18110b] via-[#0d0906] to-black shadow-2xl flex flex-col justify-between overflow-hidden group">
+                {/* Top Header */}
+                <div className="flex justify-between items-center border-b border-amber-900/40 pb-3 z-10 px-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300 font-bold">
+                      {isFa ? 'دانه ۳بعدی قهوه (Three.js WebGL)' : 'THREE.JS 3D COFFEE BEAN'}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[9px] text-amber-400/80 px-2 py-0.5 rounded bg-amber-950/80 border border-amber-500/30">
+                    {activeRoast} ROAST
+                  </span>
+                </div>
+
+                {/* Real Three.js Canvas Container */}
+                <div className="relative flex-1 w-full h-full flex items-center justify-center">
+                  <AuthenticThreeCoffeeBean
+                    roastLevel={activeRoast}
+                    interactive={true}
+                    enableScrollReaction={true}
+                  />
+                </div>
+
+                {/* Bottom Footer Specs */}
+                <div className="border-t border-amber-900/40 pt-2.5 z-10 flex justify-between items-center text-[10px] font-mono text-amber-400/80 px-2">
+                  <span>{isFa ? 'روغن‌های کاراملی و شیار ارگانیک' : 'Caramelized Oils & Cleft'}</span>
+                  <span className="text-emerald-400">WebGL Accelerated</span>
+                </div>
+              </div>
             ) : (
               /* Interactive 3D Coffee Pouch Card */
               <div

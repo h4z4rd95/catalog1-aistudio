@@ -75,12 +75,16 @@ import SpatialLuxurySilkClothSim from './components/spatial/SpatialLuxurySilkClo
 import SpatialParametricGimbalField3D from './components/spatial/SpatialParametricGimbalField3D';
 
 // Full Production Website Sample & Domain Experiences
+import StudioApp from './components/studio/StudioApp';
 import AuraWebsiteSample from './components/sample/AuraWebsiteSample';
 import CoffeeLanding from './components/sample/123CoffeeLanding';
 import PcBuilderLanding from './components/sample/PcBuilderLanding';
 import WikiGameLanding from './components/sample/WikiGameLanding';
 
 import TypographyPersianCalligraphyMorph from './components/typography/TypographyPersianCalligraphyMorph';
+import TypographyPersianVariableStretchMarquee from './components/typography/TypographyPersianVariableStretchMarquee';
+import TypographyPersianChromaticLiquidShader from './components/typography/TypographyPersianChromaticLiquidShader';
+import TypographyPersian3DRibbonMesh from './components/typography/TypographyPersian3DRibbonMesh';
 import SpatialPersianGeometricMuqarnas3D from './components/spatial/SpatialPersianGeometricMuqarnas3D';
 import DesignSystemsDocsModal from './components/common/DesignSystemsDocsModal';
 import MasterShowcaseNav, { AppViewMode } from './components/common/MasterShowcaseNav';
@@ -96,8 +100,8 @@ export default function App() {
   const [currentAesthetic, setCurrentAesthetic] = useState<AestheticFilter>('ALL');
   const [currentTech, setCurrentTech] = useState<TechFilter>('ALL');
   const [activeBatch, setActiveBatch] = useState<string>('ALL');
-  // Default to COFFEE_SAMPLE so user immediately sees the 3D coffee bean & requested samples
-  const [viewMode, setViewMode] = useState<AppViewMode>('COFFEE_SAMPLE');
+  // Default to STUDIO_123 for the 123Service Digital Creative Engine site
+  const [viewMode, setViewMode] = useState<AppViewMode>('STUDIO_123');
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
   const [showDesignDocsModal, setShowDesignDocsModal] = useState<boolean>(false);
@@ -289,7 +293,9 @@ export default function App() {
       </nav>
 
       {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystems */}
-      {viewMode === 'SAMPLE_WEBSITE' ? (
+      {viewMode === 'STUDIO_123' ? (
+        <StudioApp onReturnToCatalog={() => setViewMode('CATALOG')} />
+      ) : viewMode === 'SAMPLE_WEBSITE' ? (
         <AuraWebsiteSample
           onReturnToCatalog={() => setViewMode('CATALOG')}
           onOpenCoffeeSample={() => setViewMode('COFFEE_SAMPLE')}
@@ -735,8 +741,17 @@ export default function App() {
               <TypographyParametric3DRibbonMesh />
             )}
 
-            {/* Persian Showcase: Dynamic Kinetic Calligraphy & Fluid Blackletter */}
+            {/* Persian Showcase Variation 1: Dynamic Kinetic Calligraphy & Fluid Nastaliq */}
             <TypographyPersianCalligraphyMorph />
+
+            {/* Persian Showcase Variation 2: Variable Font Stretch & Kashida Marquee */}
+            <TypographyPersianVariableStretchMarquee />
+
+            {/* Persian Showcase Variation 3: Chromatic Liquid Dispersion Shader */}
+            <TypographyPersianChromaticLiquidShader />
+
+            {/* Persian Showcase Variation 4: Three.js 3D Möbius Calligraphic Ribbon */}
+            <TypographyPersian3DRibbonMesh />
           </>
         )}
 

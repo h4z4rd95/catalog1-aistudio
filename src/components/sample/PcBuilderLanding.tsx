@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { soundFx } from '../../utils/audio';
 import { useStore } from '../../context/StoreContext';
+import ThreeHardwareRig3D from './pc/ThreeHardwareRig3D';
 import {
   Cpu,
   Layers,
@@ -380,6 +381,26 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
     }
     return () => clearInterval(interval);
   }, [isProtractorAutoOrbit]);
+
+  // True Sticky Page Scroll Tracking for Star Convergence Assembly
+  const assemblySectionRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleScroll = () => {
+      const section = assemblySectionRef.current;
+      if (!section) return;
+      const rect = section.getBoundingClientRect();
+      const windowH = window.innerHeight;
+      const totalDist = section.offsetHeight - windowH;
+      if (totalDist <= 0) return;
+
+      const currentScroll = -rect.top;
+      const progress = Math.max(0, Math.min(100, Math.round((currentScroll / totalDist) * 100)));
+      setExplodedSlider(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Pricing & Wattage calculations for customizer
   const cpuPrices: Record<string, { price: number; watts: number; name: string }> = {
@@ -1059,40 +1080,41 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
           {/* (المان‌ها از نوک گوشه‌های ستاره فرضی به مرکز جمع می‌شوند با اسکرول موس)  */}
           {/* ===================================================================== */}
           {assemblyVisualizationMode === 'EXPLODED' && (
-            <div className="p-6 sm:p-8 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-[#0a101f] to-[#04060a] shadow-2xl space-y-8 animate-in fade-in duration-500">
-              {/* Top HUD info */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                    <h3 className="font-['Syne'] font-bold text-xl text-white">
-                      {isFa ? 'همگرایی ستاره‌ای قطعات با اسکرول موس' : 'Star Convergence Assembly'}
-                    </h3>
+            <div ref={assemblySectionRef} className="relative min-h-[220vh] py-4">
+              <div className="sticky top-16 p-6 sm:p-8 rounded-3xl border border-cyan-500/30 bg-gradient-to-b from-[#0a101f] to-[#04060a] shadow-2xl space-y-8 animate-in fade-in duration-500">
+                {/* Top HUD info */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                      <h3 className="font-['Syne'] font-bold text-xl text-white">
+                        {isFa ? 'همگرایی ستاره‌ای قطعات با اسکرول موس (Sticky Scroll)' : 'Star Convergence Assembly on Scroll'}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      {isFa
+                        ? 'با اسکرول موس در صفحه، ۸ قطعه اصلی از نوک ستاره به سمت مرکز حرکت کرده و کیس ۳ بعدی Three.js کامل تشکیل می‌شود.'
+                        : 'Scroll down the page naturally to converge components from 8 star vertices into the central Three.js 3D chassis.'}
+                    </p>
                   </div>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {isFa
-                      ? 'با چرخاندن اسکرول موس یا سوایپ لمسی، قطعات از گوشه‌ها به سمت مرکز هدایت می‌شوند تا کیس کامل تشکیل گردد.'
-                      : 'Scroll mouse wheel or swipe to converge components from radial star vertices into the central chassis.'}
-                  </p>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="bg-black/60 px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2 font-mono text-xs">
-                    <span className="text-zinc-400">{isFa ? 'میزان همگرایی:' : 'CONVERGENCE:'}</span>
-                    <span className="text-cyan-400 font-black text-sm">{explodedSlider}%</span>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-black/60 px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-2 font-mono text-xs">
+                      <span className="text-zinc-400">{isFa ? 'میزان همگرایی:' : 'CONVERGENCE:'}</span>
+                      <span className="text-cyan-400 font-black text-sm">{explodedSlider}%</span>
+                    </div>
+                    {/* Quick Reset or 100% buttons */}
+                    <button
+                      onClick={() => {
+                        soundFx.playClick(600);
+                        setExplodedSlider(explodedSlider >= 90 ? 0 : 100);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all"
+                    >
+                      {explodedSlider >= 90 ? (isFa ? 'تفکیک مجدد' : 'Explode') : (isFa ? 'اسمبل کامل' : 'Assemble 100%')}
+                    </button>
                   </div>
-                  {/* Quick Reset or 100% buttons */}
-                  <button
-                    onClick={() => {
-                      soundFx.playClick(600);
-                      setExplodedSlider(explodedSlider >= 90 ? 0 : 100);
-                    }}
-                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all"
-                  >
-                    {explodedSlider >= 90 ? (isFa ? 'تفکیک مجدد' : 'Explode') : (isFa ? 'اسمبل کامل' : 'Assemble 100%')}
-                  </button>
                 </div>
-              </div>
 
               {/* STAR CONVERGENCE INTERACTIVE STAGE (DRIVEN BY MOUSE WHEEL SCROLL & TOUCH SWIPE) */}
               <div
@@ -1145,16 +1167,15 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                   }}
                   className="absolute z-20 flex flex-col items-center justify-center text-center max-w-md p-6"
                 >
-                  {/* Glowing Complete PC Case */}
-                  <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-3xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_50px_rgba(56,189,248,0.45)] mb-4 bg-black/90 group">
-                    <img
-                      src={PC_COMPONENTS[0].image}
-                      alt="Completed Monolith Chassis"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  {/* Glowing Complete PC Case with Three.js 3D WebGL */}
+                  <div className="relative w-64 h-56 sm:w-80 sm:h-64 rounded-3xl overflow-hidden border-2 border-cyan-400 shadow-[0_0_50px_rgba(56,189,248,0.45)] mb-3 bg-black/90 group">
+                    <ThreeHardwareRig3D
+                      partType="CASE"
+                      isCompletedRig={true}
+                      rgbColor={rgbTheme === 'CYBER_CYAN' ? '#38bdf8' : rgbTheme === 'ROG_RED' ? '#f43f5e' : rgbTheme === 'MATRIX_GREEN' ? '#10b981' : '#f59e0b'}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-cyan-400 text-black font-mono text-[10px] font-black uppercase tracking-wider shadow-lg">
-                      100% ASSEMBLED
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-cyan-400 text-black font-mono text-[9px] font-black uppercase tracking-wider shadow-lg">
+                      100% THREE.JS 3D RIG
                     </div>
                   </div>
 
@@ -1337,6 +1358,7 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                   </button>
                 </div>
               )}
+            </div>
             </div>
           )}
         </div>
