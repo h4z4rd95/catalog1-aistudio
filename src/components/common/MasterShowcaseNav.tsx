@@ -14,7 +14,18 @@ import {
   Globe
 } from 'lucide-react';
 
-export type AppViewMode = 'STUDIO_123' | 'CATALOG' | 'SAMPLE_WEBSITE' | 'COFFEE_SAMPLE' | 'PC_BUILDER_SAMPLE' | 'WIKI_GAME_SAMPLE';
+export type AppViewMode =
+  | 'STUDIO_123'
+  | 'CATALOG'
+  | 'SAMPLE_WEBSITE'
+  | 'COFFEE_SAMPLE'
+  | 'PC_BUILDER_SAMPLE'
+  | 'WIKI_GAME_SAMPLE'
+  | 'STUDIO_ELEMENTS_SAMPLE'
+  | 'SCROLL_WORLD_3D'
+  | 'AWWWARDS_HERO'
+  | 'PERSIAN_MUQARNAS_WORLD'
+  | 'CHRONO_NEBULA_WORLD';
 
 interface MasterShowcaseNavProps {
   currentViewMode: AppViewMode;
@@ -37,6 +48,41 @@ export default function MasterShowcaseNav({
       labelEn: '⚡ 123Service Studio Site',
       tag: isFa ? 'سایت درخواستی' : 'Studio Site',
       activeColor: 'bg-gradient-to-r from-violet-600 to-cyan-400 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
+    },
+    {
+      id: 'PERSIAN_MUQARNAS_WORLD' as AppViewMode,
+      labelFa: '🏛️ معماری پارسی مقرنس (Persian Neofuturism)',
+      labelEn: '🏛️ Persian Muqarnas Architecture 3D',
+      tag: isFa ? 'طاق معلق و شمسه' : 'Persian 3D World',
+      activeColor: 'bg-gradient-to-r from-amber-400 via-yellow-500 to-cyan-400 text-black shadow-lg shadow-amber-400/30 border-amber-300',
+    },
+    {
+      id: 'CHRONO_NEBULA_WORLD' as AppViewMode,
+      labelFa: '⏳ ادیسه فضایی زمان (Chrono-Nebula 3D)',
+      labelEn: '⏳ Chrono-Spatial Odyssey 3D',
+      tag: isFa ? 'چرخ‌دنده و سیاه‌چاله' : 'Cosmic Astrolabe',
+      activeColor: 'bg-gradient-to-r from-cyan-400 via-purple-500 to-emerald-400 text-black shadow-lg shadow-cyan-400/30 border-cyan-300',
+    },
+    {
+      id: 'SCROLL_WORLD_3D' as AppViewMode,
+      labelFa: '🎬 جهان سینمایی ۳بعدی (Three.js Scroll World)',
+      labelEn: '🎬 Three.js Cinematic Scroll World',
+      tag: isFa ? 'پرواز ۳بعدی اسکرول' : '3D Scroll World',
+      activeColor: 'bg-gradient-to-r from-cyan-400 via-violet-500 to-lime-400 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
+    },
+    {
+      id: 'AWWWARDS_HERO' as AppViewMode,
+      labelFa: '🏆 هیرو ژورنالی اواردز (Awwwards SOTD)',
+      labelEn: '🏆 Awwwards Editorial Hero',
+      tag: isFa ? 'شیشه شیاردار WebGL' : 'Fluted Glass',
+      activeColor: 'bg-gradient-to-r from-amber-400 to-rose-500 text-black shadow-lg shadow-amber-500/30 border-amber-300',
+    },
+    {
+      id: 'STUDIO_ELEMENTS_SAMPLE' as AppViewMode,
+      labelFa: '🧩 ۲۰ المان ضروری سایت (RTL & LTR)',
+      labelEn: '🧩 20 Essential UI Elements',
+      tag: isFa ? '۲۰ المان پرکاربرد' : '20 UI Elements',
+      activeColor: 'bg-gradient-to-r from-cyan-400 to-indigo-500 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
     },
     {
       id: 'COFFEE_SAMPLE' as AppViewMode,

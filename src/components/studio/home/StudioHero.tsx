@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { SITE_CONTENT } from '../../../content/site';
 import MascotFigure from '../common/MascotFigure';
+import StudioHeroCanvas3D from './StudioHeroCanvas3D';
 import { soundFx } from '../../../utils/audio';
 import {
   ArrowDownLeft,
@@ -45,7 +46,8 @@ export default function StudioHero({
 
   return (
     <section className="relative min-h-[92vh] flex flex-col justify-between pt-24 pb-8 px-4 sm:px-8 border-b border-[#202027] overflow-hidden bg-[#09090B]">
-      {/* 1. Atmospheric Aurora Bloom Wash (Behind content, never flat flood) */}
+      {/* 1. Atmospheric Aurora Bloom Wash & Three.js 3D Kinetic Sculpture Background */}
+      <StudioHeroCanvas3D />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-violet-600/15 via-cyan-500/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute -top-24 right-0 w-[420px] h-[350px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -129,6 +131,18 @@ export default function StudioHero({
             >
               <span>پکیج‌های آماده</span>
               <span className="text-[#B8FF3D] font-bold">WOO</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playChime(850, 0.2);
+                const el = document.getElementById('project-calculator');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="px-5 py-4 rounded-2xl bg-[#111116] hover:bg-cyan-950/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 font-mono text-xs transition-colors flex items-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>محاسبه‌گر بلادرنگ قیمت</span>
             </button>
           </div>
         </div>

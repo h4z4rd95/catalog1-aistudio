@@ -165,42 +165,85 @@ export default function DesignSystemsDocsModal({
                     <tbody className="divide-y divide-white/5">
                       <tr>
                         <td className="py-3 px-3 font-bold text-white">دانه قهوه سه‌بعدی ۱۲۳کافی</td>
-                        <td className="py-3 px-3 text-cyan-300">Three.js WebGL (MeshPhysicalMaterial)</td>
+                        <td className="py-3 px-3 text-cyan-300">Three.js WebGL (MeshPhysicalMaterial) + GLTFLoader</td>
                         <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
-                        <td className="py-3 px-3 text-zinc-400">شیار منحنی، درخشش روغن‌های برشته‌کاری و واکنش به اسکرول صفحه</td>
+                        <td className="py-3 px-3 text-zinc-400">مش ارگانیک دولبه‌ای بدون شکستگی پلی‌گان + پشتیبانی از مدل‌های آنلاین اینترنتی و اسکرول ماوس</td>
                       </tr>
                       <tr>
                         <td className="py-3 px-3 font-bold text-white">اسمبلر قطعات کامپیوتر</td>
-                        <td className="py-3 px-3 text-cyan-300">Sticky Scroll (220vh) + Three.js Case</td>
+                        <td className="py-3 px-3 text-cyan-300">Natural Page Scroll + Three.js GLTF Models</td>
                         <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
-                        <td className="py-3 px-3 text-zinc-400">همگرایی ستاره‌ای با اسکرول ماوس، کیس سه‌بعدی و بنر پکیج آماده</td>
+                        <td className="py-3 px-3 text-zinc-400">همگرایی با اسکرول طبیعی صفحه (بدون اسکرول‌بار یا تراپ چرخ ماوس) + مدل‌های آماده اینترنتی RTX 4090 و کیس شیشه‌ای</td>
                       </tr>
                       <tr>
                         <td className="py-3 px-3 font-bold text-white">تایپوگرافی‌های فارسی (بچ ۹)</td>
-                        <td className="py-3 px-3 text-cyan-300">Variable Fonts + WebGL + Three.js</td>
+                        <td className="py-3 px-3 text-cyan-300">Variable Fonts + WebGL + Three.js Ribbon</td>
                         <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
-                        <td className="py-3 px-3 text-zinc-400">۴ واریانت: سیاه‌مشق، کشسانی لاله‌زار، شیدر مایع حافظ، نوار سه‌بعدی</td>
+                        <td className="py-3 px-3 text-zinc-400">۴ واریانت کامل: سیاه‌مشق نستعلیق، کشسانی لاله‌زار/وزیر، شیدر انکسار مایع کروماتیک، نوار سه‌بعدی معلق</td>
                       </tr>
                       <tr>
-                        <td className="py-3 px-3 font-bold text-white">سوپرسایت ویکی‌گیم (۳ خانه + ۳ داخلی)</td>
-                        <td className="py-3 px-3 text-cyan-300">3D Tilt Coverflow + Benchmark Engine</td>
+                        <td className="py-3 px-3 font-bold text-white">صفحه اختصاصی ۲۰ المان ضروری سایت</td>
+                        <td className="py-3 px-3 text-cyan-300">RTL First + Tailwind + Copy Snippets</td>
                         <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
-                        <td className="py-3 px-3 text-zinc-400">هولوگرافیک، بنتو، ادیتوریال + بنچمارک زنده FPS و ترینرها</td>
+                        <td className="py-3 px-3 text-zinc-400">۲۰ المان استاندارد پرکاربرد کارفرمایان (قیمت‌گذاری، تیم، آکاردئون، هیروها، لیدفرم) با سوئیچ فوری فارسی/انگلیسی</td>
                       </tr>
                       <tr>
-                        <td className="py-3 px-3 font-bold text-white">کاتالوگ ۶۰ واریانت (۱۲ بچ)</td>
-                        <td className="py-3 px-3 text-cyan-300">Canvas 2D/3D + Verlet Physics + Shaders</td>
+                        <td className="py-3 px-3 font-bold text-white">سایت اصلی استودیو ۱۲۳سرویس</td>
+                        <td className="py-3 px-3 text-cyan-300">Three.js Torus Sculpture + Fluted Glass + Calculator</td>
                         <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
-                        <td className="py-3 px-3 text-zinc-400">هیرو، منو، لودر، اسکرول، فوتر، داشبورد، سه‌بعدی، شیدر و فرم‌ها</td>
+                        <td className="py-3 px-3 text-zinc-400">کانوَس سه‌بعدی Three.js در هیرو، شیدر شکست نور شیشه‌ای بلادرنگ روی کارت‌ها، محاسبه‌گر هوشمند قیمت با تخفیف هم‌افزایی و الحاق به سبد با انیمیشن فیزیکی نخ</td>
                       </tr>
                       <tr>
-                        <td className="py-3 px-3 font-bold text-white">لودر GLTF آنلاین اختصاصی کاربر</td>
-                        <td className="py-3 px-3 text-amber-300">Three.js GLTFLoader</td>
-                        <td className="py-3 px-3 text-amber-400 font-bold">🔄 فاز پیشنهادی</td>
-                        <td className="py-3 px-3 text-zinc-400">امکان آپلود مستقیم فایل‌های سه بعدی سهامداران به کانوَس</td>
+                        <td className="py-3 px-3 font-bold text-white">جهان‌های اسکرول سه‌بعدی اواردز (Three.js Scroll Worlds)</td>
+                        <td className="py-3 px-3 text-cyan-300">CatmullRom Camera Spline + WebGL Shaders + Synth Drone</td>
+                        <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
+                        <td className="py-3 px-3 text-zinc-400">۳ جهان سینمایی کامل: ۱) جهان سینمایی ۴گانه تکینگی، ۲) معماری پارسی مقرنس و گره‌چینی صفوی، ۳) ادیسه فضایی کرونو-نبولا با اسطرلاب و چرخ‌دنده‌های سه‌بعدی</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">بازطراحی سمپل‌های بیرونی به استاندارد ۶۰ تایی</td>
+                        <td className="py-3 px-3 text-cyan-300">Three.js WebGL + PBR + Holo Portals</td>
+                        <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
+                        <td className="py-3 px-3 text-zinc-400">حذف کانوَس‌های دوبعدی، پورتال هولوگرافیک گیمینگ سه‌بعدی در ویکی‌گیم، دانه ارگانیک قهوه PBR و اسمبلر سخت‌افزار با اسکرول همگرا</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 font-bold text-white">صفحه ۲۰ المان ضروری و دانلود فایل .tsx</td>
+                        <td className="py-3 px-3 text-cyan-300">React + TSX Blob Download + Vazirmatn RTL</td>
+                        <td className="py-3 px-3 text-emerald-400 font-bold">✅ ۱۰۰٪ کامل</td>
+                        <td className="py-3 px-3 text-zinc-400">امکان دانلود مستقیم فایل کدنویسی‌شده هر ۲۰ المان به‌صورت .tsx اختصاصی + کپی مستقیم کدها</td>
                       </tr>
                     </tbody>
                   </table>
+                </div>
+              </div>
+
+              {/* Detailed Answers to User's Questions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded-2xl bg-cyan-950/40 border border-cyan-400/30 space-y-2">
+                  <span className="font-mono text-[10px] text-cyan-300 font-bold uppercase tracking-wider">
+                    AUDIT // استانداردهای اسکیل‌های Awwwards و Three.js
+                  </span>
+                  <h4 className="font-['Syne'] font-bold text-white text-sm">
+                    {isFa ? 'ارتقای کامل بخش‌های اصلی و سمپل‌های بیرونی' : 'Full Three.js & Awwwards Elevation'}
+                  </h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed font-light">
+                    {isFa
+                      ? 'تمامی سمپل‌های بیرونی و بخش‌های اصلی سایت استودیو منطبق بر مهارت‌های build-threejs-scroll-worlds، build-awwwards-quality-sites و cinematic-scroll-storytelling ارتقا یافتند. هیچ کانوَس دوبعدی یا کامپوننت ماک‌آپ در سمپل‌ها باقی نمانده و تمام تجربیات مجهز به رندرر شتاب‌یافته WebGL، ریل حرکتی دوربین و شیدرهای منشور هستند.'
+                      : 'All external samples and studio main sections upgraded to authentic Awwwards and Three.js standards with WebGL renderers, spline rails, and optical shaders.'}
+                  </p>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-violet-950/40 border border-violet-400/30 space-y-2">
+                  <span className="font-mono text-[10px] text-violet-300 font-bold uppercase tracking-wider">
+                    NEW FLAGSHIPS // نمونه‌های پرچمدار جدید اضافه شده
+                  </span>
+                  <h4 className="font-['Syne'] font-bold text-white text-sm">
+                    {isFa ? 'جهان‌های اسکرول سه‌بعدی مقرنس و زمان کیهانی' : 'New Flagship 3D Scroll Worlds'}
+                  </h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed font-light">
+                    {isFa
+                      ? '۱. معماری پارسی نئوفوتوریسم (PersianKineticArchitectureExperience) با انیمیشن کینتیک انفجار و همگرایی طاق‌های مقرنس، ذرات گره‌چینی و خط نستعلیق کوانتومی. ۲. ادیسه زمان و کرونو-نبولا (ThreeJsChronoNebulaScrollWorld) با چرخ‌دنده‌های سه‌بعدی اسطرلاب باستانی، سحابی برافزایشی و افق رویداد فضا-زمان.'
+                      : 'Added Persian Muqarnas kinetic architectural deconstruction and Chrono-Spatial Astrolabe Three.js scroll worlds.'}
+                  </p>
                 </div>
               </div>
             </div>

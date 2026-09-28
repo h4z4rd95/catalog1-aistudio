@@ -11,9 +11,11 @@ import StudioStatsOdometer from './home/StudioStatsOdometer';
 import StudioTestimonialsPinboard from './home/StudioTestimonialsPinboard';
 import StudioFaqRuledIndex from './home/StudioFaqRuledIndex';
 import StudioPackagesGrid from './home/StudioPackagesGrid';
+import InteractiveProjectCalculator from './elements/InteractiveProjectCalculator';
 import SocialBotsPage from './pages/SocialBotsPage';
 import DepartmentsPage from './pages/DepartmentsPage';
 import StudioShopPage from './pages/StudioShopPage';
+import StudioEssentialElementsPage from './pages/StudioEssentialElementsPage';
 import { StudioPackage, StudioService } from '../../content/site';
 import { soundFx } from '../../utils/audio';
 
@@ -21,7 +23,7 @@ interface StudioAppProps {
   onReturnToCatalog?: () => void;
 }
 
-export type StudioRoute = 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP';
+export type StudioRoute = 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP' | 'ELEMENTS';
 
 export default function StudioApp({ onReturnToCatalog = () => {} }: StudioAppProps) {
   const [currentRoute, setCurrentRoute] = useState<StudioRoute>('HOME');
@@ -145,6 +147,32 @@ export default function StudioApp({ onReturnToCatalog = () => {} }: StudioAppPro
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             />
+
+            {/* 08 // REAL-TIME INTERACTIVE PROJECT COST & SYNERGY CALCULATOR */}
+            <section id="project-calculator" className="relative py-20 px-4 sm:px-8 bg-[#09090B] border-b border-[#202027] overflow-hidden">
+              <div className="max-w-7xl mx-auto space-y-8">
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#202027] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                      <span className="font-mono text-xs uppercase tracking-widest text-cyan-400 font-bold">
+                        08 // REAL-TIME PROJECT CALCULATOR &bull; برآورد بلادرنگ هزینه و زمان
+                      </span>
+                    </div>
+                    <h2 className="font-['Lalezar'] text-3xl sm:text-5xl text-white mt-1">
+                      محاسبه‌گر هوشمند هزینه، زمان و تخفیف هم‌افزایی
+                    </h2>
+                  </div>
+                  <div className="font-mono text-xs text-zinc-400">
+                    DYNAMIC SYNERGY ENGINE // ۳۵٪ کاهش زمان با انتخاب همزمان
+                  </div>
+                </div>
+
+                <InteractiveProjectCalculator
+                  onAddToCartCustom={handleAddToCartWithThread}
+                />
+              </div>
+            </section>
           </>
         )}
 
@@ -179,6 +207,15 @@ export default function StudioApp({ onReturnToCatalog = () => {} }: StudioAppPro
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             onAddToCart={handleAddToCartWithThread}
+          />
+        )}
+
+        {currentRoute === 'ELEMENTS' && (
+          <StudioEssentialElementsPage
+            onBackToHome={() => {
+              setCurrentRoute('HOME');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
           />
         )}
       </main>

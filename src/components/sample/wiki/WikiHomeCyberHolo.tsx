@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WikiSharedProps } from './wikiTypes';
+import WikiGamePortal3D from './WikiGamePortal3D';
 import { soundFx } from '../../../utils/audio';
 import {
   Search,
@@ -32,97 +33,6 @@ export default function WikiHomeCyberHolo({
 }: WikiSharedProps) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isFrequencyScanning, setIsFrequencyScanning] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  // Background Interactive Matrix Particle Canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 650);
-
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; alpha: number }[] = [];
-    for (let i = 0; i < 65; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.8,
-        vy: (Math.random() - 0.5) * 0.8,
-        size: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.7 + 0.2,
-      });
-    }
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw faint cyber grid
-      ctx.strokeStyle = 'rgba(244, 63, 94, 0.05)';
-      ctx.lineWidth = 1;
-      const step = 45;
-      for (let x = 0; x < width; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      // Draw particle nodes and connecting lines
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        ctx.fillStyle = `rgba(244, 63, 94, ${p.alpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 110) {
-            ctx.strokeStyle = `rgba(244, 63, 94, ${(1 - dist / 110) * 0.25})`;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    const handleResize = () => {
-      if (!canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
 
   const handleNextCarousel = () => {
     soundFx.playTick(900);
@@ -140,8 +50,10 @@ export default function WikiHomeCyberHolo({
     <div className="space-y-16 animate-in fade-in duration-500">
       {/* 1. CYBER HOLOGRAPHIC HERO WITH 3D MATRIX CANVAS */}
       <section className="relative min-h-[580px] sm:min-h-[640px] px-4 sm:px-8 py-16 flex flex-col justify-center overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-b from-[#0e0814] via-[#080a12] to-[#04060a] shadow-[0_0_80px_rgba(244,63,94,0.12)]">
-        {/* Particle Canvas */}
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+        {/* Real Three.js 3D Holographic Gaming Portal */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-70">
+          <WikiGamePortal3D genre={selectedGenreFilter} isFa={isFa} />
+        </div>
 
         {/* Cyber Neon Accents */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />

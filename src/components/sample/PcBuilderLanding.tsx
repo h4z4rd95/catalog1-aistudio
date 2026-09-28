@@ -1116,26 +1116,9 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                   </div>
                 </div>
 
-              {/* STAR CONVERGENCE INTERACTIVE STAGE (DRIVEN BY MOUSE WHEEL SCROLL & TOUCH SWIPE) */}
+              {/* STAR CONVERGENCE INTERACTIVE STAGE (DRIVEN BY NATURAL PAGE SCROLL) */}
               <div
-                onWheel={(e) => {
-                  e.preventDefault();
-                  // Smooth wheel scrolling
-                  const delta = e.deltaY > 0 ? 6 : -6;
-                  setExplodedSlider((prev) => {
-                    const next = Math.max(0, Math.min(100, prev + delta));
-                    if (Math.abs(next - prev) > 2) soundFx.playTick(450 + next * 4);
-                    return next;
-                  });
-                }}
-                onTouchMove={(e) => {
-                  // Touch swipe support
-                  if (e.touches.length > 0) {
-                    const delta = 4;
-                    setExplodedSlider((prev) => Math.max(0, Math.min(100, prev + delta)));
-                  }
-                }}
-                className="relative min-h-[520px] sm:min-h-[580px] rounded-3xl bg-radial from-slate-900/90 via-[#060a14] to-black border-2 border-cyan-500/20 overflow-hidden flex items-center justify-center p-4 cursor-ns-resize select-none"
+                className="relative min-h-[520px] sm:min-h-[580px] rounded-3xl bg-radial from-slate-900/90 via-[#060a14] to-black border-2 border-cyan-500/20 overflow-hidden flex items-center justify-center p-4 select-none"
               >
                 {/* Scroll Prompt Notice */}
                 <div className="absolute top-4 inset-x-0 flex justify-center pointer-events-none z-30">
@@ -1143,8 +1126,8 @@ export default function PcBuilderLanding({ onReturnToCatalog = () => {} }: PcBui
                     <Compass className="w-3.5 h-3.5 text-cyan-400 animate-spin" style={{ animationDuration: '10s' }} />
                     <span>
                       {isFa
-                        ? 'موس را در این کادر اسکرول کنید (Scroll Down / Up) یا انگشت خود را بکشید'
-                        : 'Scroll mouse wheel inside stage to converge/explode hardware'}
+                        ? '▼ با اسکرول طبیعی صفحه به پایین (Mouse Scroll)، قطعات به مرکز همگرا و اسمبل می‌شوند'
+                        : '▼ Scroll down page naturally to converge and assemble components in 3D'}
                     </span>
                   </div>
                 </div>

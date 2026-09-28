@@ -14,8 +14,8 @@ import {
 } from 'lucide-react';
 
 interface StudioHeaderProps {
-  currentRoute: 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP';
-  onNavigate: (route: 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP') => void;
+  currentRoute: 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP' | 'ELEMENTS';
+  onNavigate: (route: 'HOME' | 'DEPARTMENTS' | 'BOTS' | 'SHOP' | 'ELEMENTS') => void;
   cartCount: number;
   onOpenCartModal: () => void;
   onSwitchToShowroom: () => void;
@@ -65,6 +65,7 @@ export default function StudioHeader({
             { id: 'DEPARTMENTS', label: 'دپارتمان‌ها و خدمات' },
             { id: 'BOTS', label: '🤖 ساخت ربات هوشمند (Bespoke)' },
             { id: 'SHOP', label: 'پکیج‌ها و فروشگاه' },
+            { id: 'ELEMENTS', label: '🧩 ۲۰ المان ضروری سایت (RTL)' },
           ].map((item) => {
             const isActive = currentRoute === item.id;
             return (
@@ -134,6 +135,7 @@ export default function StudioHeader({
             { id: 'DEPARTMENTS', label: 'دپارتمان‌ها و خدمات' },
             { id: 'BOTS', label: '🤖 ساخت ربات هوشمند (Bespoke)' },
             { id: 'SHOP', label: 'پکیج‌ها و فروشگاه' },
+            { id: 'ELEMENTS', label: '🧩 ۲۰ المان ضروری سایت (RTL & LTR)' },
           ].map((item) => (
             <button
               key={item.id}

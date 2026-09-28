@@ -76,6 +76,11 @@ import SpatialParametricGimbalField3D from './components/spatial/SpatialParametr
 
 // Full Production Website Sample & Domain Experiences
 import StudioApp from './components/studio/StudioApp';
+import StudioEssentialElementsPage from './components/studio/pages/StudioEssentialElementsPage';
+import ThreeJsCinematicScrollWorld from './components/spatial/ThreeJsCinematicScrollWorld';
+import PersianKineticArchitectureExperience from './components/spatial/PersianKineticArchitectureExperience';
+import ThreeJsChronoNebulaScrollWorld from './components/spatial/ThreeJsChronoNebulaScrollWorld';
+import HeroAwwwardsCinematicNarrative from './components/heroes/HeroAwwwardsCinematicNarrative';
 import AuraWebsiteSample from './components/sample/AuraWebsiteSample';
 import CoffeeLanding from './components/sample/123CoffeeLanding';
 import PcBuilderLanding from './components/sample/PcBuilderLanding';
@@ -295,6 +300,24 @@ export default function App() {
       {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystems */}
       {viewMode === 'STUDIO_123' ? (
         <StudioApp onReturnToCatalog={() => setViewMode('CATALOG')} />
+      ) : viewMode === 'PERSIAN_MUQARNAS_WORLD' ? (
+        <div className="relative min-h-screen bg-[#06070a]">
+          <PersianKineticArchitectureExperience onReturnToCatalog={() => setViewMode('CATALOG')} />
+        </div>
+      ) : viewMode === 'CHRONO_NEBULA_WORLD' ? (
+        <div className="relative min-h-screen bg-[#040508]">
+          <ThreeJsChronoNebulaScrollWorld onReturnToCatalog={() => setViewMode('CATALOG')} />
+        </div>
+      ) : viewMode === 'SCROLL_WORLD_3D' ? (
+        <div className="relative min-h-screen bg-[#06070a]">
+          <ThreeJsCinematicScrollWorld />
+        </div>
+      ) : viewMode === 'AWWWARDS_HERO' ? (
+        <div className="relative min-h-screen bg-[#09090b]">
+          <HeroAwwwardsCinematicNarrative />
+        </div>
+      ) : viewMode === 'STUDIO_ELEMENTS_SAMPLE' ? (
+        <StudioEssentialElementsPage onBackToHome={() => setViewMode('STUDIO_123')} />
       ) : viewMode === 'SAMPLE_WEBSITE' ? (
         <AuraWebsiteSample
           onReturnToCatalog={() => setViewMode('CATALOG')}
@@ -349,6 +372,9 @@ export default function App() {
             {(currentAesthetic === 'ALL' || currentAesthetic === 'WEBGL_3D') && (
               <HeroQuantumSupershape3D />
             )}
+
+            {/* Variation 6: Awwwards SOTD Broken-Grid Editorial & WebGL Fluted Glass */}
+            <HeroAwwwardsCinematicNarrative />
           </>
         )}
 

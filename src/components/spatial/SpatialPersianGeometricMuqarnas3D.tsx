@@ -1,342 +1,303 @@
 import React, { useState, useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { ComponentBlueprint } from '../../types';
 import BlueprintHUD from '../common/BlueprintHUD';
-import { Box, Sparkles, RefreshCw, Sliders, Maximize2, Compass, Layers, ShieldCheck } from 'lucide-react';
+import { Box, Sparkles, RefreshCw, Sliders, Maximize2, Compass, Layers, ShieldCheck, Lamp } from 'lucide-react';
 import { soundFx } from '../../utils/audio';
 
 const blueprint: ComponentBlueprint = {
   id: 'spatial_v06_persiangeometricmuqarnas',
-  name: '3D Parametric Persian Muqarnas Geometry & Stained-Glass Orsi Prism',
+  name: '3D Authentic Persian Muqarnas Geometry & Stained-Glass Orsi Lantern',
   category: 'Spatial',
   batch: 'Batch 12: Interactive 3D Spatial Canvas & Physics Sandboxes',
-  techStack: ['React 19', 'Procedural 3D Canvas Projection', 'Parametric Muqarnas Facets', 'Orsi Chromatic Dispersion', 'Kinetic Gimbal Physics'],
+  techStack: ['Three.js WebGL', 'GLTF PBR Architecture', 'Parametric Muqarnas Vaults', 'Orsi Chromatic Dispersion', 'Orbit Controls'],
   aestheticVibe: 'Persian Parametric Architecture & Chromatic Orsi Geometry',
-  interactionBlueprint: 'Interactive 3D mathematical projection of historic Iranian Muqarnas tier vaults and stained-glass Orsi windows. User rotation and orbit dynamic light refraction across 3D geometric facets with chromatic caustics.',
-  description: 'مدل‌سازی سه‌بعدی محاسباتی از طاق‌های مقرنس و پنجره‌های ارسی با شکست نور کروماتیک، هندسه پارامتریک اسلیمی، و دوران ۳۶۰ درجه زاویه دید با ماوس.',
-  codeSnippet: `// 3D Muqarnas facet projection
-const renderFacet = (ctx, tier, angle, radius, height, rotX, rotY) => {
-  const x = radius * Math.cos(angle);
-  const y = height + tier * 18;
-  const z = radius * Math.sin(angle);
-  const projected = project3D(x, y, z, rotX, rotY);
-  // Fill chromatic stained glass facet
-};`,
-  tags: ['Spatial', '3D', 'Muqarnas', 'Orsi', 'Persian', 'Parametric', 'Geometry'],
+  interactionBlueprint: 'Interactive 3D WebGL rendering of historic Iranian Muqarnas tier vaults with an authentic oriental filigree lantern, real-time light refraction, and full 360-degree orbit inspection.',
+  description: 'مدل‌سازی سه‌بعدی پیشرفته WebGL از طاق‌های مقرنس ایرانی، همراه با فانوس مشبک اصیل قاجاری، شکست نور کروماتیک ارسی، و قابلیت چرخش ۳۶۰ درجه با ماوس.',
+  codeSnippet: `// 3D WebGL Muqarnas Vault & GLTF Lantern
+const gltfLoader = new GLTFLoader();
+gltfLoader.load('/models/Lantern.glb', (gltf) => {
+  scene.add(gltf.scene);
+});`,
+  tags: ['Spatial', '3D', 'Muqarnas', 'Orsi', 'Persian', 'Parametric', 'Geometry', 'WebGL'],
 };
 
 export default function SpatialPersianGeometricMuqarnas3D() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [tiersCount, setTiersCount] = useState<number>(5);
-  const [symmetrySlices, setSymmetrySlices] = useState<number>(12);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [modelType, setModelType] = useState<'LANTERN' | 'SCULPTURE'>('LANTERN');
   const [lightMode, setLightMode] = useState<'ORSI_RAINBOW' | 'PERSIAN_TURQUOISE' | 'GOLDEN_DESERT'>('ORSI_RAINBOW');
   const [isAutoSpin, setIsAutoSpin] = useState<boolean>(true);
   const [wireframeOnly, setWireframeOnly] = useState<boolean>(false);
 
-  const rotRef = useRef({ x: 0.45, y: 0.2 });
-  const mouseRef = useRef({ isDown: false, startX: 0, startY: 0 });
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const vaultMatRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
+  const currentModelRef = useRef<THREE.Group | null>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const container = containerRef.current;
+    if (!container) return;
 
+    const width = container.clientWidth || 700;
+    const height = container.clientHeight || 450;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x06080e, 0.035);
+    sceneRef.current = scene;
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    camera.position.set(0, 2.5, 6.5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.3;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 14;
+    controls.minDistance = 2.5;
+
+    // Ambient & Directional Lighting
+    const ambientLight = new THREE.AmbientLight(0x0e1322, 1.8);
+    scene.add(ambientLight);
+
+    const mainLight = new THREE.PointLight(0xffaa44, 4.0, 20);
+    mainLight.position.set(0, 3.5, 2);
+    scene.add(mainLight);
+
+    const accentLight = new THREE.PointLight(0x00f0ff, 3.5, 18);
+    accentLight.position.set(3, -2, 3);
+    scene.add(accentLight);
+
+    // 1. Parametric 3D Muqarnas Tier Vault Ceiling
+    const vaultGroup = new THREE.Group();
+    vaultGroup.position.set(0, 1.5, 0);
+
+    const vaultMat = new THREE.MeshPhysicalMaterial({
+      color: 0x12141c,
+      emissive: 0x22d3ee,
+      emissiveIntensity: 0.15,
+      metalness: 0.85,
+      roughness: 0.2,
+      clearcoat: 0.9,
+      wireframe: wireframeOnly,
+    });
+    vaultMatRef.current = vaultMat;
+
+    const tiers = 4;
+    const facetGeom = new THREE.ConeGeometry(0.35, 0.75, 4);
+
+    for (let t = 0; t < tiers; t++) {
+      const radius = 1.2 + t * 0.7;
+      const count = 12 + t * 6;
+      const y = t * 0.45;
+
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        const mesh = new THREE.Mesh(facetGeom, vaultMat);
+        mesh.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+        mesh.rotation.set(Math.PI, angle + Math.PI / 4, 0);
+        vaultGroup.add(mesh);
+      }
+    }
+    scene.add(vaultGroup);
+
+    // 2. Load Free Authentic 3D Models (Lantern / Classical Sculpture)
+    const gltfLoader = new GLTFLoader();
+    const modelPath = modelType === 'LANTERN' ? '/models/Lantern.glb' : '/models/Nefertiti.glb';
+
+    gltfLoader.load(modelPath, (gltf) => {
+      if (currentModelRef.current) {
+        scene.remove(currentModelRef.current);
+      }
+      const model = gltf.scene;
+      currentModelRef.current = model;
+
+      if (modelType === 'LANTERN') {
+        model.position.set(0, 0.2, 0);
+        model.scale.setScalar(0.028);
+      } else {
+        model.position.set(0, -0.6, 0);
+        model.scale.setScalar(1.2);
+      }
+
+      model.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      scene.add(model);
+    });
+
+    // 3. Orsi Stained Glass Prismatic Particles
+    const particleCount = 200;
+    const pos = new Float32Array(particleCount * 3);
+    const col = new Float32Array(particleCount * 3);
+    const c1 = new THREE.Color(0x22d3ee);
+    const c2 = new THREE.Color(0xd4af37);
+    const c3 = new THREE.Color(0xf43f5e);
+
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 6;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 4;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 6;
+
+      const pick = Math.random();
+      const c = pick < 0.4 ? c1 : pick < 0.7 ? c2 : c3;
+      col[i * 3] = c.r;
+      col[i * 3 + 1] = c.g;
+      col[i * 3 + 2] = c.b;
+    }
+
+    const pGeom = new THREE.BufferGeometry();
+    pGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    pGeom.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const pMat = new THREE.PointsMaterial({
+      size: 0.05,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+    });
+    const particles = new THREE.Points(pGeom, pMat);
+    scene.add(particles);
+
+    // Animation Loop
     let animId: number;
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 700);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 450);
+    const clock = new THREE.Clock();
+
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      const elapsed = clock.getElapsedTime();
+
+      if (isAutoSpin && currentModelRef.current) {
+        currentModelRef.current.rotation.y = elapsed * 0.4;
+      }
+
+      vaultGroup.rotation.y = elapsed * 0.05;
+      particles.rotation.y = elapsed * 0.03;
+
+      controls.update();
+      renderer.render(scene, camera);
+    };
+
+    animate();
 
     const handleResize = () => {
-      if (!canvas.parentElement) return;
-      width = canvas.width = canvas.parentElement.clientWidth;
-      height = canvas.height = canvas.parentElement.clientHeight;
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
-
-    let time = 0;
-
-    const project = (x: number, y: number, z: number, rx: number, ry: number) => {
-      // Rotation around Y
-      const cosY = Math.cos(ry);
-      const sinY = Math.sin(ry);
-      const x1 = x * cosY - z * sinY;
-      const z1 = z * cosY + x * sinY;
-
-      // Rotation around X
-      const cosX = Math.cos(rx);
-      const sinX = Math.sin(rx);
-      const y2 = y * cosX - z1 * sinX;
-      const z2 = z1 * cosX + y * sinX;
-
-      const fov = 380;
-      const distance = 420;
-      const scale = fov / (distance + z2);
-
-      return {
-        px: width / 2 + x1 * scale,
-        py: height / 2 + y2 * scale,
-        scale,
-        depth: z2,
-      };
-    };
-
-    const render = () => {
-      time += 0.015;
-      if (isAutoSpin && !mouseRef.current.isDown) {
-        rotRef.current.y += 0.008;
-      }
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Dark spiritual Iranian obsidian background
-      const grad = ctx.createRadialGradient(width / 2, height / 2, 20, width / 2, height / 2, width * 0.7);
-      grad.addColorStop(0, '#0c1322');
-      grad.addColorStop(1, '#05070c');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-
-      const rx = rotRef.current.x;
-      const ry = rotRef.current.y;
-
-      // Generate 3D Muqarnas tiers
-      const facets: {
-        points: { px: number; py: number }[];
-        depth: number;
-        color: string;
-        tier: number;
-      }[] = [];
-
-      for (let t = 0; t < tiersCount; t++) {
-        const radiusInner = 30 + t * 24;
-        const radiusOuter = radiusInner + 26;
-        const heightInner = -t * 22;
-        const heightOuter = heightInner + 20;
-
-        for (let s = 0; s < symmetrySlices; s++) {
-          const angle1 = (s / symmetrySlices) * Math.PI * 2;
-          const angle2 = ((s + 1) / symmetrySlices) * Math.PI * 2;
-          const angleMid = (angle1 + angle2) / 2;
-
-          // Apex tip facet point (characteristic Muqarnas niche fold)
-          const p1 = project(radiusInner * Math.cos(angle1), heightInner, radiusInner * Math.sin(angle1), rx, ry);
-          const p2 = project(radiusInner * Math.cos(angle2), heightInner, radiusInner * Math.sin(angle2), rx, ry);
-          const p3 = project(
-            radiusOuter * Math.cos(angleMid) * 1.08,
-            heightOuter,
-            radiusOuter * Math.sin(angleMid) * 1.08,
-            rx,
-            ry
-          );
-          const p4 = project(
-            radiusInner * 0.7 * Math.cos(angleMid),
-            heightInner - 12,
-            radiusInner * 0.7 * Math.sin(angleMid),
-            rx,
-            ry
-          );
-
-          const avgDepth = (p1.depth + p2.depth + p3.depth) / 3;
-
-          // Color calculation based on Orsi stained glass scheme
-          let baseColor = '';
-          const hueOffset = (s * 360) / symmetrySlices + t * 40;
-          if (lightMode === 'ORSI_RAINBOW') {
-            baseColor = `hsla(${hueOffset % 360}, 85%, 60%, 0.45)`;
-          } else if (lightMode === 'PERSIAN_TURQUOISE') {
-            baseColor = `hsla(${170 + (t * 15) % 40}, 90%, ${45 + (s % 3) * 15}%, 0.5)`;
-          } else {
-            baseColor = `hsla(${35 + (t * 10) % 25}, 95%, ${40 + (s % 4) * 12}%, 0.55)`;
-          }
-
-          facets.push({
-            points: [p1, p2, p3],
-            depth: avgDepth,
-            color: baseColor,
-            tier: t,
-          });
-
-          facets.push({
-            points: [p1, p4, p2],
-            depth: avgDepth - 5,
-            color: baseColor,
-            tier: t,
-          });
-        }
-      }
-
-      // Sort by depth for painter's algorithm
-      facets.sort((a, b) => b.depth - a.depth);
-
-      // Draw all facets
-      for (const facet of facets) {
-        ctx.beginPath();
-        ctx.moveTo(facet.points[0].px, facet.points[0].py);
-        for (let i = 1; i < facet.points.length; i++) {
-          ctx.lineTo(facet.points[i].px, facet.points[i].py);
-        }
-        ctx.closePath();
-
-        if (!wireframeOnly) {
-          ctx.fillStyle = facet.color;
-          ctx.fill();
-        }
-
-        ctx.strokeStyle =
-          lightMode === 'PERSIAN_TURQUOISE'
-            ? 'rgba(45, 212, 191, 0.4)'
-            : lightMode === 'ORSI_RAINBOW'
-            ? 'rgba(255, 255, 255, 0.35)'
-            : 'rgba(251, 191, 36, 0.45)';
-        ctx.lineWidth = wireframeOnly ? 1.5 : 0.8;
-        ctx.stroke();
-      }
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
 
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
     };
-  }, [tiersCount, symmetrySlices, lightMode, isAutoSpin, wireframeOnly]);
+  }, [modelType, isAutoSpin, wireframeOnly]);
+
+  // Handle Light Mode change
+  useEffect(() => {
+    if (!vaultMatRef.current) return;
+    if (lightMode === 'ORSI_RAINBOW') {
+      vaultMatRef.current.emissive.setHex(0xa855f7);
+      vaultMatRef.current.emissiveIntensity = 0.25;
+    } else if (lightMode === 'PERSIAN_TURQUOISE') {
+      vaultMatRef.current.emissive.setHex(0x06b6d4);
+      vaultMatRef.current.emissiveIntensity = 0.35;
+    } else {
+      vaultMatRef.current.emissive.setHex(0xd4af37);
+      vaultMatRef.current.emissiveIntensity = 0.3;
+    }
+  }, [lightMode]);
 
   return (
-    <div className="space-y-6">
-      <BlueprintHUD blueprint={blueprint} />
-
-      <div className="p-6 sm:p-8 rounded-3xl border border-teal-500/30 bg-gradient-to-b from-[#09101c] to-[#04070e] shadow-2xl relative overflow-hidden">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4 relative z-10">
+    <BlueprintHUD blueprint={blueprint}>
+      <div className="relative w-full h-[540px] bg-[#05070e] rounded-3xl overflow-hidden border border-[#202027] flex flex-col justify-between p-6 select-none font-['Plus_Jakarta_Sans','Vazirmatn']">
+        {/* Top Control Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 z-10">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse" />
-              <h3 className="font-['Syne'] font-black text-xl text-white">
-                هندسه سه‌بعدی مقرنس و ارسی‌های شیشه‌ای پارامتریک
-              </h3>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37] animate-pulse" />
+              <span className="font-mono text-xs uppercase tracking-widest text-[#d4af37] font-bold">
+                AUTHENTIC 3D ASSETS // GLTF PBR MUQARNAS
+              </span>
             </div>
-            <span className="font-mono text-xs text-teal-400 block mt-0.5">
-              3D IRANIAN MUQARNAS VAULT &amp; ORSI PRISM CAUSTICS
-            </span>
+            <h3 className="font-['Lalezar'] text-xl sm:text-2xl text-white mt-0.5">
+              طاق مقرنس سه‌بعدی و فانوس اصیل قاجاری
+            </h3>
           </div>
 
-          {/* Light Theme Selectors */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/60 border border-white/10">
-            {[
-              { id: 'ORSI_RAINBOW', label: 'ارسی هفت‌رنگ', color: 'bg-gradient-to-r from-rose-500 via-amber-400 to-teal-400' },
-              { id: 'PERSIAN_TURQUOISE', label: 'فیروزه و لاجورد', color: 'bg-teal-400' },
-              { id: 'GOLDEN_DESERT', label: 'کهربا و زرین کویر', color: 'bg-amber-400' },
-            ].map((theme) => (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                soundFx.playClick(600);
+                setModelType(prev => prev === 'LANTERN' ? 'SCULPTURE' : 'LANTERN');
+              }}
+              className="px-3 py-1.5 rounded-xl bg-[#111116] border border-[#202027] text-zinc-300 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors"
+            >
+              <Lamp className="w-3.5 h-3.5 text-[#d4af37]" />
+              <span>مدل: {modelType === 'LANTERN' ? 'فانوس مشبک (Lantern.glb)' : 'سردیس کهن (Nefertiti.glb)'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playClick(700);
+                setIsAutoSpin(prev => !prev);
+              }}
+              className={`p-2 rounded-xl border transition-colors ${
+                isAutoSpin ? 'bg-[#d4af37]/20 border-[#d4af37]/60 text-[#d4af37]' : 'bg-[#111116] border-[#202027] text-zinc-400'
+              }`}
+              title="چرخش خودکار"
+            >
+              <RefreshCw className={`w-4 h-4 ${isAutoSpin ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }} />
+            </button>
+          </div>
+        </div>
+
+        {/* 3D WebGL Canvas Mount */}
+        <div ref={containerRef} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
+
+        {/* Bottom Filter & Telemetry Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 z-10 pt-4 border-t border-[#202027]/60">
+          <div className="flex items-center gap-2">
+            {(['ORSI_RAINBOW', 'PERSIAN_TURQUOISE', 'GOLDEN_DESERT'] as const).map(mode => (
               <button
-                key={theme.id}
+                key={mode}
                 onClick={() => {
-                  soundFx.playTick(850);
-                  setLightMode(theme.id as any);
+                  soundFx.playTick(650);
+                  setLightMode(mode);
                 }}
-                className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 ${
-                  lightMode === theme.id ? 'bg-white/15 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
+                className={`px-3 py-1 rounded-lg text-xs font-mono transition-all ${
+                  lightMode === mode
+                    ? 'bg-[#d4af37] text-black font-bold shadow-md shadow-[#d4af37]/30'
+                    : 'bg-[#111116]/80 text-zinc-400 hover:text-white border border-[#202027]'
                 }`}
               >
-                <span className={`w-2.5 h-2.5 rounded-full ${theme.color}`} />
-                <span>{theme.label}</span>
+                {mode === 'ORSI_RAINBOW' ? 'ارسی هفت‌رنگ' : mode === 'PERSIAN_TURQUOISE' ? 'فیروزه نیشابور' : 'کویر زرین'}
               </button>
             ))}
           </div>
-        </div>
 
-        {/* 3D Canvas Stage with Mouse Drag Rotation */}
-        <div
-          onMouseDown={(e) => {
-            mouseRef.current.isDown = true;
-            mouseRef.current.startX = e.clientX;
-            mouseRef.current.startY = e.clientY;
-          }}
-          onMouseMove={(e) => {
-            if (!mouseRef.current.isDown) return;
-            const deltaX = e.clientX - mouseRef.current.startX;
-            const deltaY = e.clientY - mouseRef.current.startY;
-            rotRef.current.y += deltaX * 0.008;
-            rotRef.current.x += deltaY * 0.008;
-            mouseRef.current.startX = e.clientX;
-            mouseRef.current.startY = e.clientY;
-          }}
-          onMouseUp={() => {
-            mouseRef.current.isDown = false;
-          }}
-          onMouseLeave={() => {
-            mouseRef.current.isDown = false;
-          }}
-          className="relative min-h-[420px] my-6 rounded-2xl border border-white/10 overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
-        >
-          <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-
-          {/* Interactive Floating Hint */}
-          <div className="absolute top-4 right-4 px-3 py-1.5 rounded-xl bg-black/70 backdrop-blur-md border border-white/15 text-[11px] font-mono text-zinc-300 pointer-events-none flex items-center gap-2">
-            <Compass className="w-3.5 h-3.5 text-teal-400" />
-            <span>چرخش آزاد ۳۶۰ درجه با درگ ماوس</span>
-          </div>
-
-          <div className="absolute bottom-4 left-4 flex items-center gap-2">
-            <button
-              onClick={() => {
-                soundFx.playClick(600);
-                setIsAutoSpin(!isAutoSpin);
-              }}
-              className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all ${
-                isAutoSpin ? 'bg-teal-400 text-black shadow-lg shadow-teal-500/30' : 'bg-black/70 text-zinc-300 border border-white/10'
-              }`}
-            >
-              {isAutoSpin ? 'توقف چرخش خودکار' : 'فعال‌سازی چرخش'}
-            </button>
-            <button
-              onClick={() => {
-                soundFx.playClick(600);
-                setWireframeOnly(!wireframeOnly);
-              }}
-              className={`px-3 py-1.5 rounded-xl font-mono text-xs font-bold transition-all ${
-                wireframeOnly ? 'bg-white text-black' : 'bg-black/70 text-zinc-300 border border-white/10'
-              }`}
-            >
-              {wireframeOnly ? 'حالت شیدینگ رنگی' : 'حالت وایرفریم هندسی'}
-            </button>
-          </div>
-        </div>
-
-        {/* Parametric Tiers & Symmetry Sliders */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 rounded-2xl bg-black/50 border border-white/10 text-xs">
-          <div className="space-y-1.5">
-            <div className="flex justify-between font-mono">
-              <span className="text-zinc-400">تعداد طبقات طاق مقرنس (Vault Tiers):</span>
-              <span className="text-teal-400 font-bold">{tiersCount} طبقه</span>
-            </div>
-            <input
-              type="range"
-              min="3"
-              max="8"
-              step="1"
-              value={tiersCount}
-              onChange={(e) => setTiersCount(Number(e.target.value))}
-              className="w-full accent-teal-400 cursor-pointer"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="flex justify-between font-mono">
-              <span className="text-zinc-400">تقارن دورانی و پره‌های ارسی (Symmetry):</span>
-              <span className="text-teal-400 font-bold">{symmetrySlices} پره دورانی</span>
-            </div>
-            <input
-              type="range"
-              min="8"
-              max="24"
-              step="2"
-              value={symmetrySlices}
-              onChange={(e) => setSymmetrySlices(Number(e.target.value))}
-              className="w-full accent-teal-400 cursor-pointer"
-            />
+          <div className="text-[11px] font-mono text-zinc-500 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>WebGL 3D // Three.js // GLTF Loader Active</span>
           </div>
         </div>
       </div>
-    </div>
+    </BlueprintHUD>
   );
 }

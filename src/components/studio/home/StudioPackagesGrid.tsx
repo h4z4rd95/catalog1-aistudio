@@ -1,7 +1,8 @@
 import React from 'react';
 import { SITE_CONTENT, StudioPackage } from '../../../content/site';
 import { soundFx } from '../../../utils/audio';
-import { ShoppingBag, CheckCircle2, ShieldCheck, Clock, Sparkles, ArrowLeft } from 'lucide-react';
+import FlutedGlassCanvas from '../common/FlutedGlassCanvas';
+import { ShoppingBag, CheckCircle2, ShieldCheck, Clock, Sparkles, ArrowLeft, Calculator } from 'lucide-react';
 
 interface StudioPackagesGridProps {
   onAddToCart: (pkg: StudioPackage, e: React.MouseEvent<HTMLButtonElement>) => void;
@@ -42,9 +43,16 @@ export default function StudioPackagesGrid({
           {packages.map((pkg) => (
             <div
               key={pkg.id}
-              className="relative p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] hover:border-cyan-400/50 shadow-2xl flex flex-col justify-between space-y-6 group transition-all duration-300 hover:-translate-y-1"
+              className="relative p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] hover:border-cyan-400/50 shadow-2xl flex flex-col justify-between space-y-6 group transition-all duration-300 hover:-translate-y-1 overflow-hidden"
             >
-              <div className="space-y-4">
+              {/* Real-time WebGL Fluted Glass Shader Background Layer (Reveals on Hover) */}
+              <FlutedGlassCanvas
+                fluteDensity={32.0}
+                refractionStrength={0.045}
+                className="opacity-0 group-hover:opacity-40 transition-opacity duration-500 z-0"
+              />
+
+              <div className="relative z-10 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="px-3 py-1 rounded-full bg-[#17171D] border border-[#202027] text-cyan-300 font-mono text-[11px] font-bold">
                     {pkg.sku} &bull; {pkg.category}
