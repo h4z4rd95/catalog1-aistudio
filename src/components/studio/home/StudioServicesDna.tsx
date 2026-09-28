@@ -12,6 +12,7 @@ import {
   Activity,
   Layers,
   Sparkles,
+  Radio,
 } from 'lucide-react';
 
 interface StudioServicesDnaProps {
@@ -23,6 +24,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
   const [scrollProgress, setScrollProgress] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const services = SITE_CONTENT.services;
   const total = services.length;
@@ -73,35 +75,35 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
 
   const activeService = services[activeIdx] || services[0];
   const isCyan = activeIdx % 2 === 1;
-  const glowColor = isCyan ? '#22d3ee' : '#a855f7';
 
   return (
     <section
       id="services-dna"
       ref={trackRef}
       data-track
-      className="relative min-h-[400vh] sm:min-h-[500vh] bg-[#07080d] border-b border-[#202027] select-none"
+      className="relative min-h-[420vh] sm:min-h-[520vh] bg-[#07080d] border-b border-[#202027] select-none"
     >
-      {/* Pinned Full-Bleed Unified 3D Stage */}
+      {/* Pinned Stage Container with Full-Bleed 3D Environment */}
       <div
         ref={stageRef}
         data-stage
-        className="sticky top-0 h-[100dvh] flex flex-col justify-between py-3 sm:py-6 px-4 sm:px-8 max-w-7xl mx-auto overflow-hidden"
+        className="sticky top-0 h-[100dvh] flex flex-col justify-between py-3 sm:py-6 px-4 sm:px-8 max-w-7xl mx-auto overflow-hidden relative"
       >
-        {/* Full-Bleed Integrated Three.js 3D DNA Canvas (Unified spatial environment) */}
+        {/* Full-Bleed 3D DNA Canvas with True Perspective & Authentic Spatial Depth */}
         <DnaHelix
           scrollProgress={scrollProgress}
-          highlightedIndex={activeIdx}
+          activeServiceIndex={activeIdx}
           totalServices={total}
+          cardRef={cardRef}
         />
 
-        {/* Top Header Row */}
-        <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#202027]/80 pb-3 z-30 shrink-0 bg-[#07080d]/60 backdrop-blur-md px-3 py-2 rounded-2xl">
+        {/* Top Header Row (Glassmorphic HUD) */}
+        <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#202027]/80 pb-3 z-30 shrink-0 bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2.5 rounded-2xl">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
               <span className="font-mono text-[10px] sm:text-xs uppercase tracking-widest text-cyan-400 font-bold">
-                02 // DNA HELIX TAXONOMY &bull; دی‌ان‌ای خدمات استودیو
+                02 // DYNAMIC 3D DNA HELIX &bull; ساختار سه‌بعدی خدمات استودیو
               </span>
             </div>
             <h2 className="font-['Lalezar'] text-xl sm:text-3xl text-white mt-0.5 tracking-wide">
@@ -109,7 +111,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
             </h2>
           </div>
 
-          {/* Quick Prev / Next Controls & Counter */}
+          {/* Quick Prev / Next Controls & Node Counter */}
           <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs text-zinc-400">
             <button
               onClick={() => scrollToService(Math.max(0, activeIdx - 1))}
@@ -122,7 +124,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
 
             <span className="bg-[#0e0f17] px-3 py-1.5 rounded-xl border border-[#20202a] text-zinc-300 flex items-center gap-2 text-xs font-bold">
               <Activity className="w-3.5 h-3.5 text-cyan-400" />
-              سرویس <span className="text-cyan-400">{activeService.number}</span> / {total}
+              خدمت <span className="text-cyan-400">{activeService.number}</span> / {total}
             </span>
 
             <button
@@ -136,27 +138,30 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
           </div>
         </div>
 
-        {/* Central Stage: Integrated Card Physically Docked in 3D Space */}
-        <div className="relative flex-1 w-full flex items-center justify-center lg:justify-end z-20 my-auto pointer-events-none">
-          {/* Active Service Card: Clean, solid, high contrast, zero occlusion */}
-          <div className="relative w-full max-w-[500px] pointer-events-auto transition-all duration-300">
-            {/* Cybernetic Docking Bracket attached to DNA structure */}
-            <div className="absolute -top-3.5 sm:-top-4 left-6 sm:left-10 flex items-center gap-2 z-30 font-mono text-[10px] text-zinc-400 bg-[#090b14] px-3 py-1 rounded-full border border-white/10 shadow-lg">
+        {/* Central Stage: The Service Box is the Focal Point of the Scene */}
+        <div className="relative flex-1 w-full flex items-center justify-center lg:justify-end z-20 my-auto pointer-events-none py-2">
+          {/* Card Anchor Container: Tracked by Three.js in 3D Space */}
+          <div
+            ref={cardRef}
+            className="relative w-full max-w-[520px] pointer-events-auto transition-all duration-300"
+          >
+            {/* Cybernetic Physical Docking Bracket (Anchor point for the 3D connecting curve) */}
+            <div className="absolute -top-3.5 sm:-top-4 left-6 sm:left-10 flex items-center gap-2 z-30 font-mono text-[10px] text-zinc-300 bg-[#090b14] px-3 py-1 rounded-full border border-white/15 shadow-xl">
               <span
                 className={`w-2 h-2 rounded-full ${isCyan ? 'bg-cyan-400' : 'bg-violet-400'} animate-ping`}
               />
               <span className={isCyan ? 'text-cyan-300 font-bold' : 'text-violet-300 font-bold'}>
-                DOCK // NODE #{activeService.number}
+                3D HELIX LINK // NODE #{activeService.number}
               </span>
             </div>
 
-            {/* Main Card Body (Solid dark backing so background 3D NEVER bleeds into text!) */}
+            {/* Main Service Card Body: High Contrast, Solid Glassmorphism, 100% Readability */}
             <div
               key={activeService.id}
-              className={`p-5 sm:p-8 rounded-3xl border transition-all duration-300 shadow-2xl relative overflow-hidden backdrop-blur-2xl ${
+              className={`p-5 sm:p-8 rounded-3xl border transition-all duration-300 shadow-2xl relative overflow-hidden backdrop-blur-3xl ${
                 isCyan
-                  ? 'bg-[#0b0e18]/96 border-cyan-400/50 shadow-[0_0_50px_rgba(6,182,212,0.18)] ring-1 ring-cyan-400/30'
-                  : 'bg-[#100c1c]/96 border-violet-400/50 shadow-[0_0_50px_rgba(139,92,246,0.18)] ring-1 ring-violet-400/30'
+                  ? 'bg-[#0a0d18]/96 border-cyan-400/50 shadow-[0_0_50px_rgba(6,182,212,0.18)] ring-1 ring-cyan-400/30'
+                  : 'bg-[#0f0b1c]/96 border-violet-400/50 shadow-[0_0_50px_rgba(139,92,246,0.18)] ring-1 ring-violet-400/30'
               }`}
             >
               {/* Category & Timeline Header */}
@@ -177,7 +182,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
                 </div>
               </div>
 
-              {/* Service Title & Tagline */}
+              {/* Service Title & Tagline (Persian High Contrast) */}
               <h3 className="font-['Lalezar'] text-2xl sm:text-4xl text-white tracking-wide leading-tight">
                 {activeService.title}
               </h3>
@@ -212,7 +217,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
                 </div>
               </div>
 
-              {/* CTA Action Button: Solid, clear, no lines on top! */}
+              {/* CTA Action Button */}
               <div className="mt-5 pt-3 border-t border-white/10">
                 <button
                   onClick={() => {
@@ -234,7 +239,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
         </div>
 
         {/* Bottom Fast-Jump Service Navigation Bar */}
-        <div className="relative flex items-center justify-between border-t border-[#202027]/80 pt-2.5 z-30 overflow-x-auto no-scrollbar gap-1.5 shrink-0 touch-pan-x bg-[#07080d]/60 backdrop-blur-md px-3 py-2 rounded-2xl">
+        <div className="relative flex items-center justify-between border-t border-[#202027]/80 pt-2.5 z-30 overflow-x-auto no-scrollbar gap-1.5 shrink-0 touch-pan-x bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2 rounded-2xl">
           <div className="flex items-center gap-1.5">
             {services.map((srv, idx) => (
               <button
@@ -256,7 +261,7 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
 
           <div className="hidden md:flex items-center gap-2 text-[11px] font-mono text-zinc-400 shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B8FF3D] animate-pulse" />
-            <span>پیمایش همزمان دی‌ان‌ای سه‌بعدی با اسکرول یا لمس</span>
+            <span>پیمایش با اسکرول همگام با عمق سه‌بعدی دی‌ان‌ای</span>
           </div>
         </div>
       </div>
