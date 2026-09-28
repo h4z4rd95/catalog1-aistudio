@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence, animate } from 'framer-motion';
 import { soundFx } from '../../../utils/audio';
 import BlueprintHUD from '../../common/BlueprintHUD';
 import { ComponentBlueprint } from '../../../types';
@@ -18,7 +19,12 @@ import {
   ShoppingBag,
   Sliders,
   CheckCircle2,
-  PieChart as PieIcon
+  PieChart as PieIcon,
+  Info,
+  HelpCircle,
+  Flame,
+  Award,
+  ChevronDown
 } from 'lucide-react';
 
 const blueprint: ComponentBlueprint = {
@@ -26,11 +32,11 @@ const blueprint: ComponentBlueprint = {
   name: 'Interactive Project Cost & Synergy Timeline Estimator HUD',
   category: 'Dashboard',
   batch: 'Batch 6: High-Density Dashboards & Interactive Node Visualizers',
-  techStack: ['React / Vite', 'Real-Time Synergy Formula', 'Department Budget Pie', 'Urgency Multipliers', 'Direct Cart Linking'],
+  techStack: ['React / Vite', 'Framer Motion', 'Real-Time Synergy Formula', 'Department Budget Pie', 'Urgency Multipliers', 'Direct Cart Linking'],
   aestheticVibe: 'Cinematic Precision HUD & Interactive Cost Synthesizer',
-  interactionBlueprint: 'Select modular features across 5 studio disciplines; timeline synergies reduce delivery days by 35%; urgency multipliers recompute final investment and budget share in real-time.',
-  description: 'An interactive financial estimator for digital creative projects with live department budget distribution and automated cart order sync.',
-  tags: ['Project Calculator', 'Budget Estimator', 'Timeline Synergy', 'Interactive HUD', 'Financial Dashboard'],
+  interactionBlueprint: 'Select modular features across 5 studio disciplines; timeline synergies reduce delivery days by 35%; urgency multipliers recompute final investment and budget share in real-time with counting animations.',
+  description: 'An interactive financial estimator for digital creative projects with live department budget distribution, animated number count-ups, real-time synergy savings HUD, and automated cart order sync.',
+  tags: ['Project Calculator', 'Budget Estimator', 'Timeline Synergy', 'Interactive HUD', 'Financial Dashboard', 'Framer Motion'],
   codeSnippet: `// Multi-Feature Synergy & Urgency Multiplier
 let estimatedDays = Math.max(5, Math.ceil(rawDays * 0.65));
 if (urgencyMode === 'FAST_TRACK') {
@@ -153,6 +159,24 @@ const CATEGORY_COLORS: Record<string, { label: string; color: string; hex: strin
   MARKETING: { label: 'سئو و مارکتینگ', color: 'text-emerald-400 border-emerald-400/40 bg-emerald-950/40', hex: '#10B981' },
 };
 
+/**
+ * Animated Counting Number component using Framer Motion
+ */
+function AnimatedCounter({ value, duration = 0.65 }: { value: number; duration?: number }) {
+  const [displayValue, setDisplayValue] = useState(value);
+
+  useEffect(() => {
+    const controls = animate(displayValue, value, {
+      duration,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (latest) => setDisplayValue(Math.round(latest)),
+    });
+    return () => controls.stop();
+  }, [value, duration]);
+
+  return <span className="tabular-nums">{displayValue.toLocaleString('fa-IR')}</span>;
+}
+
 interface InteractiveProjectCalculatorProps {
   onAddToCartCustom?: (pkg: any, e: React.MouseEvent<HTMLButtonElement>) => void;
 }
@@ -166,6 +190,7 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
   const [urgencyMode, setUrgencyMode] = useState<'STANDARD' | 'FAST_TRACK' | 'VIP'>('STANDARD');
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('ALL');
   const [invoiceRequested, setInvoiceRequested] = useState(false);
+  const [showSynergyTooltip, setShowSynergyTooltip] = useState(false);
 
   const toggleFeature = (id: string) => {
     soundFx.playClick(650);
@@ -210,15 +235,47 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
     });
 
     const synergyDaysSaved = Math.max(0, rawDays - estimatedDays);
+    const timeSavedPercent = rawDays > 0 ? Math.round((synergyDaysSaved / rawDays) * 100) : 0;
+    // Estimated financial equivalent value of days saved (at estimated studio day rate)
+    const synergySavingsValueToman = synergyDaysSaved * 1650000;
+
+    // Detect cross-discipline synergies
+    const hasWeb = deptTotals.WEB > 0;
+    const hasAi = deptTotals.AI_BOTS > 0;
+    const hasBranding = deptTotals.BRANDING > 0;
+    const hasMotion = deptTotals.MOTION > 0;
+    const hasMarketing = deptTotals.MARKETING > 0;
+
+    const synergiesList: string[] = [];
+    if (hasWeb && hasAi) {
+      synergiesList.push('یکپارچگی مستقیم وب با هوش مصنوعی (حذف API Gateway ثالث)');
+    }
+    if (hasWeb && hasBranding) {
+      synergiesList.push('پیاده‌سازی دیزاین‌سیستم و تایپوگرافی بدون دوباره‌کاری گرافیکی');
+    }
+    if (hasWeb && hasMotion) {
+      synergiesList.push('رندر مستقیم شیدرهای کینتیک Three.js درون معماری فرانت‌اند');
+    }
+    if (hasWeb && hasMarketing) {
+      synergiesList.push('معماری سئو تکنیکال از خط اول کدنویسی با لود زیر ۱ ثانیه');
+    }
+    if (synergiesList.length === 0 && selectedFeatures.length >= 2) {
+      synergiesList.push('هم‌پوشانی تسک‌های طراحی و تست درون اسپرینت‌های موازی چابک');
+    }
 
     return {
       selectedCount: selectedFeatures.length,
       selectedFeatures,
       finalPrice,
+      rawPrice,
+      rawDays,
       estimatedDays,
       synergyDaysSaved,
+      timeSavedPercent,
+      synergySavingsValueToman,
       deptTotals,
       totalRawPrice: rawPrice,
+      synergiesList,
     };
   }, [selectedFeatureIds, urgencyMode]);
 
@@ -246,11 +303,11 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
               محاسبه‌گر بلادرنگ و تخمین هزینه پروژه (Project Cost Calculator)
             </h3>
             <span className="px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-[10px] font-mono text-cyan-300">
-              ESTIMATOR v2.4
+              ESTIMATOR v2.5 // FRAMER-MOTION ACCELERATED
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-1 font-light">
-            با انتخاب ماژول‌ها و سرعت تحویل، هزینه کل، زمان اجرا و نمودار سهم دپارتمان‌ها به‌صورت زنده محاسبه می‌شود.
+            با انتخاب ماژول‌ها و سرعت تحویل، هزینه کل، زمان اجرا و نمودار سهم دپارتمان‌ها به‌صورت زنده با انیمیشن‌های پویا محاسبه می‌شود.
           </p>
         </div>
 
@@ -268,13 +325,20 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
                 soundFx.playClick(700);
                 setUrgencyMode(mode.id as any);
               }}
-              className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl font-bold transition-all relative ${
                 urgencyMode === mode.id
                   ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-black shadow-md'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
               {mode.label}
+              {urgencyMode === mode.id && (
+                <motion.div
+                  layoutId="urgencyIndicator"
+                  className="absolute inset-0 rounded-xl bg-white/20 pointer-events-none"
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                />
+              )}
             </button>
           ))}
         </div>
@@ -312,104 +376,233 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
             ))}
           </div>
 
-          {/* Features List */}
+          {/* Features List with Framer Motion Layout animations */}
           <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
-            {filteredFeatures.map((feature) => {
-              const isSelected = selectedFeatureIds.includes(feature.id);
-              const catConfig = CATEGORY_COLORS[feature.category];
+            <AnimatePresence mode="popLayout">
+              {filteredFeatures.map((feature) => {
+                const isSelected = selectedFeatureIds.includes(feature.id);
+                const catConfig = CATEGORY_COLORS[feature.category];
 
-              return (
-                <div
-                  key={feature.id}
-                  onClick={() => toggleFeature(feature.id)}
-                  className={`p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start justify-between gap-3 ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#13141f] to-[#0f111a] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.12)]'
-                      : 'bg-[#111116] border-[#202027] hover:border-zinc-700'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Custom Checkbox */}
-                    <div
-                      className={`w-5 h-5 rounded-lg border flex items-center justify-center mt-0.5 transition-colors flex-shrink-0 ${
-                        isSelected
-                          ? 'bg-cyan-400 border-cyan-300 text-black'
-                          : 'border-zinc-700 bg-black/40'
-                      }`}
-                    >
-                      {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                    </div>
+                return (
+                  <motion.div
+                    key={feature.id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25 }}
+                    onClick={() => toggleFeature(feature.id)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer select-none flex items-start justify-between gap-3 ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-[#13141f] to-[#0f111a] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.12)]'
+                        : 'bg-[#111116] border-[#202027] hover:border-zinc-700'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Custom Checkbox */}
+                      <motion.div
+                        whileTap={{ scale: 0.85 }}
+                        className={`w-5 h-5 rounded-lg border flex items-center justify-center mt-0.5 transition-colors flex-shrink-0 ${
+                          isSelected
+                            ? 'bg-cyan-400 border-cyan-300 text-black'
+                            : 'border-zinc-700 bg-black/40'
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </motion.div>
 
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-white text-sm">
-                          {feature.title}
-                        </span>
-                        {feature.badge && (
-                          <span className="px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-400/30 text-[9px] font-mono text-cyan-300">
-                            {feature.badge}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white text-sm">
+                            {feature.title}
                           </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-zinc-400 mt-1 font-light">
-                        {feature.description}
-                      </p>
-                      <div className="flex items-center gap-2 mt-2 font-mono text-[10px]">
-                        <span className={`px-2 py-0.5 rounded-md border ${catConfig.color}`}>
-                          {catConfig.label}
-                        </span>
-                        <span className="text-zinc-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{feature.deliveryDays} روز کاری</span>
-                        </span>
+                          {feature.badge && (
+                            <span className="px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-400/30 text-[9px] font-mono text-cyan-300">
+                              {feature.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-zinc-400 mt-1 font-light">
+                          {feature.description}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2 font-mono text-[10px]">
+                          <span className={`px-2 py-0.5 rounded-md border ${catConfig.color}`}>
+                            {catConfig.label}
+                          </span>
+                          <span className="text-zinc-500 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{feature.deliveryDays} روز کاری</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Price */}
-                  <div className="text-left flex-shrink-0">
-                    <span className="font-mono text-sm font-bold text-cyan-300 block">
-                      {feature.priceToman.toLocaleString('fa-IR')}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-mono">تومان</span>
-                  </div>
-                </div>
-              );
-            })}
+                    {/* Price with counting entry animation */}
+                    <div className="text-left flex-shrink-0">
+                      <span className="font-mono text-sm font-bold text-cyan-300 block">
+                        {feature.priceToman.toLocaleString('fa-IR')}
+                      </span>
+                      <span className="text-[10px] text-zinc-500 font-mono">تومان</span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
 
         {/* =================================================================== */}
-        {/* RIGHT: REAL-TIME SUMMARY, TIMELINE & GRAPHIC BREAKDOWN (4 COLUMNS) */}
+        {/* RIGHT: REAL-TIME SUMMARY, TIMELINE, MINI-HUD & GRAPHIC BREAKDOWN   */}
         {/* =================================================================== */}
         <div className="lg:col-span-5 space-y-5">
-          {/* Grand Total & Timeline Card */}
-          <div className="p-6 rounded-3xl bg-gradient-to-b from-[#151724] to-[#0c0d14] border border-cyan-500/30 shadow-2xl space-y-6">
+          {/* Grand Total & Timeline Card with Framer Motion entry */}
+          <motion.div
+            layout
+            className="p-6 rounded-3xl bg-gradient-to-b from-[#151724] to-[#0c0d14] border border-cyan-500/30 shadow-2xl space-y-6"
+          >
             <div>
-              <span className="font-mono text-[10px] uppercase tracking-widest text-cyan-400 font-bold block">
-                برآورد نهایی سرمایه‌گذاری
-              </span>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-['Syne'] font-black text-3xl sm:text-4xl text-white tracking-tight">
-                  {calculation.finalPrice.toLocaleString('fa-IR')}
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-cyan-400 font-bold block">
+                  برآورد نهایی سرمایه‌گذاری
                 </span>
+                <span className="text-[10px] font-mono text-zinc-500 px-2 py-0.5 rounded bg-black/40 border border-white/5">
+                  LIVE SYNTHESIZER
+                </span>
+              </div>
+
+              {/* Counting Up Total Price */}
+              <div className="flex items-baseline gap-2 mt-2">
+                <motion.span
+                  key={calculation.finalPrice}
+                  initial={{ opacity: 0.7, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="font-['Syne'] font-black text-3xl sm:text-4xl text-white tracking-tight"
+                >
+                  <AnimatedCounter value={calculation.finalPrice} />
+                </motion.span>
                 <span className="font-mono text-sm text-zinc-400">تومان</span>
               </div>
+
               <span className="text-[11px] text-zinc-400 block mt-0.5">
-                (معادل {(calculation.finalPrice / 1000000).toLocaleString('fa-IR')} میلیون تومان)
+                (معادل <AnimatedCounter value={Math.round(calculation.finalPrice / 1000000)} /> میلیون تومان)
               </span>
             </div>
 
-            {/* Delivery Timeline Indicator */}
-            <div className="p-3.5 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between text-xs">
+            {/* Delivery Timeline Indicator with Count-up */}
+            <motion.div
+              layout
+              className="p-3.5 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between text-xs"
+            >
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-emerald-400" />
                 <span className="text-zinc-300">مدت زمان برآورد تحویل:</span>
               </div>
-              <div className="font-mono text-sm font-bold text-emerald-300">
-                {calculation.estimatedDays} روز کاری
+              <div className="font-mono text-sm font-bold text-emerald-300 flex items-center gap-1.5">
+                <AnimatedCounter value={calculation.estimatedDays} duration={0.4} />
+                <span>روز کاری</span>
+                {calculation.synergyDaysSaved > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-500/30 text-emerald-400 font-sans">
+                    (-{calculation.synergyDaysSaved} روز هم‌افزا)
+                  </span>
+                )}
               </div>
-            </div>
+            </motion.div>
+
+            {/* ============================================================== */}
+            {/* INTERACTIVE MINI-HUD: REAL-TIME SYNERGY SAVINGS CALCULATIONS   */}
+            {/* ============================================================== */}
+            {calculation.selectedCount >= 2 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-950/60 via-indigo-950/40 to-cyan-950/60 border border-cyan-400/40 p-4 shadow-lg shadow-cyan-900/10 space-y-3"
+              >
+                {/* HUD Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+                    </span>
+                    <span className="font-mono text-xs font-bold text-cyan-300 flex items-center gap-1">
+                      <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                      هوش مصنوعی هم‌افزایی (Synergy HUD)
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundFx.playTick(720);
+                      setShowSynergyTooltip(!showSynergyTooltip);
+                    }}
+                    className="flex items-center gap-1 text-[10px] font-mono text-zinc-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded-lg border border-white/10"
+                    title="مشاهده جزئیات فرمول صرفه‌جویی هم‌افزا"
+                  >
+                    <Info className="w-3 h-3 text-cyan-400" />
+                    <span>فرمول صرفه‌جویی</span>
+                    <ChevronDown className={`w-3 h-3 transition-transform ${showSynergyTooltip ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {/* HUD Live Metrics Grid */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
+                    <span className="text-[10px] text-zinc-400 block mb-1">صرفه‌جویی زمانی هم‌افزا:</span>
+                    <div className="font-mono font-bold text-cyan-300 text-sm flex items-center gap-1">
+                      <span>⚡</span>
+                      <AnimatedCounter value={calculation.synergyDaysSaved} duration={0.4} />
+                      <span className="text-[11px] font-sans">روز زودتر</span>
+                      <span className="text-[9px] text-emerald-400 font-mono">({calculation.timeSavedPercent}٪)</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
+                    <span className="text-[10px] text-zinc-400 block mb-1">ارزش ریالی زمان بازگشتی:</span>
+                    <div className="font-mono font-bold text-[#B8FF3D] text-sm flex items-center gap-1">
+                      <AnimatedCounter value={Math.round(calculation.synergySavingsValueToman / 1000000)} duration={0.4} />
+                      <span className="text-[11px] font-sans">م. تومان ارزش</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Multi-Service Synergy Connections */}
+                <div className="space-y-1 pt-1">
+                  <span className="text-[10px] font-mono text-zinc-400 block">نقاط هم‌پوشانی فعال در این پکیج:</span>
+                  {calculation.synergiesList.map((syn, sIdx) => (
+                    <div key={sIdx} className="flex items-center gap-1.5 text-[11px] text-cyan-100 font-['Vazirmatn'] leading-tight">
+                      <CheckCircle2 className="w-3 h-3 text-cyan-400 shrink-0" />
+                      <span className="truncate">{syn}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Expandable Interactive Tooltip / Explanation Popover */}
+                <AnimatePresence>
+                  {showSynergyTooltip && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden border-t border-cyan-500/20 pt-2 text-[11px] text-zinc-300 leading-relaxed font-['Vazirmatn'] space-y-1.5"
+                    >
+                      <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-400/20 text-cyan-200">
+                        <strong className="block text-white font-bold mb-1">چرا با انتخاب چند سرویس، زمان و هزینه کمتر می‌شود؟</strong>
+                        در ۱۲۳سرویس به جای فرآیند خطی (Water-Fall)، از <em>توسعه موازی هم‌افزا (Concurrent Engineering)</em> استفاده می‌کنیم. طراح هویت بصری، متخصص Three.js و معمار هوش مصنوعی روی یک گیت‌ریپو و دیزاین‌سیستم مشترک کار می‌کنند؛ در نتیجه تاخیرهای ناشی از تحویل بین شرکتی (Hand-over delay) به صفر می‌رسد.
+                      </div>
+                      <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 px-1">
+                        <span>مجموع زمان خطی: {calculation.rawDays} روز</span>
+                        <span>&rarr;</span>
+                        <span className="text-cyan-300 font-bold">زمان موازی استودیو: {calculation.estimatedDays} روز</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
 
             {/* Graphic Visual Share Breakdown Bar */}
             <div className="space-y-2">
@@ -485,19 +678,24 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
                   }
                   setTimeout(() => setInvoiceRequested(false), 3500);
                 }}
-                className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-cyan-500 to-cyan-400 hover:opacity-95 text-black font-['Lalezar'] text-base font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-cyan-500 to-cyan-400 hover:opacity-95 text-black font-['Lalezar'] text-base font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>صدور پیش‌فاکتور رسمی و ثبت در سبد</span>
               </button>
 
               {invoiceRequested && (
-                <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-400 text-emerald-300 text-xs text-center font-mono animate-in fade-in">
+                <motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-400 text-emerald-300 text-xs text-center font-mono"
+                >
                   ✓ پیش‌فاکتور با شناسه استودیو صادر گردید و به سبد سفارشات الحاق شد.
-                </div>
+                </motion.div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
       </div>
