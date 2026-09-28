@@ -158,11 +158,11 @@ export function refreshWhenSettled(callback?: () => void): Promise<void> {
 
 /**
  * Hook or helper to check if pinning should be active:
- * Below 1024px or under prefers-reduced-motion, pinning degrades to plain stacked layout.
+ * Under prefers-reduced-motion, pinning degrades to plain stacked layout.
+ * Mobile and tablet devices support sticky stage pinning seamlessly.
  */
 export function canEnablePinning(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const isMobileOrTablet = window.innerWidth < 1024;
-  return !isReducedMotion && !isMobileOrTablet;
+  return !isReducedMotion;
 }

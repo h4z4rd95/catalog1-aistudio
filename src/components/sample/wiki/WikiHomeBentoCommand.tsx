@@ -78,7 +78,7 @@ export default function WikiHomeBentoCommand({
                     ? 'جستجو در آرشیو بنتو: نام بازی، سبک، سیستم مورد نیاز، ترینر یا سازنده...'
                     : 'Search Bento Command: Title, genre, specs, trainer or studio...'
                 }
-                className="w-full py-4 pr-14 pl-6 sm:pr-16 rounded-2xl bg-black/60 border border-white/10 focus:border-cyan-400 text-white placeholder-zinc-500 font-bold text-sm sm:text-base outline-none transition-all"
+                className="w-full py-3 sm:py-4 pr-11 sm:pr-16 pl-4 sm:pl-6 rounded-2xl bg-black/60 border border-white/10 focus:border-cyan-400 text-white placeholder-zinc-500 font-bold text-xs sm:text-base outline-none transition-all"
               />
               {searchQuery && (
                 <button

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { SITE_CONTENT } from '../../../content/site';
 import MascotFigure from '../common/MascotFigure';
-import StudioHeroCanvas3D from './StudioHeroCanvas3D';
 import { soundFx } from '../../../utils/audio';
 import {
   ArrowDownLeft,
@@ -46,8 +45,7 @@ export default function StudioHero({
 
   return (
     <section className="relative min-h-[92vh] flex flex-col justify-between pt-24 pb-8 px-4 sm:px-8 border-b border-[#202027] overflow-hidden bg-[#09090B]">
-      {/* 1. Atmospheric Aurora Bloom Wash & Three.js 3D Kinetic Sculpture Background */}
-      <StudioHeroCanvas3D />
+      {/* 1. Atmospheric Aurora Bloom Wash */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-gradient-to-tr from-violet-600/15 via-cyan-500/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute -top-24 right-0 w-[420px] h-[350px] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -80,19 +78,19 @@ export default function StudioHero({
             <span>استودیو تخصصی طراحی وب، هوش مصنوعی و گرافیک</span>
           </div>
 
-          <h1 className="font-['Lalezar'] text-5xl sm:text-7xl lg:text-[96px] text-white leading-[1.05] tracking-tight">
+          <h1 className="font-['Lalezar'] text-4xl sm:text-6xl lg:text-[92px] text-white leading-[1.08] tracking-tight">
             موتور خلاقیت <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#22D3EE]">دیجیتال</span>
-            <span className="block text-3xl sm:text-5xl lg:text-6xl text-zinc-400 font-['Vazirmatn'] font-black mt-2">
+            <span className="block text-2xl sm:text-4xl lg:text-5xl text-zinc-400 font-['Vazirmatn'] font-black mt-2">
               جایی که دقت ریاضی با هنر تلفیق می‌شود
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl leading-relaxed font-light font-['Vazirmatn']">
+          <p className="text-xs sm:text-base text-zinc-400 max-w-2xl leading-relaxed font-light font-['Vazirmatn']">
             {SITE_CONTENT.brand.manifesto}
           </p>
 
           {/* CTAs with Magnetic Physics */}
-          <div className="flex flex-wrap items-center gap-4 pt-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 sm:pt-4">
             <button
               ref={ctaBtnRef}
               onMouseMove={handleCtaMouseMove}
@@ -105,7 +103,7 @@ export default function StudioHero({
                 transform: `translate(${magneticOffset.x}px, ${magneticOffset.y}px)`,
                 transition: magneticOffset.x === 0 ? 'transform 0.4s ease-out' : 'none',
               }}
-              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#22D3EE] hover:opacity-95 text-black font-['Lalezar'] text-lg font-bold shadow-xl shadow-cyan-500/25 transition-all flex items-center gap-3 active:scale-95"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#22D3EE] hover:opacity-95 text-black font-['Lalezar'] text-base sm:text-lg font-bold shadow-xl shadow-cyan-500/25 transition-all flex items-center justify-center gap-2.5 active:scale-95 cursor-pointer"
             >
               <span>مشاهده خدمات استودیو (DNA)</span>
               <ArrowDownLeft className="w-5 h-5 text-black" />
@@ -116,7 +114,7 @@ export default function StudioHero({
                 soundFx.playClick(650);
                 onOpenBotsPage();
               }}
-              className="px-6 py-4 rounded-2xl bg-[#111116] hover:bg-[#17171D] border border-[#202027] hover:border-cyan-400/40 text-cyan-300 font-mono text-xs font-bold transition-all flex items-center gap-2"
+              className="w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-4 rounded-2xl bg-[#111116] hover:bg-[#17171D] border border-[#202027] hover:border-cyan-400/40 text-cyan-300 font-mono text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Cpu className="w-4 h-4 text-cyan-400" />
               <span>ساخت ربات هوشمند (Bespoke)</span>
@@ -127,7 +125,7 @@ export default function StudioHero({
                 soundFx.playClick(650);
                 onExplorePackages();
               }}
-              className="px-5 py-4 rounded-2xl bg-[#111116] hover:bg-[#17171D] border border-[#202027] text-zinc-300 font-mono text-xs transition-colors flex items-center gap-2"
+              className="px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-[#111116] hover:bg-[#17171D] border border-[#202027] text-zinc-300 font-mono text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>پکیج‌های آماده</span>
               <span className="text-[#B8FF3D] font-bold">WOO</span>
@@ -139,7 +137,7 @@ export default function StudioHero({
                 const el = document.getElementById('project-calculator');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-5 py-4 rounded-2xl bg-[#111116] hover:bg-cyan-950/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 font-mono text-xs transition-colors flex items-center gap-2"
+              className="px-4 sm:px-5 py-3 sm:py-4 rounded-2xl bg-[#111116] hover:bg-cyan-950/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 font-mono text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
             >
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
               <span>محاسبه‌گر بلادرنگ قیمت</span>

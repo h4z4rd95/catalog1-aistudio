@@ -425,7 +425,7 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
                         <p className="text-xs text-zinc-400 mt-1 font-light">
                           {feature.description}
                         </p>
-                        <div className="flex items-center gap-2 mt-2 font-mono text-[10px]">
+                        <div className="flex flex-wrap items-center gap-2 mt-2 font-mono text-[10px]">
                           <span className={`px-2 py-0.5 rounded-md border ${catConfig.color}`}>
                             {catConfig.label}
                           </span>
@@ -433,6 +433,16 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
                             <Clock className="w-3 h-3" />
                             <span>{feature.deliveryDays} روز کاری</span>
                           </span>
+                          {isSelected && calculation.selectedCount >= 2 && (
+                            <motion.span
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="px-2 py-0.5 rounded-md bg-emerald-950/90 border border-emerald-400/40 text-emerald-300 flex items-center gap-1 shadow-sm"
+                            >
+                              <Zap className="w-2.5 h-2.5 text-emerald-400 animate-pulse" />
+                              <span>هم‌افزای فعال</span>
+                            </motion.span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -470,35 +480,67 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
                 </span>
               </div>
 
-              {/* Counting Up Total Price */}
-              <div className="flex items-baseline gap-2 mt-2">
-                <motion.span
-                  key={calculation.finalPrice}
-                  initial={{ opacity: 0.7, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="font-['Syne'] font-black text-3xl sm:text-4xl text-white tracking-tight"
-                >
-                  <AnimatedCounter value={calculation.finalPrice} />
-                </motion.span>
-                <span className="font-mono text-sm text-zinc-400">تومان</span>
+              {/* Counting Up Total Price with Real-Time Synergy Savings Floating Tooltip */}
+              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 mt-2">
+                <div className="flex items-baseline gap-2">
+                  <motion.span
+                    key={calculation.finalPrice}
+                    initial={{ opacity: 0.7, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="font-['Syne'] font-black text-2xl sm:text-4xl text-white tracking-tight"
+                  >
+                    <AnimatedCounter value={calculation.finalPrice} />
+                  </motion.span>
+                  <span className="font-mono text-xs sm:text-sm text-zinc-400">تومان</span>
+                </div>
+
+                {/* Dynamic Floating Tooltip smoothly appearing alongside the price count-up */}
+                <AnimatePresence mode="wait">
+                  {calculation.selectedCount >= 2 && calculation.synergyDaysSaved > 0 && (
+                    <motion.div
+                      key={`synergy-badge-${calculation.synergyDaysSaved}-${calculation.selectedCount}`}
+                      initial={{ opacity: 0, y: -6, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 24 }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-cyan-950/90 border border-emerald-400/50 shadow-lg shadow-emerald-900/30 text-emerald-300 text-xs font-mono select-none"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
+                      <span>
+                        هم‌افزایی:{' '}
+                        <strong className="text-white font-bold">
+                          <AnimatedCounter value={calculation.synergyDaysSaved} duration={0.35} /> روز
+                        </strong>{' '}
+                        تحویل سریع‌تر ({calculation.timeSavedPercent}٪)
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <span className="text-[11px] text-zinc-400 block mt-0.5">
-                (معادل <AnimatedCounter value={Math.round(calculation.finalPrice / 1000000)} /> میلیون تومان)
-              </span>
+              <div className="flex items-center justify-between mt-1 text-[11px] text-zinc-400">
+                <span>
+                  معادل <AnimatedCounter value={Math.round(calculation.finalPrice / 1000000)} /> میلیون تومان
+                </span>
+                {calculation.selectedCount >= 2 && (
+                  <span className="font-mono text-emerald-400 text-[10px]">
+                    ✓ تخفیف زمانی موازی فعال است
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Delivery Timeline Indicator with Count-up */}
             <motion.div
               layout
-              className="p-3.5 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-between text-xs"
+              className="p-3 sm:p-3.5 rounded-2xl bg-black/50 border border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs"
             >
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-emerald-400" />
+                <Calendar className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="text-zinc-300">مدت زمان برآورد تحویل:</span>
               </div>
-              <div className="font-mono text-sm font-bold text-emerald-300 flex items-center gap-1.5">
+              <div className="font-mono text-xs sm:text-sm font-bold text-emerald-300 flex items-center gap-1.5">
                 <AnimatedCounter value={calculation.estimatedDays} duration={0.4} />
                 <span>روز کاری</span>
                 {calculation.synergyDaysSaved > 0 && (
@@ -510,99 +552,127 @@ export default function InteractiveProjectCalculator({ onAddToCartCustom }: Inte
             </motion.div>
 
             {/* ============================================================== */}
-            {/* INTERACTIVE MINI-HUD: REAL-TIME SYNERGY SAVINGS CALCULATIONS   */}
+            {/* REAL-TIME DYNAMIC MINI-HUD: SYNERGY SAVINGS CALCULATIONS       */}
             {/* ============================================================== */}
-            {calculation.selectedCount >= 2 && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-950/60 via-indigo-950/40 to-cyan-950/60 border border-cyan-400/40 p-4 shadow-lg shadow-cyan-900/10 space-y-3"
-              >
-                {/* HUD Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
-                    </span>
-                    <span className="font-mono text-xs font-bold text-cyan-300 flex items-center gap-1">
-                      <Zap className="w-3.5 h-3.5 text-cyan-400" />
-                      هوش مصنوعی هم‌افزایی (Synergy HUD)
-                    </span>
-                  </div>
+            <AnimatePresence>
+              {calculation.selectedCount >= 2 && (
+                <motion.div
+                  key="synergy-mini-hud"
+                  initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-950/70 via-[#101222] to-cyan-950/70 border border-cyan-400/40 p-4 shadow-xl shadow-cyan-950/20 space-y-3.5"
+                >
+                  {/* Glowing background accent */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundFx.playTick(720);
-                      setShowSynergyTooltip(!showSynergyTooltip);
-                    }}
-                    className="flex items-center gap-1 text-[10px] font-mono text-zinc-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded-lg border border-white/10"
-                    title="مشاهده جزئیات فرمول صرفه‌جویی هم‌افزا"
-                  >
-                    <Info className="w-3 h-3 text-cyan-400" />
-                    <span>فرمول صرفه‌جویی</span>
-                    <ChevronDown className={`w-3 h-3 transition-transform ${showSynergyTooltip ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
-
-                {/* HUD Live Metrics Grid */}
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
-                    <span className="text-[10px] text-zinc-400 block mb-1">صرفه‌جویی زمانی هم‌افزا:</span>
-                    <div className="font-mono font-bold text-cyan-300 text-sm flex items-center gap-1">
-                      <span>⚡</span>
-                      <AnimatedCounter value={calculation.synergyDaysSaved} duration={0.4} />
-                      <span className="text-[11px] font-sans">روز زودتر</span>
-                      <span className="text-[9px] text-emerald-400 font-mono">({calculation.timeSavedPercent}٪)</span>
+                  {/* HUD Header */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400" />
+                      </span>
+                      <span className="font-mono text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                        هوش هم‌افزایی بلادرنگ (Synergy Engine)
+                      </span>
                     </div>
-                  </div>
 
-                  <div className="p-2.5 rounded-xl bg-black/40 border border-white/5">
-                    <span className="text-[10px] text-zinc-400 block mb-1">ارزش ریالی زمان بازگشتی:</span>
-                    <div className="font-mono font-bold text-[#B8FF3D] text-sm flex items-center gap-1">
-                      <AnimatedCounter value={Math.round(calculation.synergySavingsValueToman / 1000000)} duration={0.4} />
-                      <span className="text-[11px] font-sans">م. تومان ارزش</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Active Multi-Service Synergy Connections */}
-                <div className="space-y-1 pt-1">
-                  <span className="text-[10px] font-mono text-zinc-400 block">نقاط هم‌پوشانی فعال در این پکیج:</span>
-                  {calculation.synergiesList.map((syn, sIdx) => (
-                    <div key={sIdx} className="flex items-center gap-1.5 text-[11px] text-cyan-100 font-['Vazirmatn'] leading-tight">
-                      <CheckCircle2 className="w-3 h-3 text-cyan-400 shrink-0" />
-                      <span className="truncate">{syn}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Expandable Interactive Tooltip / Explanation Popover */}
-                <AnimatePresence>
-                  {showSynergyTooltip && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="overflow-hidden border-t border-cyan-500/20 pt-2 text-[11px] text-zinc-300 leading-relaxed font-['Vazirmatn'] space-y-1.5"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundFx.playTick(720);
+                        setShowSynergyTooltip(!showSynergyTooltip);
+                      }}
+                      className="flex items-center gap-1 text-[10px] font-mono text-zinc-300 hover:text-white transition-colors bg-white/10 hover:bg-white/15 px-2 py-1 rounded-lg border border-white/10 cursor-pointer"
+                      title="مشاهده جزئیات فرمول صرفه‌جویی هم‌افزا"
                     >
-                      <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-400/20 text-cyan-200">
-                        <strong className="block text-white font-bold mb-1">چرا با انتخاب چند سرویس، زمان و هزینه کمتر می‌شود؟</strong>
-                        در ۱۲۳سرویس به جای فرآیند خطی (Water-Fall)، از <em>توسعه موازی هم‌افزا (Concurrent Engineering)</em> استفاده می‌کنیم. طراح هویت بصری، متخصص Three.js و معمار هوش مصنوعی روی یک گیت‌ریپو و دیزاین‌سیستم مشترک کار می‌کنند؛ در نتیجه تاخیرهای ناشی از تحویل بین شرکتی (Hand-over delay) به صفر می‌رسد.
+                      <Info className="w-3 h-3 text-cyan-400 shrink-0" />
+                      <span>فرمول ارزش</span>
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${showSynergyTooltip ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+
+                  {/* HUD Live Metrics Grid with Instant Feedback */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-3 rounded-xl bg-black/50 border border-cyan-500/20 flex flex-col justify-between">
+                      <span className="text-[10px] text-zinc-400 block mb-1">صرفه‌جویی زمانی موازی:</span>
+                      <div className="font-mono font-bold text-cyan-300 text-base sm:text-lg flex items-center gap-1.5">
+                        <span className="text-amber-400 text-sm">⚡</span>
+                        <AnimatedCounter value={calculation.synergyDaysSaved} duration={0.35} />
+                        <span className="text-xs font-sans text-zinc-300">روز کاری زودتر</span>
                       </div>
-                      <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 px-1">
-                        <span>مجموع زمان خطی: {calculation.rawDays} روز</span>
-                        <span>&rarr;</span>
-                        <span className="text-cyan-300 font-bold">زمان موازی استودیو: {calculation.estimatedDays} روز</span>
+                      <span className="text-[9px] text-emerald-400 font-mono mt-1">
+                        معادل {calculation.timeSavedPercent}٪ شتاب در لانچ محصول
+                      </span>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-black/50 border border-emerald-500/20 flex flex-col justify-between">
+                      <span className="text-[10px] text-zinc-400 block mb-1">ارزش اقتصادی زمان بازگشتی:</span>
+                      <div className="font-mono font-bold text-[#B8FF3D] text-base sm:text-lg flex items-center gap-1.5">
+                        <AnimatedCounter value={Math.round(calculation.synergySavingsValueToman / 1000000)} duration={0.35} />
+                        <span className="text-xs font-sans text-zinc-300">م. تومان ارزش</span>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
+                      <span className="text-[9px] text-zinc-400 font-mono mt-1">
+                        بر مبنای حذف دوباره‌کاری چند شرکتی
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Active Multi-Service Synergy Connections */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                      <span>نقاط هم‌پوشانی فعال این پکیج:</span>
+                      <span className="text-cyan-400">{calculation.synergiesList.length} هم‌افزایی فعال</span>
+                    </div>
+                    <div className="space-y-1">
+                      {calculation.synergiesList.map((syn, sIdx) => (
+                        <motion.div
+                          key={sIdx}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: sIdx * 0.05 }}
+                          className="flex items-center gap-1.5 text-[11px] text-cyan-100 font-['Vazirmatn'] leading-tight p-1.5 rounded-lg bg-white/[0.03] border border-white/5"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span className="truncate">{syn}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Expandable Interactive Tooltip / Explanation Popover */}
+                  <AnimatePresence>
+                    {showSynergyTooltip && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden border-t border-cyan-500/20 pt-2.5 text-[11px] text-zinc-300 leading-relaxed font-['Vazirmatn'] space-y-2"
+                      >
+                        <div className="p-3 rounded-xl bg-cyan-950/50 border border-cyan-400/20 text-cyan-200 space-y-1.5">
+                          <div className="flex items-center gap-1.5 font-bold text-white text-xs">
+                            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>چرا با ترکیب چند سرویس، زمان کل کمتر می‌شود؟</span>
+                          </div>
+                          <p className="text-[11px] text-zinc-300">
+                            در پروژه‌های چندبخشی معمولی، کار بین چند تیم یا شرکت دست‌به‌دست می‌شود (Water-fall) که باعث ایجاد تاخیر تحویل ۳۵ تا ۵۰ درصدی می‌شود. در ۱۲۳سرویس، همه دپارتمان‌ها روی یک ریپازیتوری، دیزاین‌سیستم و کانتینر ابری یکپارچه کار می‌کنند و تسک‌ها همزمان (Concurrent Engineering) جلو می‌روند.
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap justify-between items-center text-[10px] font-mono text-zinc-400 px-1 gap-2">
+                          <span>مجموع زمان مجزا: {calculation.rawDays} روز</span>
+                          <span>&larr;</span>
+                          <span className="text-cyan-300 font-bold">زمان موازی ۱۲۳سرویس: {calculation.estimatedDays} روز کاری</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Graphic Visual Share Breakdown Bar */}
             <div className="space-y-2">

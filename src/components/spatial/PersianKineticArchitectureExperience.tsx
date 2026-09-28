@@ -671,9 +671,9 @@ export default function PersianKineticArchitectureExperience({
           </div>
         </div>
 
-        {/* Narrative Chapter Editorial HUD (Bottom Right on RTL) */}
-        <div className="absolute bottom-12 sm:bottom-16 right-4 sm:right-10 max-w-md w-full z-20 pointer-events-none">
-          <div className="p-6 rounded-3xl bg-black/80 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-3 pointer-events-auto transition-all duration-500 animate-in fade-in">
+        {/* Narrative Chapter Editorial HUD (Bottom Right on desktop, centered with margins on mobile) */}
+        <div className="absolute bottom-12 sm:bottom-16 right-4 sm:right-10 left-4 sm:left-auto max-w-md z-20 pointer-events-none">
+          <div className="p-4 sm:p-6 rounded-3xl bg-black/85 border border-white/15 backdrop-blur-2xl shadow-2xl space-y-3 pointer-events-auto transition-all duration-500 animate-in fade-in">
             {/* Phase Badge */}
             <div className="flex items-center justify-between border-b border-white/10 pb-2.5 font-mono text-[11px]">
               <span className="text-[#d4af37] font-bold tracking-wider">{currentEpoch.phase}</span>

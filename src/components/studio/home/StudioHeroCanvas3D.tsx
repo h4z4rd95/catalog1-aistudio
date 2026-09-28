@@ -10,14 +10,15 @@ export default function StudioHeroCanvas3D() {
     const container = containerRef.current;
     if (!container) return;
 
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    let width = container.clientWidth || window.innerWidth || 800;
+    let height = container.clientHeight || window.innerHeight || 600;
+    let isMobile = width < 768;
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x09090b, 0.032);
 
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0, 11);
+    const camera = new THREE.PerspectiveCamera(isMobile ? 48 : 42, width / height, 0.1, 100);
+    camera.position.set(0, 0, isMobile ? 12 : 11);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -163,9 +164,12 @@ export default function StudioHeroCanvas3D() {
 
     const handleResize = () => {
       if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+      const w = container.clientWidth || window.innerWidth || 800;
+      const h = container.clientHeight || window.innerHeight || 600;
+      const mobile = w < 768;
       camera.aspect = w / h;
+      camera.fov = mobile ? 48 : 42;
+      camera.position.set(0, 0, mobile ? 12 : 11);
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };

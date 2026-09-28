@@ -30,7 +30,7 @@ export default function StudioApp({ onReturnToCatalog = () => {} }: StudioAppPro
   const [cartItems, setCartItems] = useState<StudioPackage[]>([]);
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [activeThreads, setActiveThreads] = useState<ThreadAnimationPayload[]>([]);
-  const [isPreloaded, setIsPreloaded] = useState(false);
+  const [isPreloaded, setIsPreloaded] = useState(true);
 
   // Physical Thread pull on Add to Cart
   const handleAddToCartWithThread = (pkg: StudioPackage, e: React.MouseEvent<HTMLButtonElement>) => {

@@ -49,52 +49,52 @@ export default function WikiHomeCyberHolo({
   return (
     <div className="space-y-16 animate-in fade-in duration-500">
       {/* 1. CYBER HOLOGRAPHIC HERO WITH 3D MATRIX CANVAS */}
-      <section className="relative min-h-[580px] sm:min-h-[640px] px-4 sm:px-8 py-16 flex flex-col justify-center overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-b from-[#0e0814] via-[#080a12] to-[#04060a] shadow-[0_0_80px_rgba(244,63,94,0.12)]">
-        {/* Real Three.js 3D Holographic Gaming Portal */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-70">
+      <section className="relative min-h-[500px] sm:min-h-[620px] px-3 sm:px-8 py-8 sm:py-14 flex flex-col justify-center overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-b from-[#0e0814] via-[#080a12] to-[#04060a] shadow-[0_0_80px_rgba(244,63,94,0.12)]">
+        {/* Real Three.js 3D Holographic Gaming Portal: Subtle, non-occluding ambient depth */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-25 z-0">
           <WikiGamePortal3D genre={selectedGenreFilter} isFa={isFa} />
         </div>
 
         {/* Cyber Neon Accents */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-rose-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/8 rounded-full blur-[100px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-6xl mx-auto w-full space-y-10">
+        <div className="relative z-20 max-w-6xl mx-auto w-full space-y-6 sm:space-y-8">
           {/* Top Cyber Badge */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 font-mono text-xs shadow-lg shadow-rose-950/50 backdrop-blur-md">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 font-mono text-[11px] sm:text-xs shadow-lg shadow-rose-950/50 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
               <Terminal className="w-3.5 h-3.5 text-rose-400" />
               <span>{isFa ? 'طراحی ۱: هولوگرافیک ماتریکس و کاروسل پرسپکتیو سه‌بعدی' : 'SAMPLE 1: CYBER HOLOGRAPHIC & 3D COVERFLOW'}</span>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-xs text-zinc-400">
+            <div className="flex items-center gap-2 font-mono text-[11px] sm:text-xs text-zinc-400">
               <span className="text-rose-400 font-bold">STATUS:</span>
               <span className="text-emerald-400">ONLINE &bull; 60 FPS</span>
             </div>
           </div>
 
           {/* Headline */}
-          <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <h1 className="font-['Syne'] text-3xl sm:text-6xl font-black text-white tracking-tight leading-[1.1]">
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <h1 className="font-['Syne'] text-2xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
               {isFa ? (
                 <>
                   دایره‌المعارف نسل جدید گیمینگ؛ <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-400">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-rose-300">
                     موتور جستجوی هولوگرافیک و تحلیل بازی‌ها
                   </span>
                 </>
               ) : (
                 <>
                   Holographic Cyber Matrix; <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-cyan-400">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-amber-300 to-rose-300">
                     Next-Gen Encyclopedia & Interactive HUD
                   </span>
                 </>
               )}
             </h1>
 
-            <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-300 font-light leading-relaxed max-w-2xl mx-auto">
               {isFa
                 ? 'جستجوی هوشمند در دیتاشیت‌های فنی، بنچمارک سیستم، دانلود ترینرهای تخصصی و زیرنویس‌های فارسی بازی‌ها با موتور تعاملی کانوَس.'
                 : 'Neural search across technical datasheets, live hardware benchmarks, certified trainers, and localized game mods.'}
@@ -102,11 +102,11 @@ export default function WikiHomeCyberHolo({
           </div>
 
           {/* HOLOGRAPHIC SEARCH BOX WITH SCANNER EFFECT & AUDIO CHIMES */}
-          <div className="max-w-3xl mx-auto relative group">
-            {/* Glowing Border HUD */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-purple-600 to-cyan-400 rounded-3xl blur-md opacity-35 group-hover:opacity-75 transition-opacity" />
+          <div className="max-w-3xl mx-auto relative group z-30">
+            {/* Subtle Glowing Border HUD */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500/30 via-purple-600/30 to-amber-400/20 rounded-3xl blur-md opacity-50 group-hover:opacity-80 transition-opacity" />
 
-            <div className="relative rounded-2xl bg-black/90 border-2 border-rose-500/50 p-2 sm:p-3 shadow-2xl backdrop-blur-xl flex flex-col sm:flex-row items-center gap-3">
+            <div className="relative rounded-2xl bg-[#090b14]/95 border-2 border-rose-500/50 p-2 sm:p-3 shadow-2xl backdrop-blur-2xl flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
               <div className="relative w-full flex items-center">
                 <div className="absolute inset-y-0 right-4 sm:right-5 flex items-center pointer-events-none text-rose-400">
                   <Search className="w-5 h-5 animate-pulse" />
@@ -121,7 +121,7 @@ export default function WikiHomeCyberHolo({
                       ? 'جستجوی هولوگرافیک (نام بازی، ناشر، سبک، ترینر یا ماد...)'
                       : 'Holographic scan query (Game, developer, genre, trainer...)'
                   }
-                  className="w-full py-4 pr-12 pl-6 sm:pr-14 rounded-xl bg-zinc-950/80 border border-white/10 focus:border-rose-400 text-white placeholder-zinc-500 font-bold text-sm outline-none transition-all"
+                  className="w-full py-3.5 sm:py-4 pr-12 pl-6 sm:pr-14 rounded-xl bg-zinc-950/90 border border-white/10 focus:border-rose-400 text-white placeholder-zinc-500 font-bold text-xs sm:text-sm outline-none transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -142,7 +142,7 @@ export default function WikiHomeCyberHolo({
                     soundFx.playChime(950, 0.2);
                     setIsFrequencyScanning(!isFrequencyScanning);
                   }}
-                  className={`px-4 py-3 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  className={`px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-mono text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                     isFrequencyScanning
                       ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30'
                       : 'bg-white/10 text-zinc-300 hover:bg-white/20'
