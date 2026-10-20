@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useScroll, useTransform, useMotionValueEvent, motion } from 'framer-motion';
 import { SITE_CONTENT, StudioService } from '../../../content/site';
 import DnaHelix from '../three/DnaHelix';
 import { soundFx } from '../../../utils/audio';
@@ -22,6 +23,8 @@ interface StudioServicesDnaProps {
 export default function StudioServicesDna({ onSelectService }: StudioServicesDnaProps) {
   const [activeIdx, setActiveIdx] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
+
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -29,33 +32,33 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
   const services = SITE_CONTENT.services;
   const total = services.length;
 
+  // 1. Framer-Motion useScroll Hook targeting the pinned scroll container
+  const { scrollYProgress, scrollY } = useScroll({
+    target: trackRef,
+    offset: ['start start', 'end end'],
+  });
+
+  // Calculate dynamic scroll offset and active node index in real-time
+  useMotionValueEvent(scrollYProgress, 'change', (latestProgress) => {
+    setScrollProgress(latestProgress);
+    const calculatedIdx = Math.min(total - 1, Math.max(0, Math.floor(latestProgress * total)));
+    if (calculatedIdx !== activeIdx) {
+      setActiveIdx(calculatedIdx);
+    }
+  });
+
+  useMotionValueEvent(scrollY, 'change', (latestY) => {
+    setScrollOffset(latestY);
+  });
+
+  // Dynamic transforms derived from scroll offset:
+  // Card maintains higher z-index (30) while background 3D canvas (10) and depth-tested elements weave behind it
+  const cardScale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.01, 1]);
+
   useEffect(() => {
     auditScrollPinContract(trackRef.current);
     refreshWhenSettled();
-
-    const handleScroll = () => {
-      const track = trackRef.current;
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const windowH = window.innerHeight;
-      const totalDist = track.offsetHeight - windowH;
-      if (totalDist <= 0) return;
-
-      const currentScroll = -rect.top;
-      const progress = Math.max(0, Math.min(1, currentScroll / totalDist));
-      setScrollProgress(progress);
-
-      const calculatedIdx = Math.min(total - 1, Math.max(0, Math.floor(progress * total)));
-      if (calculatedIdx !== activeIdx) {
-        setActiveIdx(calculatedIdx);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [total, activeIdx]);
+  }, []);
 
   const scrollToService = (idx: number) => {
     setActiveIdx(idx);
@@ -89,16 +92,17 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
         data-stage
         className="sticky top-0 h-[100dvh] flex flex-col justify-between py-3 sm:py-6 px-4 sm:px-8 max-w-7xl mx-auto overflow-hidden relative"
       >
-        {/* Full-Bleed 3D DNA Canvas with True Perspective & Authentic Spatial Depth */}
+        {/* Full-Bleed 3D DNA Canvas: dynamically calculates 3D sphere scale & depth weaving from scroll offset */}
         <DnaHelix
           scrollProgress={scrollProgress}
+          scrollOffset={scrollOffset}
           activeServiceIndex={activeIdx}
           totalServices={total}
           cardRef={cardRef}
         />
 
         {/* Top Header Row (Glassmorphic HUD) */}
-        <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#202027]/80 pb-3 z-30 shrink-0 bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2.5 rounded-2xl">
+        <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-[#202027]/80 pb-3 z-40 shrink-0 bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2.5 rounded-2xl">
           <div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -138,14 +142,18 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
           </div>
         </div>
 
-        {/* Central Stage: The Service Box is the Focal Point of the Scene */}
-        <div className="relative flex-1 w-full flex items-center justify-center lg:justify-end z-20 my-auto pointer-events-none py-2">
-          {/* Card Anchor Container: Tracked by Three.js in 3D Space */}
-          <div
+        {/* Central Stage: The Service Box is the Focal Point with dynamic z-index (30) */}
+        <div className="relative flex-1 w-full flex items-center justify-center lg:justify-end z-30 my-auto pointer-events-none py-2">
+          {/* Card Anchor Container: Tracked by Framer-Motion & Three.js */}
+          <motion.div
             ref={cardRef}
+            style={{
+              scale: cardScale,
+              zIndex: 30,
+            }}
             className="relative w-full max-w-[520px] pointer-events-auto transition-all duration-300"
           >
-            {/* Cybernetic Physical Docking Bracket (Anchor point for the 3D connecting curve) */}
+            {/* Cybernetic Physical Docking Bracket */}
             <div className="absolute -top-3.5 sm:-top-4 left-6 sm:left-10 flex items-center gap-2 z-30 font-mono text-[10px] text-zinc-300 bg-[#090b14] px-3 py-1 rounded-full border border-white/15 shadow-xl">
               <span
                 className={`w-2 h-2 rounded-full ${isCyan ? 'bg-cyan-400' : 'bg-violet-400'} animate-ping`}
@@ -235,11 +243,11 @@ export default function StudioServicesDna({ onSelectService }: StudioServicesDna
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Bottom Fast-Jump Service Navigation Bar */}
-        <div className="relative flex items-center justify-between border-t border-[#202027]/80 pt-2.5 z-30 overflow-x-auto no-scrollbar gap-1.5 shrink-0 touch-pan-x bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2 rounded-2xl">
+        <div className="relative flex items-center justify-between border-t border-[#202027]/80 pt-2.5 z-40 overflow-x-auto no-scrollbar gap-1.5 shrink-0 touch-pan-x bg-[#07080d]/70 backdrop-blur-md px-3.5 py-2 rounded-2xl">
           <div className="flex items-center gap-1.5">
             {services.map((srv, idx) => (
               <button

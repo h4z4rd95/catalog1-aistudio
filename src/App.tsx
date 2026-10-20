@@ -90,26 +90,86 @@ import TypographyPersianCalligraphyMorph from './components/typography/Typograph
 import TypographyPersianVariableStretchMarquee from './components/typography/TypographyPersianVariableStretchMarquee';
 import TypographyPersianChromaticLiquidShader from './components/typography/TypographyPersianChromaticLiquidShader';
 import TypographyPersian3DRibbonMesh from './components/typography/TypographyPersian3DRibbonMesh';
+import TypographyPersianVoiceToCalligraphy from './components/typography/TypographyPersianVoiceToCalligraphy';
 import SpatialPersianGeometricMuqarnas3D from './components/spatial/SpatialPersianGeometricMuqarnas3D';
+import SpatialGltfStudioInspector from './components/spatial/SpatialGltfStudioInspector';
+import ClientPresentationKiosk from './components/common/ClientPresentationKiosk';
 import DesignSystemsDocsModal from './components/common/DesignSystemsDocsModal';
-import MasterShowcaseNav, { AppViewMode } from './components/common/MasterShowcaseNav';
+import StandardHeader, { PortalRoute } from './components/common/StandardHeader';
+import MasterPortalLanding from './components/portal/MasterPortalLanding';
+import ShowroomCategoriesHub, { SHOWROOM_BATCHES } from './components/portal/ShowroomCategoriesHub';
+import AiDesignPlaybookModal from './components/common/AiDesignPlaybookModal';
+import { initLenis, destroyLenis } from './lib/motion';
 
 import OmniSearchModal from './components/common/OmniSearchModal';
 import { CATALOG_SEARCH_DATA } from './data/catalogSearchData';
 
 import { AestheticFilter, TechFilter } from './types';
-import { Sparkles, Layers, ArrowUp, CheckCircle2, ChevronRight, Terminal, BookOpen, Compass, Hourglass, MoveHorizontal, Anchor, LayoutDashboard, ShoppingBag, Radio, Type } from 'lucide-react';
+import { Sparkles, Layers, ArrowUp, ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, Terminal, BookOpen, Compass, Hourglass, MoveHorizontal, Anchor, LayoutDashboard, ShoppingBag, Radio, Type } from 'lucide-react';
 import { soundFx } from './utils/audio';
 
 export default function App() {
   const [currentAesthetic, setCurrentAesthetic] = useState<AestheticFilter>('ALL');
   const [currentTech, setCurrentTech] = useState<TechFilter>('ALL');
   const [activeBatch, setActiveBatch] = useState<string>('ALL');
-  // Default to STUDIO_123 for the 123Service Digital Creative Engine site
-  const [viewMode, setViewMode] = useState<AppViewMode>('STUDIO_123');
+
+  // Master Portal Navigation Route: Defaults to 'PORTAL_HOME' on launch!
+  const [currentRoute, setCurrentRoute] = useState<PortalRoute>('PORTAL_HOME');
+  const [selectedBatchId, setSelectedBatchId] = useState<string>('BATCH_1');
+  const [historyStack, setHistoryStack] = useState<PortalRoute[]>([]);
+
+  // Modals state
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
   const [showDesignDocsModal, setShowDesignDocsModal] = useState<boolean>(false);
+  const [showAiPlaybook, setShowAiPlaybook] = useState<boolean>(false);
+  const [playbookInitialId, setPlaybookInitialId] = useState<string | null>(null);
+  const [isKioskActive, setIsKioskActive] = useState<boolean>(false);
+
+  // Navigation Handlers with Back history tracking
+  const handleNavigate = (route: PortalRoute) => {
+    soundFx.playClick(650);
+    setHistoryStack((prev) => [...prev, currentRoute]);
+    setCurrentRoute(route);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBack = () => {
+    soundFx.playClick(550);
+    if (historyStack.length > 0) {
+      const prev = historyStack[historyStack.length - 1];
+      setHistoryStack((old) => old.slice(0, -1));
+      setCurrentRoute(prev);
+    } else {
+      setCurrentRoute('PORTAL_HOME');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenAiPlaybook = (initialId?: string) => {
+    soundFx.playChime(900, 0.2);
+    setPlaybookInitialId(initialId || null);
+    setShowAiPlaybook(true);
+  };
+
+  // Listen for 'open-ai-playbook' custom event dispatched from any BlueprintHUD across the app!
+  React.useEffect(() => {
+    const onOpenPlaybook = (e: any) => {
+      const targetId = e.detail?.id || e.detail?.batch || null;
+      setPlaybookInitialId(targetId);
+      setShowAiPlaybook(true);
+    };
+    window.addEventListener('open-ai-playbook', onOpenPlaybook);
+    return () => window.removeEventListener('open-ai-playbook', onOpenPlaybook);
+  }, []);
+
+  // Initialize Lenis Virtual Smooth Inertial Scrolling
+  React.useEffect(() => {
+    const lenis = initLenis();
+    return () => {
+      destroyLenis();
+    };
+  }, []);
 
   // Global Keyboard Shortcut: ⌘K or Ctrl+K for Omni-Search
   React.useEffect(() => {
@@ -224,115 +284,239 @@ export default function App() {
     { id: 'spatial_v03_cyberlidarterrain', label: 'Y03', name: 'LiDAR Holo-Terrain', batch: 'BATCH_12', aesthetic: 'CYBERPUNK' },
     { id: 'spatial_v04_luxurysilkclothsim', label: 'Y04', name: 'Silk Cloth Simulation', batch: 'BATCH_12', aesthetic: 'LUXURY_EDITORIAL' },
     { id: 'spatial_v05_parametricgimbalfield3d', label: 'Y05', name: 'Parametric Gyroscope 3D', batch: 'BATCH_12', aesthetic: 'WEBGL_3D' },
+    { id: 'spatial_v06_gltfstudio', label: 'Y06', name: 'GLTF 3D Studio & PBR', batch: 'BATCH_12', aesthetic: 'WEBGL_3D' },
+    { id: 'typography_v06_voicetocalligraphy', label: 'T06', name: 'Voice-to-Calligraphy', batch: 'BATCH_9', aesthetic: 'KINETIC' },
   ];
 
-  const showBatch1 = activeBatch === 'ALL' || activeBatch === 'BATCH_1';
-  const showBatch2 = activeBatch === 'ALL' || activeBatch === 'BATCH_2';
-  const showBatch3 = activeBatch === 'ALL' || activeBatch === 'BATCH_3';
-  const showBatch4 = activeBatch === 'ALL' || activeBatch === 'BATCH_4';
-  const showBatch5 = activeBatch === 'ALL' || activeBatch === 'BATCH_5';
-  const showBatch6 = activeBatch === 'ALL' || activeBatch === 'BATCH_6';
-  const showBatch7 = activeBatch === 'ALL' || activeBatch === 'BATCH_7';
-  const showBatch8 = activeBatch === 'ALL' || activeBatch === 'BATCH_8';
-  const showBatch9 = activeBatch === 'ALL' || activeBatch === 'BATCH_9';
-  const showBatch10 = activeBatch === 'ALL' || activeBatch === 'BATCH_10';
-  const showBatch11 = activeBatch === 'ALL' || activeBatch === 'BATCH_11';
-  const showBatch12 = activeBatch === 'ALL' || activeBatch === 'BATCH_12';
+  // Active batch info for single batch mode
+  const isSingleBatch = currentRoute === 'BATCH_VIEW';
+  const currentBatchIdx = SHOWROOM_BATCHES.findIndex((b) => b.id === selectedBatchId);
+  const currentBatchItem = SHOWROOM_BATCHES[currentBatchIdx] || SHOWROOM_BATCHES[0];
+  const prevBatchId = SHOWROOM_BATCHES[(currentBatchIdx - 1 + SHOWROOM_BATCHES.length) % SHOWROOM_BATCHES.length].id;
+  const nextBatchId = SHOWROOM_BATCHES[(currentBatchIdx + 1) % SHOWROOM_BATCHES.length].id;
+
+  const showBatch1 = isSingleBatch ? selectedBatchId === 'BATCH_1' : (activeBatch === 'ALL' || activeBatch === 'BATCH_1');
+  const showBatch2 = isSingleBatch ? selectedBatchId === 'BATCH_2' : (activeBatch === 'ALL' || activeBatch === 'BATCH_2');
+  const showBatch3 = isSingleBatch ? selectedBatchId === 'BATCH_3' : (activeBatch === 'ALL' || activeBatch === 'BATCH_3');
+  const showBatch4 = isSingleBatch ? selectedBatchId === 'BATCH_4' : (activeBatch === 'ALL' || activeBatch === 'BATCH_4');
+  const showBatch5 = isSingleBatch ? selectedBatchId === 'BATCH_5' : (activeBatch === 'ALL' || activeBatch === 'BATCH_5');
+  const showBatch6 = isSingleBatch ? selectedBatchId === 'BATCH_6' : (activeBatch === 'ALL' || activeBatch === 'BATCH_6');
+  const showBatch7 = isSingleBatch ? selectedBatchId === 'BATCH_7' : (activeBatch === 'ALL' || activeBatch === 'BATCH_7');
+  const showBatch8 = isSingleBatch ? selectedBatchId === 'BATCH_8' : (activeBatch === 'ALL' || activeBatch === 'BATCH_8');
+  const showBatch9 = isSingleBatch ? selectedBatchId === 'BATCH_9' : (activeBatch === 'ALL' || activeBatch === 'BATCH_9');
+  const showBatch10 = isSingleBatch ? selectedBatchId === 'BATCH_10' : (activeBatch === 'ALL' || activeBatch === 'BATCH_10');
+  const showBatch11 = isSingleBatch ? selectedBatchId === 'BATCH_11' : (activeBatch === 'ALL' || activeBatch === 'BATCH_11');
+  const showBatch12 = isSingleBatch ? selectedBatchId === 'BATCH_12' : (activeBatch === 'ALL' || activeBatch === 'BATCH_12');
 
   return (
     <div className="relative min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-400 selection:text-black">
       {/* Precision Trailing Inertia Cursor */}
       <CursorFollower />
 
-      {/* Universal Master Navigation Header - Always Visible Across All Samples */}
-      <MasterShowcaseNav
-        currentViewMode={viewMode}
-        onSelectViewMode={setViewMode}
-        onOpenDesignDocs={() => setShowDesignDocsModal(true)}
+      {/* Clean Standard Header with Back Navigation, Breadcrumb & AI Playbook (No Horizontal Scroller!) */}
+      <StandardHeader
+        currentRoute={currentRoute}
+        activeBatchTitle={currentBatchItem?.titleFa}
+        onNavigate={handleNavigate}
+        onBack={handleBack}
+        onOpenAiPlaybook={handleOpenAiPlaybook}
+        onOpenSearch={() => setShowSearchModal(true)}
       />
 
-      {/* Showroom Filter Bar (Active in 60-Item Catalog View) */}
-      {viewMode === 'CATALOG' && (
-        <CatalogHeader
-          currentAesthetic={currentAesthetic}
-          onSelectAesthetic={setCurrentAesthetic}
-          currentTech={currentTech}
-          onSelectTech={setCurrentTech}
-          activeBatch={activeBatch}
-          onSelectBatch={setActiveBatch}
-          onOpenSearch={() => setShowSearchModal(true)}
-          onOpenDesignDocs={() => setShowDesignDocsModal(true)}
-          viewMode={viewMode}
-          onSelectViewMode={setViewMode}
+      {/* Enterprise Pitch Kiosk Mode Overlay */}
+      {isKioskActive && (
+        <ClientPresentationKiosk
+          currentViewMode={currentRoute as any}
+          onSelectViewMode={(mode) => handleNavigate(mode as PortalRoute)}
+          onExitKiosk={() => setIsKioskActive(false)}
         />
       )}
 
-      {/* Floating Quick-Jump Quick Bar */}
-      <nav 
-        aria-label="Quick jump to components" 
-        className="fixed bottom-6 right-6 z-40 hidden xl:flex items-center gap-1.5 p-2 rounded-full bg-black/85 border border-white/20 backdrop-blur-xl shadow-2xl"
-      >
-        <div className="flex items-center gap-1.5 px-2.5">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="font-mono text-[11px] font-semibold text-zinc-300">JUMP:</span>
-        </div>
-        {catalogItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => jumpToComponent(item.id)}
-            className="px-2 py-1 rounded-full font-mono text-[10px] bg-white/5 hover:bg-cyan-400 hover:text-black text-zinc-300 border border-white/10 transition-colors"
-            title={`${item.label}: ${item.name}`}
-            data-cursor="hover"
-          >
-            {item.label}
-          </button>
-        ))}
-        <button
-          onClick={scrollToTop}
-          className="w-7 h-7 rounded-full bg-white/10 hover:bg-white text-zinc-300 hover:text-black flex items-center justify-center transition-colors ml-1"
-          title="Scroll to top"
-          data-cursor="hover"
-        >
-          <ArrowUp className="w-3.5 h-3.5" />
-        </button>
-      </nav>
-
-      {/* Conditional View: Showroom Catalog vs. Full Production Website Ecosystems */}
-      {viewMode === 'STUDIO_123' ? (
-        <StudioApp onReturnToCatalog={() => setViewMode('CATALOG')} />
-      ) : viewMode === 'PERSIAN_MUQARNAS_WORLD' ? (
-        <div className="relative min-h-screen bg-[#06070a]">
-          <PersianKineticArchitectureExperience onReturnToCatalog={() => setViewMode('CATALOG')} />
-        </div>
-      ) : viewMode === 'CHRONO_NEBULA_WORLD' ? (
+      {/* Main Multi-Page Portal Routing System */}
+      {currentRoute === 'PORTAL_HOME' ? (
+        <MasterPortalLanding
+          onNavigate={handleNavigate}
+          onOpenAiPlaybook={handleOpenAiPlaybook}
+        />
+      ) : currentRoute === 'SHOWROOM_HUB' ? (
+        <ShowroomCategoriesHub
+          onSelectBatch={(batchId) => {
+            setSelectedBatchId(batchId);
+            handleNavigate('BATCH_VIEW');
+          }}
+          onViewAllCatalog={() => handleNavigate('CATALOG')}
+          onOpenAiPlaybook={handleOpenAiPlaybook}
+          onBackToPortal={() => handleNavigate('PORTAL_HOME')}
+        />
+      ) : currentRoute === 'STUDIO_123' ? (
+        <StudioApp onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
+      ) : currentRoute === 'GLTF_STUDIO' ? (
         <div className="relative min-h-screen bg-[#040508]">
-          <ThreeJsChronoNebulaScrollWorld onReturnToCatalog={() => setViewMode('CATALOG')} />
+          <SpatialGltfStudioInspector />
         </div>
-      ) : viewMode === 'SCROLL_WORLD_3D' ? (
+      ) : currentRoute === 'VOICE_CALLIGRAPHY' ? (
+        <div className="relative min-h-screen bg-[#040508]">
+          <TypographyPersianVoiceToCalligraphy />
+        </div>
+      ) : currentRoute === 'PERSIAN_MUQARNAS_WORLD' ? (
+        <div className="relative min-h-screen bg-[#06070a]">
+          <PersianKineticArchitectureExperience onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
+        </div>
+      ) : currentRoute === 'CHRONO_NEBULA_WORLD' ? (
+        <div className="relative min-h-screen bg-[#040508]">
+          <ThreeJsChronoNebulaScrollWorld onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
+        </div>
+      ) : currentRoute === 'SCROLL_WORLD_3D' ? (
         <div className="relative min-h-screen bg-[#06070a]">
           <ThreeJsCinematicScrollWorld />
         </div>
-      ) : viewMode === 'AWWWARDS_HERO' ? (
+      ) : currentRoute === 'AWWWARDS_HERO' ? (
         <div className="relative min-h-screen bg-[#09090b]">
           <HeroAwwwardsCinematicNarrative />
         </div>
-      ) : viewMode === 'STUDIO_ELEMENTS_SAMPLE' ? (
-        <StudioEssentialElementsPage onBackToHome={() => setViewMode('STUDIO_123')} />
-      ) : viewMode === 'SAMPLE_WEBSITE' ? (
+      ) : currentRoute === 'STUDIO_ELEMENTS_SAMPLE' ? (
+        <StudioEssentialElementsPage onBackToHome={() => handleNavigate('PORTAL_HOME')} />
+      ) : currentRoute === 'SAMPLE_WEBSITE' ? (
         <AuraWebsiteSample
-          onReturnToCatalog={() => setViewMode('CATALOG')}
-          onOpenCoffeeSample={() => setViewMode('COFFEE_SAMPLE')}
-          onOpenPcBuilderSample={() => setViewMode('PC_BUILDER_SAMPLE')}
-          onOpenWikiGameSample={() => setViewMode('WIKI_GAME_SAMPLE')}
+          onReturnToCatalog={() => handleNavigate('PORTAL_HOME')}
+          onOpenCoffeeSample={() => handleNavigate('COFFEE_SAMPLE')}
+          onOpenPcBuilderSample={() => handleNavigate('PC_BUILDER_SAMPLE')}
+          onOpenWikiGameSample={() => handleNavigate('WIKI_GAME_SAMPLE')}
         />
-      ) : viewMode === 'COFFEE_SAMPLE' ? (
-        <CoffeeLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
-      ) : viewMode === 'PC_BUILDER_SAMPLE' ? (
-        <PcBuilderLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
-      ) : viewMode === 'WIKI_GAME_SAMPLE' ? (
-        <WikiGameLanding onReturnToCatalog={() => setViewMode('CATALOG')} />
+      ) : currentRoute === 'COFFEE_SAMPLE' ? (
+        <CoffeeLanding onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
+      ) : currentRoute === 'PC_BUILDER_SAMPLE' ? (
+        <PcBuilderLanding onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
+      ) : currentRoute === 'WIKI_GAME_SAMPLE' ? (
+        <WikiGameLanding onReturnToCatalog={() => handleNavigate('PORTAL_HOME')} />
       ) : (
+        /* Either 'BATCH_VIEW' (Single selected batch) or 'CATALOG' (Continuous 60 items) */
         <>
+          {/* Top Banner when in Single Batch Mode */}
+          {currentRoute === 'BATCH_VIEW' && (
+            <div className="w-full bg-[#080a10] border-b border-white/10 py-8 px-6">
+              <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => handleNavigate('SHOWROOM_HUB')}
+                      className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-mono text-cyan-300 flex items-center gap-1.5 transition-all"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      <span>بازگشت به هاب دسته‌بندی‌ها</span>
+                    </button>
+                    <span className="font-mono text-xs text-amber-400 font-bold bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-lg">
+                      BATCH {currentBatchItem.number} OF 12
+                    </span>
+                    <span className="font-mono text-xs text-zinc-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
+                      {currentBatchItem.count} واریانت تعاملی
+                    </span>
+                  </div>
+                  <h2 className="text-2xl sm:text-4xl font-black text-white font-['Syne']">
+                    {currentBatchItem.titleFa}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-zinc-400 font-['Vazirmatn'] max-w-2xl leading-relaxed">
+                    {currentBatchItem.descriptionFa}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Prev Batch Button */}
+                  <button
+                    onClick={() => {
+                      soundFx.playClick(600);
+                      setSelectedBatchId(prevBatchId);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 font-mono text-xs flex items-center gap-1.5 transition-all"
+                    title="مشاهده دسته‌بندی قبلی"
+                  >
+                    <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>بچ قبلی</span>
+                  </button>
+
+                  {/* Next Batch Button */}
+                  <button
+                    onClick={() => {
+                      soundFx.playClick(600);
+                      setSelectedBatchId(nextBatchId);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 font-mono text-xs flex items-center gap-1.5 transition-all"
+                    title="مشاهده دسته‌بندی بعدی"
+                  >
+                    <span>بچ بعدی</span>
+                    <ArrowLeft className="w-3.5 h-3.5 text-cyan-400" />
+                  </button>
+
+                  {/* AI Playbook Button */}
+                  <button
+                    onClick={() => handleOpenAiPlaybook(currentBatchItem.id)}
+                    className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-mono text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-amber-400/20"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>راهنمای پرامپت هوش مصنوعی</span>
+                  </button>
+
+                  {/* Full Catalog Button */}
+                  <button
+                    onClick={() => handleNavigate('CATALOG')}
+                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs font-bold transition-all"
+                  >
+                    مشاهده تمام ۶۰ قطعه
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Showroom Filter Bar (Active only in full 60-item CATALOG View) */}
+          {currentRoute === 'CATALOG' && (
+            <CatalogHeader
+              currentAesthetic={currentAesthetic}
+              onSelectAesthetic={setCurrentAesthetic}
+              currentTech={currentTech}
+              onSelectTech={setCurrentTech}
+              activeBatch={activeBatch}
+              onSelectBatch={setActiveBatch}
+              onOpenSearch={() => setShowSearchModal(true)}
+              onOpenDesignDocs={() => setShowDesignDocsModal(true)}
+              viewMode="CATALOG"
+              onSelectViewMode={(mode) => handleNavigate(mode as PortalRoute)}
+              onReturnToHub={() => handleNavigate('SHOWROOM_HUB')}
+            />
+          )}
+
+          {/* Floating Quick-Jump Quick Bar */}
+          <nav 
+            aria-label="Quick jump to components" 
+            className="fixed bottom-6 right-6 z-40 hidden xl:flex items-center gap-1.5 p-2 rounded-full bg-black/85 border border-white/20 backdrop-blur-xl shadow-2xl"
+          >
+            <div className="flex items-center gap-1.5 px-2.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="font-mono text-[11px] font-semibold text-zinc-300">JUMP:</span>
+            </div>
+            {catalogItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => jumpToComponent(item.id)}
+                className="px-2 py-1 rounded-full font-mono text-[10px] bg-white/5 hover:bg-cyan-400 hover:text-black text-zinc-300 border border-white/10 transition-colors"
+                title={`${item.label}: ${item.name}`}
+                data-cursor="hover"
+              >
+                {item.label}
+              </button>
+            ))}
+            <button
+              onClick={scrollToTop}
+              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white text-zinc-300 hover:text-black flex items-center justify-center transition-colors ml-1"
+              title="Scroll to top"
+              data-cursor="hover"
+            >
+              <ArrowUp className="w-3.5 h-3.5" />
+            </button>
+          </nav>
+
           {/* Main Continuous Scroll Catalog Container */}
           <main className="w-full relative">
         {/* ========================================================================= */}
@@ -778,6 +962,9 @@ export default function App() {
 
             {/* Persian Showcase Variation 4: Three.js 3D Möbius Calligraphic Ribbon */}
             <TypographyPersian3DRibbonMesh />
+
+            {/* Persian Showcase Variation 5: Voice-to-Calligraphy Acoustical Siah-Mashq Engine */}
+            <TypographyPersianVoiceToCalligraphy />
           </>
         )}
 
@@ -925,6 +1112,9 @@ export default function App() {
 
             {/* Persian 3D Showcase: Interactive Parametric Muqarnas & Orsi Geometric Matrix */}
             <SpatialPersianGeometricMuqarnas3D />
+
+            {/* Universal 3D Dropzone & Inspector: GLTF & GLB Model Studio */}
+            <SpatialGltfStudioInspector />
           </>
         )}
       </main>
@@ -1214,6 +1404,17 @@ export default function App() {
       <DesignSystemsDocsModal
         isOpen={showDesignDocsModal}
         onClose={() => setShowDesignDocsModal(false)}
+      />
+
+      {/* Master AI Agent Design Playbook & Prompt Manual Modal */}
+      <AiDesignPlaybookModal
+        isOpen={showAiPlaybook}
+        onClose={() => setShowAiPlaybook(false)}
+        initialEntryId={playbookInitialId}
+        onNavigateToElement={(id) => {
+          setShowAiPlaybook(false);
+          jumpToComponent(id);
+        }}
       />
     </div>
   );

@@ -25,18 +25,24 @@ export type AppViewMode =
   | 'SCROLL_WORLD_3D'
   | 'AWWWARDS_HERO'
   | 'PERSIAN_MUQARNAS_WORLD'
-  | 'CHRONO_NEBULA_WORLD';
+  | 'CHRONO_NEBULA_WORLD'
+  | 'GLTF_STUDIO'
+  | 'VOICE_CALLIGRAPHY';
 
 interface MasterShowcaseNavProps {
   currentViewMode: AppViewMode;
   onSelectViewMode: (mode: AppViewMode) => void;
   onOpenDesignDocs: () => void;
+  isKioskActive?: boolean;
+  onToggleKiosk?: () => void;
 }
 
 export default function MasterShowcaseNav({
   currentViewMode,
   onSelectViewMode,
   onOpenDesignDocs,
+  isKioskActive = false,
+  onToggleKiosk = () => {},
 }: MasterShowcaseNavProps) {
   const { language, toggleLanguage } = useStore();
   const isFa = language === 'fa';
@@ -46,8 +52,22 @@ export default function MasterShowcaseNav({
       id: 'STUDIO_123' as AppViewMode,
       labelFa: '⚡ استودیو ۱۲۳سرویس (موتور خلاقیت)',
       labelEn: '⚡ 123Service Studio Site',
-      tag: isFa ? 'سایت درخواستی' : 'Studio Site',
+      tag: isFa ? 'سایت اصلی' : 'Studio Site',
       activeColor: 'bg-gradient-to-r from-violet-600 to-cyan-400 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
+    },
+    {
+      id: 'GLTF_STUDIO' as AppViewMode,
+      labelFa: '📦 استودیو GLTF/GLB (دراپ ۳بعدی)',
+      labelEn: '📦 GLTF/GLB 3D Studio & PBR',
+      tag: isFa ? 'لودر فایل سه‌بعدی' : '3D Dropzone',
+      activeColor: 'bg-gradient-to-r from-cyan-400 to-emerald-400 text-black shadow-lg shadow-cyan-500/30 border-cyan-300',
+    },
+    {
+      id: 'VOICE_CALLIGRAPHY' as AppViewMode,
+      labelFa: '🎙️ خطاطی صوتی (ارتعاش قلم و میکروفون)',
+      labelEn: '🎙️ Voice-to-Calligraphy Engine',
+      tag: isFa ? 'سیاه‌مشق صوت' : 'Voice Pen',
+      activeColor: 'bg-gradient-to-r from-amber-400 to-rose-400 text-black shadow-lg shadow-amber-500/30 border-amber-300',
     },
     {
       id: 'PERSIAN_MUQARNAS_WORLD' as AppViewMode,
@@ -129,12 +149,28 @@ export default function MasterShowcaseNav({
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
           <span className="text-white font-bold">
             {isFa
-              ? '✨ هاب دسترسی سریع به سمپل‌های جدید طراحی‌شده بر اساس بازخورد شما:'
-              : '✨ Quick Hub for newly crafted samples based on your exact feedback:'}
+              ? '✨ هاب دسترسی سریع به سمپل‌ها، استودیوی سه‌بعدی و نمایشگاه کامل:'
+              : '✨ Quick Hub for all samples, 3D Drag & Drop Studio & Full Showroom:'}
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          {/* Client Presentation Kiosk Trigger */}
+          <button
+            onClick={() => {
+              soundFx.playChime(850, 0.2);
+              onToggleKiosk();
+            }}
+            className={`px-3 py-0.5 rounded-full font-bold flex items-center gap-1.5 transition-all shadow-md ${
+              isKioskActive
+                ? 'bg-rose-500 text-white animate-pulse'
+                : 'bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-black'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isFa ? (isKioskActive ? 'خروج از پرزنتیشن' : '🖥️ حالت ارائه شرکتی (Kiosk)') : (isKioskActive ? 'Exit Kiosk' : '🖥️ Pitch Kiosk')}</span>
+          </button>
+
           <button
             onClick={() => {
               soundFx.playChime(900, 0.2);
@@ -143,7 +179,7 @@ export default function MasterShowcaseNav({
             className="px-3 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-black font-bold flex items-center gap-1.5 transition-all shadow-sm"
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{isFa ? '📖 مطالعه داکیومنت سبک‌ها و تکنولوژی‌ها' : '📖 View Design Docs'}</span>
+            <span>{isFa ? '📖 داکیومنت معماری' : '📖 View Docs'}</span>
           </button>
 
           <button

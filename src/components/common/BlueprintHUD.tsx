@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ComponentBlueprint } from '../../types';
-import { Code, Copy, Check, Sliders, ExternalLink, Terminal } from 'lucide-react';
+import { Code, Copy, Check, Sliders, ExternalLink, Terminal, BookOpen } from 'lucide-react';
 import { soundFx } from '../../utils/audio';
 
 interface BlueprintHUDProps {
@@ -113,6 +113,23 @@ Interaction Blueprint: ${blueprint.interactionBlueprint}
             >
               <Code className="w-3.5 h-3.5" />
               <span>Blueprint Spec</span>
+            </button>
+
+            <button
+              onClick={() => {
+                soundFx.playChime(900, 0.2);
+                window.dispatchEvent(
+                  new CustomEvent('open-ai-playbook', {
+                    detail: { id: blueprint.id, batch: blueprint.batch },
+                  })
+                );
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded font-mono text-[11px] bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 hover:text-amber-200 transition-colors"
+              title="دفترچه راهنمای هوش مصنوعی و پرامپت این المان"
+              data-cursor="hover"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">AI Playbook</span>
             </button>
 
             <button

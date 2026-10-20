@@ -623,6 +623,22 @@ export default function WikiGameLanding({ onReturnToCatalog = () => {} }: WikiGa
 
           <button
             onClick={() => {
+              soundFx.playChime(900, 0.2);
+              window.dispatchEvent(
+                new CustomEvent('open-ai-playbook', {
+                  detail: { id: 'WIKI_GAME_SAMPLE' },
+                })
+              );
+            }}
+            className="px-3.5 py-1.5 rounded-xl border border-amber-400/40 bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 font-mono text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+            title={isFa ? 'دفترچه راهنمای هوش مصنوعی و پرامپت‌ها' : 'AI Playbook'}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">{isFa ? 'راهنمای هوش مصنوعی' : 'AI Playbook'}</span>
+          </button>
+
+          <button
+            onClick={() => {
               soundFx.playClick(600);
               onReturnToCatalog();
             }}

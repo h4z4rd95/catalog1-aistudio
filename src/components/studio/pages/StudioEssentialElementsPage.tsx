@@ -36,7 +36,8 @@ import {
   Info,
   ChevronRight,
   Calculator,
-  Table
+  Table,
+  BookOpen
 } from 'lucide-react';
 
 interface StudioEssentialElementsPageProps {
@@ -91,13 +92,31 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
     >
       {/* Top Header Breadcrumb & Language Switcher */}
       <div className="sticky top-16 z-30 bg-[#0c0d12]/90 backdrop-blur-xl border-b border-[#202027] px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        <button
-          onClick={onBackToHome}
-          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-white transition-colors"
-        >
-          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-          <span>{isRtl ? 'بازگشت به استودیو ۱۲۳سرویس' : 'Return to 123Service Studio'}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBackToHome}
+            className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-white transition-colors"
+          >
+            {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+            <span>{isRtl ? 'بازگشت به استودیو ۱۲۳سرویس' : 'Return to 123Service Studio'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              soundFx.playChime(900, 0.2);
+              window.dispatchEvent(
+                new CustomEvent('open-ai-playbook', {
+                  detail: { id: 'STUDIO_123' },
+                })
+              );
+            }}
+            className="px-3 py-1 rounded-xl border border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 font-mono text-xs font-bold transition-all flex items-center gap-1.5"
+            title={isRtl ? 'دفترچه راهنمای هوش مصنوعی' : 'AI Playbook'}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">{isRtl ? 'راهنمای هوش مصنوعی' : 'AI Playbook'}</span>
+          </button>
+        </div>
 
         {/* Language & Layout Switcher (Persian First, then English) */}
         <div className="flex items-center gap-3">

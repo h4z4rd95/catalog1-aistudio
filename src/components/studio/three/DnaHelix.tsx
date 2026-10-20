@@ -4,14 +4,88 @@ import * as THREE from 'three';
 interface DnaHelixProps {
   className?: string;
   scrollProgress: number;
+  scrollOffset?: number;
   activeServiceIndex: number;
   totalServices: number;
   cardRef: React.RefObject<HTMLDivElement | null>;
 }
 
+/**
+ * computeZIndexDepthMap:
+ * Dynamically shifts a 3D sphere's Z coordinate and scale based on its proximity
+ * to the active view center (where the active service card is docked).
+ *
+ * As the user scrolls:
+ * - Spheres that intersect the card's readable body are dynamically shifted BEHIND the card (zShift < 0),
+ *   causing them to physically plunge and weave behind the service card.
+ * - Spheres along the outer flank or top/bottom curves rise forward in front of the card (zShift > 0),
+ *   creating an authentic 3D spatial ribbon weave.
+ */
+function computeZIndexDepthMap(
+  baseWorldPos: THREE.Vector3,
+  cardCenter: THREE.Vector3,
+  cardWidth3D: number,
+  cardHeight3D: number,
+  cardDepthZ: number
+): { zShift: number; scale: number; isBehind: boolean } {
+  const dx = Math.abs(baseWorldPos.x - cardCenter.x);
+  const dy = Math.abs(baseWorldPos.y - cardCenter.y);
+  const halfW = (cardWidth3D / 2) * 1.08;
+  const halfH = (cardHeight3D / 2) * 1.08;
+
+  // Proximity to active view center (1.0 at center, falling smoothly to 0.0 outside influence radius)
+  const normX = Math.min(1.0, dx / (halfW * 1.5));
+  const normY = Math.min(1.0, dy / (halfH * 1.5));
+  const distNorm = Math.hypot(normX, normY);
+  const proximity = Math.max(0, 1.0 - distNorm / 1.35);
+  const smoothProximity = proximity * proximity * (3 - 2 * proximity); // Smooth cubic hermite curve
+
+  // Is the sphere physically overlapping the card's 2D footprint?
+  const isOverCard = dx < halfW && dy < halfH;
+  const isNaturallyBehind = baseWorldPos.z < cardDepthZ;
+
+  let zShift = 0;
+  let scale = 1.0;
+
+  if (smoothProximity > 0.001) {
+    if (isOverCard) {
+      if (isNaturallyBehind) {
+        // Deepen the backward weave so it travels cleanly behind the card
+        zShift = -1.4 * smoothProximity;
+        scale = 0.88;
+      } else {
+        // Sphere would pass in front of card text: dynamically shift it BEHIND the card plane!
+        zShift = -1.25 * smoothProximity;
+        const centerDist = Math.hypot(dx / halfW, dy / halfH);
+        scale = 0.55 + 0.35 * Math.min(1.0, centerDist);
+      }
+    } else {
+      // Along the card's perimeter / outer flanks:
+      // Creates an authentic interwoven ribbon where some points rise forward in front
+      // and others plunge behind
+      const strandPhase = Math.sin(baseWorldPos.y * 1.6 + (baseWorldPos.z > 0 ? Math.PI : 0));
+      if (strandPhase > 0) {
+        // Weaves in front of the card plane on the outer flank
+        zShift = 0.85 * smoothProximity;
+        scale = 1.0 + 0.15 * smoothProximity;
+      } else {
+        // Weaves behind the card plane
+        zShift = -0.95 * smoothProximity;
+        scale = 0.85;
+      }
+    }
+  }
+
+  const finalZ = baseWorldPos.z + zShift;
+  const isBehind = finalZ < cardDepthZ;
+
+  return { zShift, scale, isBehind };
+}
+
 export default function DnaHelix({
   className = '',
   scrollProgress = 0,
+  scrollOffset = 0,
   activeServiceIndex = 0,
   totalServices = 10,
   cardRef,
@@ -19,9 +93,11 @@ export default function DnaHelix({
   const containerRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number | null>(null);
 
-  // References to track animated values without triggering react re-renders
   const scrollProgressRef = useRef(scrollProgress);
   scrollProgressRef.current = scrollProgress;
+
+  const scrollOffsetRef = useRef(scrollOffset);
+  scrollOffsetRef.current = scrollOffset;
 
   const activeIndexRef = useRef(activeServiceIndex);
   activeIndexRef.current = activeServiceIndex;
@@ -66,7 +142,6 @@ export default function DnaHelix({
     const dnaGroup = new THREE.Group();
     scene.add(dnaGroup);
 
-    // Position DNA in 3D: On desktop, offset slightly to the left/right; on mobile centered
     if (isMobile) {
       dnaGroup.position.set(0, 0, 0);
     } else {
@@ -74,13 +149,13 @@ export default function DnaHelix({
     }
     dnaGroup.rotation.z = -0.05;
 
-    // Geometric specs: Small, subtle nodes so DNA doesn't overpower the cards
+    // Geometric specs
     const NODE_PAIRS = 64;
     const HELIX_HEIGHT = 15.0;
-    const RADIUS = isMobile ? 1.7 : 2.1; // Extends both behind (z < 0) and in front (z > 0)
+    const RADIUS = isMobile ? 1.7 : 2.1;
     const TURNS = 3.0;
 
-    // Subtler, smaller spheres (Prompt: "The circles/spheres should be smaller and more subtle")
+    // Base sphere geometry
     const sphereRadius = isMobile ? 0.036 : 0.042;
     const sphereGeom = new THREE.SphereGeometry(sphereRadius, 16, 16);
 
@@ -191,8 +266,10 @@ export default function DnaHelix({
     const lineAMat = new THREE.LineBasicMaterial({ color: 0x818cf8, transparent: true, opacity: 0.75 });
     const lineBMat = new THREE.LineBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.75 });
 
-    dnaGroup.add(new THREE.Line(lineAGeom, lineAMat));
-    dnaGroup.add(new THREE.Line(lineBGeom, lineBMat));
+    const lineMeshA = new THREE.Line(lineAGeom, lineAMat);
+    const lineMeshB = new THREE.Line(lineBGeom, lineBMat);
+    dnaGroup.add(lineMeshA);
+    dnaGroup.add(lineMeshB);
 
     // Active Node Holographic Reticle (Pulsing ring at active DNA node)
     const activeRingGeom = new THREE.RingGeometry(0.09, 0.14, 24);
@@ -205,10 +282,7 @@ export default function DnaHelix({
     const activeRing = new THREE.Mesh(activeRingGeom, activeRingMat);
     dnaGroup.add(activeRing);
 
-    // 4. Genuine 3D Spatial Depth Mask (Invisible Occlusion Plane)
-    // This plane matches the card's exact 3D position and size.
-    // It writes to WebGL depth buffer with colorWrite=false, so any DNA strands/nodes
-    // with Z < cardZ naturally pass BEHIND the card, while strands with Z > cardZ pass IN FRONT!
+    // 4. Genuine 3D Spatial Depth Mask (Invisible Occlusion Plane at Card Depth)
     const CARD_DEPTH_Z = 0.45; // Physical card depth plane
     const cardOcclusionGeom = new THREE.PlaneGeometry(3.5, 4.2);
     const cardOcclusionMat = new THREE.MeshBasicMaterial({
@@ -218,7 +292,7 @@ export default function DnaHelix({
     const cardOcclusionMesh = new THREE.Mesh(cardOcclusionGeom, cardOcclusionMat);
     scene.add(cardOcclusionMesh);
 
-    // 5. Genuine 3D Connecting Bridge Spline (Prompt: "Connecting lines shouldn't just be drawn on the screen surface; they must genuinely exist in 3D space, bridging the DNA points and the boxes.")
+    // 5. Genuine 3D Connecting Bridge Spline
     const BRIDGE_POINTS = 32;
     const bridgeCurvePoints: THREE.Vector3[] = [];
     for (let b = 0; b < BRIDGE_POINTS; b++) {
@@ -278,6 +352,11 @@ export default function DnaHelix({
 
     const activeNodeWorld = new THREE.Vector3();
     const cardDockWorld = new THREE.Vector3();
+    const cardCenterWorld = new THREE.Vector3();
+    const tempSphereWorldA = new THREE.Vector3();
+    const tempSphereWorldB = new THREE.Vector3();
+    const shiftedLocalPosA = new THREE.Vector3();
+    const shiftedLocalPosB = new THREE.Vector3();
 
     const animate = () => {
       animFrameRef.current = requestAnimationFrame(animate);
@@ -293,9 +372,15 @@ export default function DnaHelix({
 
       dnaGroup.position.y = currentY;
       dnaGroup.rotation.y = currentRotY;
+      dnaGroup.updateMatrixWorld(true);
 
       // Get Card's live screen position and align 3D Occlusion Plane & Docking Anchor
       const cardEl = cardRef.current;
+      let cardWorldX = 0;
+      let cardWorldY = 0;
+      let cardWidth3D = 3.5;
+      let cardHeight3D = 4.2;
+
       if (cardEl && container) {
         const cardRect = cardEl.getBoundingClientRect();
         const contRect = container.getBoundingClientRect();
@@ -312,24 +397,76 @@ export default function DnaHelix({
         const vHeightAtCard = 2 * Math.tan((camera.fov * Math.PI) / 360) * distToCard;
         const vWidthAtCard = vHeightAtCard * camera.aspect;
 
-        const cardWorldX = ndcX * (vWidthAtCard / 2);
-        const cardWorldY = ndcY * (vHeightAtCard / 2);
+        cardWorldX = ndcX * (vWidthAtCard / 2);
+        cardWorldY = ndcY * (vHeightAtCard / 2);
 
-        const cardWidth3D = (cardRect.width / contRect.width) * vWidthAtCard;
-        const cardHeight3D = (cardRect.height / contRect.height) * vHeightAtCard;
+        cardWidth3D = (cardRect.width / contRect.width) * vWidthAtCard;
+        cardHeight3D = (cardRect.height / contRect.height) * vHeightAtCard;
+
+        cardCenterWorld.set(cardWorldX, cardWorldY, CARD_DEPTH_Z);
 
         // Position occlusion mesh exactly over the card in 3D
         cardOcclusionMesh.position.set(cardWorldX, cardWorldY, CARD_DEPTH_Z);
         cardOcclusionMesh.scale.set(cardWidth3D / 3.5, cardHeight3D / 4.2, 1);
 
-        // Position card docking point: on the side/corner nearest to DNA
-        // In RTL, DNA is to the left of the card
+        // Position card docking point
         const dockOffsetX = isMobile ? 0 : -cardWidth3D * 0.48;
         const dockOffsetY = isMobile ? cardHeight3D * 0.48 : cardHeight3D * 0.25;
         cardDockWorld.set(cardWorldX + dockOffsetX, cardWorldY + dockOffsetY, CARD_DEPTH_Z + 0.05);
 
         dockSphere.position.copy(cardDockWorld);
       }
+
+      // 7. Dynamic Z-Index Map Calculation for 3D Spheres
+      // Dynamically shifts each sphere's Z coordinate based on proximity to the active view center (cardCenterWorld)
+      // causing spheres to physically move behind or in front of the service cards during scroll events.
+      for (let i = 0; i < NODE_PAIRS; i++) {
+        // --- Strand A (Violet) ---
+        const ptA = strandAPoints[i];
+        tempSphereWorldA.copy(ptA).applyMatrix4(dnaGroup.matrixWorld);
+
+        const zMapA = computeZIndexDepthMap(
+          tempSphereWorldA,
+          cardCenterWorld,
+          cardWidth3D,
+          cardHeight3D,
+          CARD_DEPTH_Z
+        );
+
+        // Apply dynamic Z-shift to world position
+        tempSphereWorldA.z += zMapA.zShift;
+
+        // Convert shifted world position back into dnaGroup local coordinate space
+        shiftedLocalPosA.copy(dnaGroup.worldToLocal(tempSphereWorldA));
+
+        dummy.position.copy(shiftedLocalPosA);
+        dummy.scale.setScalar(zMapA.scale);
+        dummy.updateMatrix();
+        violetMesh.setMatrixAt(i, dummy.matrix);
+
+        // --- Strand B (Cyan) ---
+        const ptB = strandBPoints[i];
+        tempSphereWorldB.copy(ptB).applyMatrix4(dnaGroup.matrixWorld);
+
+        const zMapB = computeZIndexDepthMap(
+          tempSphereWorldB,
+          cardCenterWorld,
+          cardWidth3D,
+          cardHeight3D,
+          CARD_DEPTH_Z
+        );
+
+        tempSphereWorldB.z += zMapB.zShift;
+        shiftedLocalPosB.copy(dnaGroup.worldToLocal(tempSphereWorldB));
+
+        dummy.position.copy(shiftedLocalPosB);
+        dummy.scale.setScalar(zMapB.scale);
+        dummy.updateMatrix();
+        cyanMesh.setMatrixAt(i, dummy.matrix);
+      }
+
+      violetMesh.instanceMatrix.needsUpdate = true;
+      cyanMesh.instanceMatrix.needsUpdate = true;
 
       // Find active service anchor
       const activeIdx = activeIndexRef.current;
@@ -352,8 +489,7 @@ export default function DnaHelix({
         dockSphereMat.color.setHex(activeColor);
         dockSphereMat.emissive.setHex(isCyan ? 0x0891b2 : 0x7e22ce);
 
-        // Update Genuine 3D Curved Bridge Spline between DNA Node and Card Dock!
-        // Prompt: "as a box enters the viewport, the DNA lines curve toward or connect to it, and the box itself is positioned at that specific depth."
+        // Update Genuine 3D Curved Bridge Spline between DNA Node and Card Dock
         const midPoint = new THREE.Vector3(
           (activeNodeWorld.x + cardDockWorld.x) / 2,
           (activeNodeWorld.y + cardDockWorld.y) / 2 + (isMobile ? 0.3 : 0.4),
