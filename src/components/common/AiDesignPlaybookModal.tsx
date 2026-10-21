@@ -31,17 +31,19 @@ function resolveEntry(targetId: string | null): PlaybookEntry {
   if (!targetId) return AI_PLAYBOOK_ENTRIES[0];
 
   const clean = targetId.trim();
-  const upper = clean.toUpperCase();
+  const lower = clean.toLowerCase();
 
-  // 1. Exact match on ID or batchId
+  // 1. Direct match on ID (case-insensitive) - Checks exact element ID first!
   const direct = AI_PLAYBOOK_ENTRIES.find(
-    (e) => e.id.toUpperCase() === upper || (e.batchId && e.batchId.toUpperCase() === upper)
+    (e) => e.id.toLowerCase() === lower || (e.batchId && e.batchId.toLowerCase() === lower)
   );
   if (direct) return direct;
 
-  const lower = clean.toLowerCase();
+  // 2. Partial containment match on element ID
+  const partial = AI_PLAYBOOK_ENTRIES.find((e) => e.id.toLowerCase().includes(lower) || lower.includes(e.id.toLowerCase()));
+  if (partial) return partial;
 
-  // 2. Element ID prefixes
+  // 3. Element ID prefixes fallback to respective BATCH
   if (lower.startsWith('hero_') || lower.includes('hero')) {
     return AI_PLAYBOOK_ENTRIES.find((e) => e.id === 'BATCH_1') || AI_PLAYBOOK_ENTRIES[0];
   }
@@ -131,7 +133,7 @@ export default function AiDesignPlaybookModal({
 }: AiDesignPlaybookModalProps) {
   const isFa = language === 'fa';
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'ALL' | 'PROJECTS' | 'BATCHES'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'ELEMENTS' | 'BATCHES' | 'PROJECTS'>('ALL');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [selectedEntryId, setSelectedEntryId] = useState<string | null>(null);
 
@@ -145,13 +147,19 @@ export default function AiDesignPlaybookModal({
   if (!isOpen) return null;
 
   const filteredEntries = AI_PLAYBOOK_ENTRIES.filter((entry) => {
+    const isSpecificElement = entry.id.includes('_v') || (entry.category === 'BATCH' && !entry.id.startsWith('BATCH_'));
+    const isBatchSummary = entry.id.startsWith('BATCH_');
+    const isProject = entry.category === 'PROJECT';
+
     const matchesTab =
       activeTab === 'ALL' ||
-      (activeTab === 'PROJECTS' && entry.category === 'PROJECT') ||
-      (activeTab === 'BATCHES' && entry.category === 'BATCH');
+      (activeTab === 'ELEMENTS' && isSpecificElement) ||
+      (activeTab === 'BATCHES' && isBatchSummary) ||
+      (activeTab === 'PROJECTS' && isProject);
 
     const q = searchQuery.toLowerCase();
     const matchesSearch =
+      entry.id.toLowerCase().includes(q) ||
       entry.titleFa.toLowerCase().includes(q) ||
       entry.titleEn.toLowerCase().includes(q) ||
       entry.aesthetic.toLowerCase().includes(q) ||
@@ -237,8 +245,9 @@ ${entry.keyInteractiveElements.map((el) => `• ${el}`).join('\n')}
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white/5 border border-white/10">
             {[
               { id: 'ALL', label: isFa ? 'همه محتویات' : 'All Modules' },
-              { id: 'PROJECTS', label: isFa ? 'پروژه‌های مستقل (Projects)' : 'Custom Projects' },
-              { id: 'BATCHES', label: isFa ? 'دسته‌بندی‌های کاتالوگ (12 Batches)' : 'Showroom Batches' },
+              { id: 'ELEMENTS', label: isFa ? 'المان‌های اختصاصی (Elements)' : 'Individual Elements' },
+              { id: 'BATCHES', label: isFa ? 'دسته‌بندی‌ها (12 Batches)' : 'Showroom Batches' },
+              { id: 'PROJECTS', label: isFa ? 'پروژه‌ها (Projects)' : 'Custom Projects' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -300,10 +309,12 @@ ${entry.keyInteractiveElements.map((el) => `• ${el}`).join('\n')}
                       className={`px-1.5 py-0.5 rounded font-mono text-[9px] ${
                         entry.category === 'PROJECT'
                           ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                          : 'bg-indigo-400/20 text-indigo-300 border border-indigo-400/30'
+                          : entry.id.startsWith('BATCH_')
+                          ? 'bg-indigo-400/20 text-indigo-300 border border-indigo-400/30'
+                          : 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
                       }`}
                     >
-                      {entry.category}
+                      {entry.category === 'PROJECT' ? 'PROJECT' : entry.id.startsWith('BATCH_') ? 'BATCH' : 'ELEMENT'}
                     </span>
                   </div>
                   <span className="text-[10px] text-zinc-500 truncate text-left font-mono">

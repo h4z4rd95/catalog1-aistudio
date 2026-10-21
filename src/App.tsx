@@ -118,6 +118,10 @@ export default function App() {
   const [selectedBatchId, setSelectedBatchId] = useState<string>('BATCH_1');
   const [historyStack, setHistoryStack] = useState<PortalRoute[]>([]);
 
+  // Catalog Pagination state (Max 10 items per page to prevent browser lag)
+  const [catalogPage, setCatalogPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
+
   // Modals state
   const [showRoadmapModal, setShowRoadmapModal] = useState<boolean>(false);
   const [showSearchModal, setShowSearchModal] = useState<boolean>(false);
@@ -295,18 +299,23 @@ export default function App() {
   const prevBatchId = SHOWROOM_BATCHES[(currentBatchIdx - 1 + SHOWROOM_BATCHES.length) % SHOWROOM_BATCHES.length].id;
   const nextBatchId = SHOWROOM_BATCHES[(currentBatchIdx + 1) % SHOWROOM_BATCHES.length].id;
 
-  const showBatch1 = isSingleBatch ? selectedBatchId === 'BATCH_1' : (activeBatch === 'ALL' || activeBatch === 'BATCH_1');
-  const showBatch2 = isSingleBatch ? selectedBatchId === 'BATCH_2' : (activeBatch === 'ALL' || activeBatch === 'BATCH_2');
-  const showBatch3 = isSingleBatch ? selectedBatchId === 'BATCH_3' : (activeBatch === 'ALL' || activeBatch === 'BATCH_3');
-  const showBatch4 = isSingleBatch ? selectedBatchId === 'BATCH_4' : (activeBatch === 'ALL' || activeBatch === 'BATCH_4');
-  const showBatch5 = isSingleBatch ? selectedBatchId === 'BATCH_5' : (activeBatch === 'ALL' || activeBatch === 'BATCH_5');
-  const showBatch6 = isSingleBatch ? selectedBatchId === 'BATCH_6' : (activeBatch === 'ALL' || activeBatch === 'BATCH_6');
-  const showBatch7 = isSingleBatch ? selectedBatchId === 'BATCH_7' : (activeBatch === 'ALL' || activeBatch === 'BATCH_7');
-  const showBatch8 = isSingleBatch ? selectedBatchId === 'BATCH_8' : (activeBatch === 'ALL' || activeBatch === 'BATCH_8');
-  const showBatch9 = isSingleBatch ? selectedBatchId === 'BATCH_9' : (activeBatch === 'ALL' || activeBatch === 'BATCH_9');
-  const showBatch10 = isSingleBatch ? selectedBatchId === 'BATCH_10' : (activeBatch === 'ALL' || activeBatch === 'BATCH_10');
-  const showBatch11 = isSingleBatch ? selectedBatchId === 'BATCH_11' : (activeBatch === 'ALL' || activeBatch === 'BATCH_11');
-  const showBatch12 = isSingleBatch ? selectedBatchId === 'BATCH_12' : (activeBatch === 'ALL' || activeBatch === 'BATCH_12');
+  // In full CATALOG view, paginate 2 batches (approx 10 items) per page (6 pages total)
+  const isCatalog = currentRoute === 'CATALOG' && activeBatch === 'ALL';
+  const startBatchNum = (catalogPage - 1) * 2 + 1; // page 1 -> batch 1, 2; page 2 -> batch 3, 4, etc.
+  const endBatchNum = startBatchNum + 1;
+
+  const showBatch1 = isSingleBatch ? selectedBatchId === 'BATCH_1' : isCatalog ? (startBatchNum <= 1 && 1 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_1');
+  const showBatch2 = isSingleBatch ? selectedBatchId === 'BATCH_2' : isCatalog ? (startBatchNum <= 2 && 2 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_2');
+  const showBatch3 = isSingleBatch ? selectedBatchId === 'BATCH_3' : isCatalog ? (startBatchNum <= 3 && 3 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_3');
+  const showBatch4 = isSingleBatch ? selectedBatchId === 'BATCH_4' : isCatalog ? (startBatchNum <= 4 && 4 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_4');
+  const showBatch5 = isSingleBatch ? selectedBatchId === 'BATCH_5' : isCatalog ? (startBatchNum <= 5 && 5 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_5');
+  const showBatch6 = isSingleBatch ? selectedBatchId === 'BATCH_6' : isCatalog ? (startBatchNum <= 6 && 6 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_6');
+  const showBatch7 = isSingleBatch ? selectedBatchId === 'BATCH_7' : isCatalog ? (startBatchNum <= 7 && 7 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_7');
+  const showBatch8 = isSingleBatch ? selectedBatchId === 'BATCH_8' : isCatalog ? (startBatchNum <= 8 && 8 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_8');
+  const showBatch9 = isSingleBatch ? selectedBatchId === 'BATCH_9' : isCatalog ? (startBatchNum <= 9 && 9 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_9');
+  const showBatch10 = isSingleBatch ? selectedBatchId === 'BATCH_10' : isCatalog ? (startBatchNum <= 10 && 10 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_10');
+  const showBatch11 = isSingleBatch ? selectedBatchId === 'BATCH_11' : isCatalog ? (startBatchNum <= 11 && 11 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_11');
+  const showBatch12 = isSingleBatch ? selectedBatchId === 'BATCH_12' : isCatalog ? (startBatchNum <= 12 && 12 <= endBatchNum) : (activeBatch === 'ALL' || activeBatch === 'BATCH_12');
 
   return (
     <div className="relative min-h-screen bg-[#050609] text-zinc-100 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-400 selection:text-black">
@@ -1118,6 +1127,67 @@ export default function App() {
           </>
         )}
       </main>
+
+      {/* Catalog Pagination Controls (Max 10 Items Per View - Prevents Browser Lag) */}
+      {currentRoute === 'CATALOG' && activeBatch === 'ALL' && (
+        <section aria-label="Catalog Pagination" className="w-full bg-[#07090e] border-y border-white/10 py-8 px-6">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="font-mono text-xs text-zinc-300">
+                صفحه <strong className="text-cyan-400 font-bold">{catalogPage}</strong> از ۶ — حداکثر ۱۰ آیتم جهت روانی کامل مرورگر
+              </span>
+            </div>
+
+            {/* Pagination Button List */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <button
+                onClick={() => {
+                  soundFx.playClick(600);
+                  setCatalogPage((p) => Math.max(1, p - 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={catalogPage === 1}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-300 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>صفحه قبل</span>
+              </button>
+
+              {[1, 2, 3, 4, 5, 6].map((pNum) => (
+                <button
+                  key={pNum}
+                  onClick={() => {
+                    soundFx.playClick(650);
+                    setCatalogPage(pNum);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className={`w-9 h-9 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
+                    catalogPage === pNum
+                      ? 'bg-gradient-to-tr from-cyan-400 to-teal-300 text-black shadow-lg shadow-cyan-400/20 scale-105'
+                      : 'bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  {pNum}
+                </button>
+              ))}
+
+              <button
+                onClick={() => {
+                  soundFx.playClick(600);
+                  setCatalogPage((p) => Math.min(6, p + 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={catalogPage === 6}
+                className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-300 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1"
+              >
+                <span>صفحه بعد</span>
+                <ArrowLeft className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Catalog Footer & Vibe Coding Playbook Terminal */}
       <footer className="relative w-full border-t border-white/15 bg-[#030407] py-16 px-6 z-20">

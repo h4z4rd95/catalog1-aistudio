@@ -35,6 +35,7 @@ import {
   Eye,
   Info,
   ChevronRight,
+  ChevronLeft,
   Calculator,
   Table,
   BookOpen
@@ -60,6 +61,83 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
   const [announcementVisible, setAnnouncementVisible] = useState(true);
   const [cookieConsentDismissed, setCookieConsentDismissed] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ALL_ELEMENT_IDS = [
+    "module-calculator",
+    "module-datatable",
+    "module-forms",
+    "module-fluted-glass",
+    "element-01",
+    "element-02",
+    "element-03",
+    "element-04",
+    "element-05",
+    "element-06",
+    "element-07",
+    "element-08",
+    "element-09",
+    "element-10",
+    "element-11",
+    "element-12",
+    "element-13",
+    "element-14",
+    "element-15",
+    "element-16",
+    "element-17",
+    "element-18",
+    "element-19",
+    "element-20",
+    "element-21",
+    "element-22",
+  ];
+
+  const ELEMENT_CATEGORY_MAP: Record<string, ElementCategory> = {
+    "module-calculator": "PRICING_COMMERCE",
+    "module-datatable": "CONTENT_NAV",
+    "module-forms": "FORMS_LEADS",
+    "module-fluted-glass": "HERO_CTA",
+    "element-01": "HERO_CTA",
+    "element-02": "HERO_CTA",
+    "element-03": "PRICING_COMMERCE",
+    "element-04": "HERO_CTA",
+    "element-05": "SOCIAL_PROOF",
+    "element-06": "SOCIAL_PROOF",
+    "element-07": "SOCIAL_PROOF",
+    "element-08": "CONTENT_NAV",
+    "element-09": "FORMS_LEADS",
+    "element-10": "FORMS_LEADS",
+    "element-11": "SOCIAL_PROOF",
+    "element-12": "PRICING_COMMERCE",
+    "element-13": "CONTENT_NAV",
+    "element-14": "CONTENT_NAV",
+    "element-15": "CONTENT_NAV",
+    "element-16": "SOCIAL_PROOF",
+    "element-17": "CONTENT_NAV",
+    "element-18": "CONTENT_NAV",
+    "element-19": "CONTENT_NAV",
+    "element-20": "FORMS_LEADS",
+    "element-21": "PRICING_COMMERCE",
+    "element-22": "CONTENT_NAV",
+  };
+
+  const filteredIds = ALL_ELEMENT_IDS.filter(
+    (id) => activeCategory === "ALL" || ELEMENT_CATEGORY_MAP[id] === activeCategory
+  );
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredIds.length / ITEMS_PER_PAGE));
+  const validPage = Math.min(currentPage, totalPages);
+  const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
+  const visibleIds = new Set(filteredIds.slice(startIndex, startIndex + ITEMS_PER_PAGE));
+
+  const handleOpenPlaybook = (elementId: string) => {
+    soundFx.playChime(900, 0.2);
+    window.dispatchEvent(
+      new CustomEvent("open-ai-playbook", {
+        detail: { id: elementId },
+      })
+    );
+  };
 
   const isRtl = lang === 'fa';
 
@@ -194,6 +272,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
               onClick={() => {
                 soundFx.playClick(600);
                 setActiveCategory(cat.id as any);
+                setCurrentPage(1);
               }}
               className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all ${
                 activeCategory === cat.id
@@ -211,6 +290,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
         {/* ========================================================================= */}
         <div className="space-y-12">
           {/* 1. INTERACTIVE PROJECT CALCULATOR */}
+          {visibleIds.has("module-calculator") && (
           <section id="module-calculator" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2">
               <div className="flex items-center gap-2">
@@ -220,6 +300,14 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenPlaybook('module-calculator')}
+                  className="px-2.5 py-1.5 rounded-xl bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title={isRtl ? "دفترچه راهنمای هوش مصنوعی و پرامپت" : "AI Playbook & Prompt"}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? "دفترچه راهنما" : "AI Playbook"}</span>
+                </button>
                 <button
                   onClick={() => handleCopyCode('mod-calc', '<InteractiveProjectCalculator />')}
                   className="px-3 py-1.5 rounded-xl bg-[#17171D] hover:bg-white/10 text-zinc-300 flex items-center gap-1.5 text-xs font-mono transition-colors"
@@ -238,8 +326,10 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
             </div>
             <InteractiveProjectCalculator />
           </section>
+          )}
 
           {/* 2. ADVANCED RTL DATA TABLE */}
+          {visibleIds.has("module-datatable") && (
           <section id="module-datatable" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2">
               <div className="flex items-center gap-2">
@@ -249,6 +339,14 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenPlaybook('module-datatable')}
+                  className="px-2.5 py-1.5 rounded-xl bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title={isRtl ? "دفترچه راهنمای هوش مصنوعی و پرامپت" : "AI Playbook & Prompt"}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? "دفترچه راهنما" : "AI Playbook"}</span>
+                </button>
                 <button
                   onClick={() => handleCopyCode('mod-table', '<RtlDataTable />')}
                   className="px-3 py-1.5 rounded-xl bg-[#17171D] hover:bg-white/10 text-zinc-300 flex items-center gap-1.5 text-xs font-mono transition-colors"
@@ -267,8 +365,10 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
             </div>
             <RtlDataTable />
           </section>
+          )}
 
           {/* 3. 5 PERSIAN-FIRST FORMS */}
+          {visibleIds.has("module-forms") && (
           <section id="module-forms" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2">
               <div className="flex items-center gap-2">
@@ -278,6 +378,14 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenPlaybook('module-forms')}
+                  className="px-2.5 py-1.5 rounded-xl bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title={isRtl ? "دفترچه راهنمای هوش مصنوعی و پرامپت" : "AI Playbook & Prompt"}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? "دفترچه راهنما" : "AI Playbook"}</span>
+                </button>
                 <button
                   onClick={() => handleCopyCode('mod-forms', '<RtlForms />')}
                   className="px-3 py-1.5 rounded-xl bg-[#17171D] hover:bg-white/10 text-zinc-300 flex items-center gap-1.5 text-xs font-mono transition-colors"
@@ -296,8 +404,10 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
             </div>
             <RtlForms />
           </section>
+          )}
 
           {/* 4. REAL-TIME FLUTED GLASS SHADER CARD */}
+          {visibleIds.has("module-fluted-glass") && (
           <section id="module-fluted-glass" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3 px-2">
               <div className="flex items-center gap-2">
@@ -307,6 +417,14 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleOpenPlaybook('module-fluted-glass')}
+                  className="px-2.5 py-1.5 rounded-xl bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title={isRtl ? "دفترچه راهنمای هوش مصنوعی و پرامپت" : "AI Playbook & Prompt"}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? "دفترچه راهنما" : "AI Playbook"}</span>
+                </button>
                 <button
                   onClick={() => handleCopyCode('mod-glass', '<FlutedGlassCard>...</FlutedGlassCard>')}
                   className="px-3 py-1.5 rounded-xl bg-[#17171D] hover:bg-white/10 text-zinc-300 flex items-center gap-1.5 text-xs font-mono transition-colors"
@@ -343,6 +461,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
               </div>
             </FlutedGlassCard>
           </section>
+          )}
         </div>
 
         {/* ========================================================================= */}
@@ -353,10 +472,18 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 01: HERO SECTION & VALUE PROPOSITION                            */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'HERO_CTA') && (
+          {visibleIds.has("element-01") && (
             <section id="element-01" className="p-8 sm:p-12 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6 relative overflow-hidden">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">01 // HERO &amp; VALUE PROPOSITION</span>
+                <button
+                  onClick={() => handleOpenPlaybook('element-01')}
+                  className="px-2.5 py-1 rounded-lg bg-amber-400/10 text-amber-300 border border-amber-400/30 hover:bg-amber-400/20 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title={isRtl ? "دفترچه راهنمای هوش مصنوعی و پرامپت" : "AI Playbook & Prompt"}
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isRtl ? "دفترچه راهنما" : "AI Playbook"}</span>
+                </button>
                 <button
                   onClick={() => handleCopyCode('elem-01', '<HeroSection title="..." />')}
                   className="px-3 py-1 rounded-lg bg-[#17171D] hover:bg-white/10 text-zinc-300 flex items-center gap-1.5 transition-colors"
@@ -396,7 +523,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 02: FEATURES & BENEFITS GRID                                    */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'HERO_CTA') && (
+          {visibleIds.has("element-02") && (
             <section id="element-02" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">02 // FEATURES &amp; BENEFITS GRID</span>
@@ -449,7 +576,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 03: PRICING TABLE WITH BILLING TOGGLE                           */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'PRICING_COMMERCE') && (
+          {visibleIds.has("element-03") && (
             <section id="element-03" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-8">
               <div className="flex flex-wrap justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs gap-4">
                 <span className="text-cyan-400 font-bold">03 // INTERACTIVE PRICING TABLE &amp; TOGGLE</span>
@@ -562,7 +689,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 04: HIGH-CONVERTING CTA BANNER                                  */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'HERO_CTA') && (
+          {visibleIds.has("element-04") && (
             <section id="element-04" className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-violet-950/80 via-[#111116] to-cyan-950/80 border border-cyan-500/30 shadow-2xl relative overflow-hidden">
               <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-2 text-center md:text-start">
@@ -588,7 +715,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 05: CLIENT LOGO CLOUD & TRUST BADGES                            */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'SOCIAL_PROOF') && (
+          {visibleIds.has("element-05") && (
             <section id="element-05" className="p-8 rounded-3xl bg-[#111116] border border-[#202027] shadow-xl space-y-6 text-center">
               <span className="font-mono text-xs text-zinc-400 uppercase tracking-widest block font-bold">
                 {isRtl ? 'مورد اعتماد بیش از ۱۰۰ برند و سازمان شاخص کشور' : 'Trusted by Leading Forward-Thinking Teams Worldwide'}
@@ -606,7 +733,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 06: CUSTOMER TESTIMONIALS & RATING CARDS                        */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'SOCIAL_PROOF') && (
+          {visibleIds.has("element-06") && (
             <section id="element-06" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">06 // TESTIMONIALS &amp; VERIFIED REVIEWS</span>
@@ -657,7 +784,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 07: STATS & COUNTER METRICS                                     */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'SOCIAL_PROOF') && (
+          {visibleIds.has("element-07") && (
             <section id="element-07" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 07 // STATISTICS &amp; IMPACT METRICS
@@ -685,7 +812,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 08: FAQ ACCORDION                                               */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-08") && (
             <section id="element-08" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">08 // FAQ ACCORDION</span>
@@ -744,7 +871,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 09: MULTI-STEP INTERACTIVE CONTACT & LEAD FORM                  */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'FORMS_LEADS') && (
+          {visibleIds.has("element-09") && (
             <section id="element-09" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">09 // CONTACT &amp; LEAD FORM WITH VALIDATION</span>
@@ -817,7 +944,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 10: TEAM MEMBERS SHOWCASE                                       */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-10") && (
             <section id="element-10" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 10 // TEAM MEMBERS &amp; LEADERSHIP
@@ -845,7 +972,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 11: STEP-BY-STEP PROCESS / HOW IT WORKS                         */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'HERO_CTA') && (
+          {visibleIds.has("element-11") && (
             <section id="element-11" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 11 // HOW IT WORKS &bull; 3-STEP PROCESS TIMELINE
@@ -869,7 +996,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 12: PRODUCT DETAIL CARD WITH VARIANT PICKER                     */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'PRICING_COMMERCE') && (
+          {visibleIds.has("element-12") && (
             <section id="element-12" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <div className="flex justify-between items-center border-b border-[#202027] pb-4 font-mono text-xs">
                 <span className="text-cyan-400 font-bold">12 // E-COMMERCE PRODUCT CARD WITH COLOR SELECTOR</span>
@@ -947,7 +1074,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 14: TABBED CONTENT & CAPABILITY SWITCHER                        */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-14") && (
             <section id="element-14" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 14 // TABBED FEATURE SWITCHER
@@ -990,7 +1117,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 15: US VS COMPETITORS COMPARISON TABLE                          */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'SOCIAL_PROOF') && (
+          {visibleIds.has("element-15") && (
             <section id="element-15" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 15 // US VS. COMPETITORS MATRIX
@@ -1030,7 +1157,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 16: NEWSLETTER & LEAD MAGNET SUBSCRIPTION                        */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'FORMS_LEADS') && (
+          {visibleIds.has("element-16") && (
             <section id="element-16" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-4 text-center max-w-2xl mx-auto">
               <Mail className="w-8 h-8 text-cyan-400 mx-auto" />
               <h4 className="font-['Lalezar'] text-2xl text-white">
@@ -1058,7 +1185,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 17: CONTACT, MAP & OFFICE HOURS CARD                            */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-17") && (
             <section id="element-17" className="p-8 sm:p-10 rounded-3xl bg-[#111116] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 17 // LOCATION, CONTACT &amp; OFFICE HOURS
@@ -1090,7 +1217,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 18: CORPORATE MULTI-COLUMN FOOTER                               */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-18") && (
             <section id="element-18" className="p-8 sm:p-10 rounded-3xl bg-[#09090B] border border-[#202027] shadow-2xl space-y-6">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 18 // MULTI-COLUMN FOOTER WITH LEGAL LINKS
@@ -1156,7 +1283,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 20: SEARCH & FILTER BAR                                         */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'FORMS_LEADS') && (
+          {visibleIds.has("element-20") && (
             <section id="element-20" className="p-6 rounded-3xl bg-[#111116] border border-[#202027] space-y-4">
               <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest block font-bold">
                 20 // DYNAMIC LIVE SEARCH &amp; TAG FILTER BAR
@@ -1181,7 +1308,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 21: FLOATING LIVE CHAT & SUPPORT WIDGET                         */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'FORMS_LEADS') && (
+          {visibleIds.has("element-21") && (
             <section id="element-21" className="p-6 rounded-3xl bg-[#111116] border border-[#202027] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-cyan-400 text-black flex items-center justify-center font-bold">
@@ -1208,7 +1335,7 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
           {/* ----------------------------------------------------------------------- */}
           {/* ELEMENT 22: ACCESSIBILITY & TEXT SIZE SCALER BAR                        */}
           {/* ----------------------------------------------------------------------- */}
-          {(activeCategory === 'ALL' || activeCategory === 'CONTENT_NAV') && (
+          {visibleIds.has("element-22") && (
             <section id="element-22" className="p-6 rounded-3xl bg-[#111116] border border-[#202027] flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold">
@@ -1231,6 +1358,69 @@ export default function StudioEssentialElementsPage({ onBackToHome }: StudioEsse
             </section>
           )}
 
+        </div>
+
+        {/* Catalog Pagination Controls (Max 10 Items Per Page) */}
+        <div className="w-full bg-[#111116] border border-[#202027] rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs shadow-xl">
+          <div className="flex items-center gap-2 text-zinc-300">
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span>
+              {isRtl
+                ? `صفحه ${validPage} از ${totalPages} — حداکثر ۱۰ المان در هر صفحه جهت روانی و سرعت مرورگر`
+                : `Page ${validPage} of ${totalPages} — Max 10 items per page for ultra-fast browser loading`}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                soundFx.playClick(600);
+                setCurrentPage((p) => Math.max(1, p - 1));
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              disabled={validPage === 1}
+              className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-300 disabled:opacity-30 disabled:pointer-events-none hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+              <span>{isRtl ? "صفحه قبل" : "Prev"}</span>
+            </button>
+
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalPages }).map((_, i) => {
+                const pNum = i + 1;
+                return (
+                  <button
+                    key={pNum}
+                    onClick={() => {
+                      soundFx.playClick(650);
+                      setCurrentPage(pNum);
+                      window.scrollTo({ top: 400, behavior: "smooth" });
+                    }}
+                    className={`w-9 h-9 rounded-xl font-bold flex items-center justify-center transition-all cursor-pointer ${
+                      validPage === pNum
+                        ? "bg-cyan-400 text-black shadow-lg shadow-cyan-500/25 scale-105"
+                        : "bg-[#17171D] text-zinc-300 hover:bg-white/10 border border-white/10"
+                    }`}
+                  >
+                    {pNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => {
+                soundFx.playClick(600);
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
+                window.scrollTo({ top: 400, behavior: "smooth" });
+              }}
+              disabled={validPage === totalPages}
+              className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-zinc-300 disabled:opacity-30 disabled:pointer-events-none hover:bg-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <span>{isRtl ? "صفحه بعد" : "Next"}</span>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
