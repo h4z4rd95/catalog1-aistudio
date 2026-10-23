@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: catalog1-app
+    container_name: compose-override-multi-byte-system-k52tmy
     restart: unless-stopped
     expose:
       - "80"
